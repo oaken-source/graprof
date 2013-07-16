@@ -1,6 +1,7 @@
 
 #include "timeline.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 
 #include <grapes/util.h>
@@ -9,7 +10,7 @@ timeline_event *events = NULL;
 unsigned int nevents = 0;
 
 timeline_event* 
-timeline_push_event (unsigned int type, unsigned long time, unsigned long caller)
+timeline_push_event (unsigned int type, unsigned long long time, unsigned long caller)
 {
   ++nevents;
   events = realloc(events, sizeof(timeline_event) * nevents);
@@ -23,3 +24,17 @@ timeline_push_event (unsigned int type, unsigned long time, unsigned long caller
   return e;
 }
 
+static int
+timeline_compar (const void *p1, const void *p2)
+{
+  const timeline_event *e1 = p1;
+  const timeline_event *e2 = p2;
+
+  return e1->time - e2->time;
+}
+
+void
+timeline_sort ()
+{
+  qsort(events, nevents, sizeof(*events), timeline_compar);
+}

@@ -1,4 +1,4 @@
 
 #pragma once
 
-unsigned long highrestimer_get();
+unsigned long long highrestimer_get();

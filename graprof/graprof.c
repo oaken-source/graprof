@@ -1,6 +1,8 @@
 
 #include "graprof.h"
 
+#include "timeline.h"
+
 #include <grapes/feedback.h>
 
 #include <stdio.h>
@@ -19,6 +21,8 @@ main (int argc, char *argv[])
   
   int res = yylex(args.trace_filename);
   feedback_assert(!res, "%s", args.trace_filename);
+
+  timeline_sort();
 
   FILE *out = stdout;
   if (args.out_filename && (args.tasks & ~GRAPROF_NO_GUI))

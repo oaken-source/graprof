@@ -12,12 +12,16 @@ highrestimer_init ()
   clock_gettime(CLOCK_MONOTONIC_RAW, &highrestimer_ts);
 }
 
-unsigned long
+unsigned long long
 highrestimer_get ()
 {
   struct timespec tmp_ts;
 
   clock_gettime(CLOCK_MONOTONIC_RAW, &tmp_ts);
 
-  return (tmp_ts.tv_nsec - highrestimer_ts.tv_nsec) / 1000 + (tmp_ts.tv_sec - highrestimer_ts.tv_sec) * 1000000;
+  unsigned long long res = tmp_ts.tv_sec - highrestimer_ts.tv_sec;
+  res *= 1000000000;
+  res += tmp_ts.tv_nsec - highrestimer_ts.tv_nsec;
+
+  return res;
 }

@@ -10,7 +10,7 @@
 struct timeline_event
 {
   unsigned int type;
-  unsigned long time;
+  unsigned long long time;
   unsigned long caller;
 
   union
@@ -28,4 +28,6 @@ struct timeline_event
 
 typedef struct timeline_event timeline_event;
 
-timeline_event* timeline_push_event(unsigned int, unsigned long, unsigned long);
+timeline_event* timeline_push_event(unsigned int, unsigned long long, unsigned long);
+
+void timeline_sort();
