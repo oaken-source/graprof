@@ -1,0 +1,4 @@
+
+ - add a high resolution timer to the instrumentation - preferrably millisecond precision
+ - multithreaded applications?
+ - add memory tracing
