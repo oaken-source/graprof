@@ -1,4 +1,10 @@
 
- - add a high resolution timer to the instrumentation - preferrably millisecond precision
- - multithreaded applications?
- - add memory tracing
+ [ * ] add memory tracing
+ [ * ] add a high resolution timer to the instrumentation - preferrably millisecond precision
+ 
+ [   ] flat profile analysis
+ [   ] call graph analysis
+ [   ] flat memory profile analysis
+ [   ] trace visualization
+
+ [ ? ] profiling multithreaded applications
