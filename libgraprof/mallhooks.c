@@ -3,6 +3,7 @@
 
 #include "highrestimer.h"
 
+#include <inttypes.h>
 #include <stdio.h>
 #include <malloc.h>
 
@@ -16,6 +17,51 @@ static void *(*old_realloc_hook)(void*, size_t, const void*);
 
 static void mallhooks_free_hook(void*, const void*);
 static void (*old_free_hook)(void *, const void*);
+
+static void*
+mallhooks_malloc_hook (size_t size, const void *caller)
+{
+  void *result;
+
+  mallhooks_uninstall_hooks();
+
+  result = malloc(size);
+
+  fprintf(libgraprof_out, "+ %zu 0x%" PRIxPTR " 0x%" PRIxPTR " %llu\n", size, (uintptr_t)caller, (uintptr_t)result, highrestimer_get());
+
+  mallhooks_install_hooks();
+
+  return result;
+}
+
+static void*
+mallhooks_realloc_hook (void *ptr, size_t size, const void *caller)
+{
+  void *result;
+
+  mallhooks_uninstall_hooks();
+
+  result = realloc(ptr, size);
+
+  fprintf(libgraprof_out, "* 0x%" PRIxPTR " %zu 0x%" PRIxPTR " 0x%" PRIxPTR " %llu\n", (uintptr_t)ptr, size, (uintptr_t)caller, (uintptr_t)result, highrestimer_get());
+
+  mallhooks_install_hooks();
+
+  return result;
+}
+
+static void
+mallhooks_free_hook (void *ptr, const void *caller)
+{
+  mallhooks_uninstall_hooks();
+
+  free(ptr);
+ 
+  if (ptr)
+    fprintf(libgraprof_out, "- 0x%" PRIxPTR " 0x%" PRIxPTR " %llu\n", (uintptr_t)ptr, (uintptr_t)caller, highrestimer_get());
+
+  mallhooks_install_hooks();
+}
 
 void 
 mallhooks_install_hooks ()
@@ -37,47 +83,3 @@ void mallhooks_uninstall_hooks ()
   __free_hook = old_free_hook;
 }
 
-static void*
-mallhooks_malloc_hook (size_t size, const void *caller)
-{
-  void *result;
-
-  mallhooks_uninstall_hooks();
-
-  result = malloc(size);
-
-  fprintf(libgraprof_out, "+ %u 0x%lx 0x%lx %llu\n", (unsigned int)size, (unsigned long)caller, (unsigned long)result, highrestimer_get());
-
-  mallhooks_install_hooks();
-
-  return result;
-}
-
-static void*
-mallhooks_realloc_hook (void *ptr, size_t size, const void *caller)
-{
-  void *result;
-
-  mallhooks_uninstall_hooks();
-
-  result = realloc(ptr, size);
-
-  fprintf(libgraprof_out, "* 0x%lx %u 0x%lx 0x%lx %llu\n", (unsigned long)ptr, (unsigned int)size, (unsigned long)caller, (unsigned long)result, highrestimer_get());
-
-  mallhooks_install_hooks();
-
-  return result;
-}
-
-static void
-mallhooks_free_hook (void *ptr, const void *caller)
-{
-  mallhooks_uninstall_hooks();
-
-  free(ptr);
- 
-  if (ptr)
-    fprintf(libgraprof_out, "- 0x%lx 0x%lx %llu\n", (unsigned long)ptr, (unsigned long)caller, highrestimer_get());
-
-  mallhooks_install_hooks();
-}

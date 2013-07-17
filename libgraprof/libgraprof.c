@@ -6,22 +6,27 @@
 #include <stdlib.h>
 
 #include "mallhooks.h"
+#include "instrument.h"
 
-FILE *libgraprof_out;
+FILE *libgraprof_out = NULL;
 
 void 
 __attribute__ ((constructor))
-instrument_begin ()
+libgraprof_init ()
 {
   int errsv = errno;
 
-  libgraprof_out = NULL;
-  char *file = getenv("GRAPROF_OUT");
+  char *filename = getenv("GRAPROF_OUT");
 
-  if (file)
+  if (filename)
     {
-      libgraprof_out = fopen(file, "w");
+      libgraprof_out = fopen(filename, "w");
+    }
+
+  if (libgraprof_out)
+    {
       mallhooks_install_hooks();
+      instrument_install_hooks();
     }
 
   errno = errsv;
@@ -29,7 +34,7 @@ instrument_begin ()
 
 void
 __attribute__ ((destructor))
-instrument_end()
+libgraprof_fini()
 {
   int errsv = errno;
 

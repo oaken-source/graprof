@@ -5,28 +5,22 @@
 
 static struct timespec highrestimer_ts;
 
-static unsigned long long __highrestimer_get_first();
-static unsigned long long __highrestimer_get();
+static unsigned long long highrestimer_get_first();
+static unsigned long long highrestimer_get_impl();
 
-static unsigned long long (*_highrestimer_get)() = &__highrestimer_get_first;
-
-unsigned long long
-highrestimer_get ()
-{
-  return (*_highrestimer_get)();
-}
+static unsigned long long (*highrestimer_get_ptr)() = &highrestimer_get_first;
 
 static unsigned long long
-__highrestimer_get_first ()
+highrestimer_get_first ()
 {
   clock_gettime(CLOCK_MONOTONIC_RAW, &highrestimer_ts);
-  _highrestimer_get = &__highrestimer_get;
+  highrestimer_get_ptr = &highrestimer_get_impl;
   
   return 0;
 }
 
 static unsigned long long
-__highrestimer_get ()
+highrestimer_get_impl ()
 {
   struct timespec tmp_ts;
 
@@ -38,3 +32,10 @@ __highrestimer_get ()
 
   return res;
 }
+
+unsigned long long
+highrestimer_get ()
+{
+  return (*highrestimer_get_ptr)();
+}
+
