@@ -1,8 +1,4 @@
 
- [ * ] add memory tracing
- [ * ] add a high resolution timer to the instrumentation - preferrably millisecond precision
- [ * ] even higher resolution timer to the instrumentation
-
  [   ] adress 2 line translation
  [   ] flat profile analysis
  [   ] call graph analysis
