@@ -37,7 +37,7 @@ DEC             [0-9]+
 \n                                                      ++yylineno;
 
 .* {                                                     
-  feedback_warning("%s:%u: skipping unrecognized trace data near `%s'", filename, yylineno, yytext);
+  feedback_warning("%s:%u: invalid trace data near `%s'", filename, yylineno, yytext);
 }
 
 %%

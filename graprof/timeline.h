@@ -1,6 +1,9 @@
 
 #pragma once
 
+#include <inttypes.h>
+#include <stdlib.h>
+
 #define TIMELINE_EVENT_ENTER      0x01
 #define TIMELINE_EVENT_EXIT       0x02
 #define TIMELINE_EVENT_MALLOC     0x03
@@ -11,23 +14,23 @@ struct timeline_event
 {
   unsigned int type;
   unsigned long long time;
-  unsigned long caller;
+  uintptr_t caller;
 
   union
   {
-    unsigned long func;
+    uintptr_t func;
 
     struct
     {
-      unsigned long ptr;
-      unsigned int size;
-      unsigned long result;
+      uintptr_t ptr;
+      size_t size;
+      uintptr_t result;
     };
   };
 };
 
 typedef struct timeline_event timeline_event;
 
-timeline_event* timeline_push_event(unsigned int, unsigned long long, unsigned long);
+timeline_event* timeline_push_event(unsigned int, unsigned long long, uintptr_t);
 
 void timeline_sort();

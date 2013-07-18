@@ -10,11 +10,11 @@
 int 
 trace_enter (const char *line)
 {
-  unsigned long func;
-  unsigned long caller;
+  uintptr_t func;
+  uintptr_t caller;
   unsigned long long time;
 
-  int res = sscanf(line, "e 0x%lx 0x%lx %llu", &func, &caller, &time);
+  int res = sscanf(line, "e 0x%" SCNxPTR " 0x%" SCNxPTR " %llu", &func, &caller, &time);
   assert_inner(res == 3, "sscanf");
 
   timeline_event *e = timeline_push_event(TIMELINE_EVENT_ENTER, time, caller);
@@ -28,11 +28,11 @@ trace_enter (const char *line)
 int
 trace_exit (const char *line)
 {
-  unsigned long func;
-  unsigned long caller;
+  uintptr_t func;
+  uintptr_t caller;
   unsigned long long time;
 
-  unsigned int res = sscanf(line, "x 0x%lx 0x%lx %llu", &func, &caller, &time);
+  unsigned int res = sscanf(line, "x 0x%" SCNxPTR " 0x%" SCNxPTR " %llu", &func, &caller, &time);
   assert_inner(res == 3, "sscanf");
 
   timeline_event *e = timeline_push_event(TIMELINE_EVENT_EXIT, time, caller);
@@ -46,12 +46,12 @@ trace_exit (const char *line)
 int
 trace_malloc (const char *line)
 {
-  unsigned int size;
-  unsigned long caller;
-  unsigned long result;
+  size_t size;
+  uintptr_t caller;
+  uintptr_t result;
   unsigned long long time;
 
-  unsigned int res = sscanf(line, "+ %u 0x%lx 0x%lx %llu", &size, &caller, &result, &time);
+  unsigned int res = sscanf(line, "+ %zu 0x%" SCNxPTR " 0x%" SCNxPTR " %llu", &size, &caller, &result, &time);
   assert_inner(res == 4, "sscanf");
 
   timeline_event *e = timeline_push_event(TIMELINE_EVENT_MALLOC, time, caller);
@@ -66,13 +66,13 @@ trace_malloc (const char *line)
 int
 trace_realloc (const char *line)
 {
-  unsigned long ptr;
-  unsigned int size;
-  unsigned long caller;
-  unsigned long result;
+  uintptr_t ptr;
+  size_t size;
+  uintptr_t caller;
+  uintptr_t result;
   unsigned long long time;
 
-  unsigned int res = sscanf(line, "* 0x%lx %u 0x%lx 0x%lx %llu", &ptr, &size, &caller, &result, &time);
+  unsigned int res = sscanf(line, "* 0x%" SCNxPTR " %zu 0x%" SCNxPTR " 0x%" SCNxPTR " %llu", &ptr, &size, &caller, &result, &time);
   assert_inner(res == 5, "sscanf");
 
   timeline_event *e = timeline_push_event(TIMELINE_EVENT_REALLOC, time, caller);
@@ -88,11 +88,11 @@ trace_realloc (const char *line)
 int
 trace_free (const char *line)
 {
-  unsigned long ptr;
-  unsigned long caller;
+  uintptr_t ptr;
+  uintptr_t caller;
   unsigned long long time;
 
-  unsigned int res = sscanf(line, "- 0x%lx 0x%lx %llu", &ptr, &caller, &time);
+  unsigned int res = sscanf(line, "- 0x%" SCNxPTR " 0x%" SCNxPTR " %llu", &ptr, &caller, &time);
   assert_inner(res == 3, "sscanf");
 
   timeline_event *e = timeline_push_event(TIMELINE_EVENT_FREE, time, caller);

@@ -10,10 +10,10 @@ timeline_event *events = NULL;
 unsigned int nevents = 0;
 
 timeline_event* 
-timeline_push_event (unsigned int type, unsigned long long time, unsigned long caller)
+timeline_push_event (unsigned int type, unsigned long long time, uintptr_t caller)
 {
   ++nevents;
-  events = realloc(events, sizeof(timeline_event) * nevents);
+  events = realloc(events, sizeof(*events) * nevents);
   assert_inner_ptr(events, "realloc");
 
   timeline_event *e = events + nevents - 1;

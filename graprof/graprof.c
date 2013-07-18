@@ -2,6 +2,7 @@
 #include "graprof.h"
 
 #include "timeline.h"
+#include "addr.h"
 
 #include <grapes/feedback.h>
 
@@ -9,6 +10,8 @@
 
 extern FILE *yyin;
 extern int yylex(const char *filename);
+
+FILE *graprof_out;
 
 int 
 main (int argc, char *argv[])
@@ -21,14 +24,31 @@ main (int argc, char *argv[])
   
   int res = yylex(args.trace_filename);
   feedback_assert(!res, "%s", args.trace_filename);
+ 
+  if (args.binary_filename)
+    {
+      int res = addr_init(args.binary_filename);
+      if (res)
+        {
+          if (errno == ENOTSUP)
+            {
+              errno = 0;
+              feedback_warning("%s: file format not supported or no debug symbols found", args.binary_filename);
+            }
+          else
+            {
+              feedback_warning("%s", args.binary_filename);
+            }
+        }
+    }
 
   timeline_sort();
 
-  FILE *out = stdout;
+  graprof_out = stdout;
   if (args.out_filename && (args.tasks & ~GRAPROF_NO_GUI))
     {
-      out = fopen(args.out_filename, "w");
-      feedback_assert(out, "%s", args.out_filename);
+      graprof_out = fopen(args.out_filename, "w");
+      feedback_assert(graprof_out, "%s", args.out_filename);
     }
 
   if (args.tasks & GRAPROF_FLAT_PROFILE)
@@ -49,8 +69,8 @@ main (int argc, char *argv[])
       feedback_assert_wrn(0, "--memory-profile");
     }
 
-  if (out == stdout)
-    fclose(out);
+  if (graprof_out != stdout)
+    fclose(graprof_out);
 
   if (!(args.tasks & GRAPROF_NO_GUI))
     {
