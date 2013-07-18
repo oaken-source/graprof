@@ -4,7 +4,6 @@
  [   ] call graph analysis
  [   ] flat memory profile analysis
  [   ] trace visualization
- [   ] use proper datatypes in analysis tool (assume non-portable traces - should be safe.)
 
  [ ? ] why is there an offset for the caller address
  [ ? ] profiling multithreaded applications
