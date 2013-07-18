@@ -24,6 +24,12 @@ timeline_push_event (unsigned int type, unsigned long long time, uintptr_t calle
   return e;
 }
 
+timeline_event*
+timeline_head ()
+{
+  return events;
+}
+
 static int
 timeline_compar (const void *p1, const void *p2)
 {

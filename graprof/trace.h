@@ -10,3 +10,5 @@ int trace_malloc(const char*);
 int trace_realloc(const char*);
 
 int trace_free(const char*);
+
+int trace_end(const char*);

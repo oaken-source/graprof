@@ -5,6 +5,7 @@
 #include <errno.h>
 #include <stdlib.h>
 
+#include "highrestimer.h"
 #include "mallhooks.h"
 #include "instrument.h"
 
@@ -38,10 +39,12 @@ libgraprof_fini()
 {
   int errsv = errno;
 
-  mallhooks_uninstall_hooks();
-
   if (libgraprof_out)
+  {
+    mallhooks_uninstall_hooks();
+    fprintf(libgraprof_out, "END %llu\n", highrestimer_get());
     fclose(libgraprof_out);
+  }
 
   errno = errsv;
 }

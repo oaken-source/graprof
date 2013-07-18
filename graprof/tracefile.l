@@ -13,6 +13,7 @@ EXIT            x
 MALLOC          \+
 REALLOC         \*
 FREE            \-
+END             END
 
 HEX             0x[0-9a-fA-F]+
 DEC             [0-9]+
@@ -31,6 +32,9 @@ DEC             [0-9]+
                                                           assert_inner(!res, "trace_realloc"); }
 {FREE}\ {HEX}\ {HEX}\ {DEC}                             { int res = trace_free(yytext);
                                                           assert_inner(!res, "trace_free"); }
+{END}\ {DEC}                                            { int res = trace_end(yytext);
+                                                          assert_inner(!res, "trace_end");
+							  return 0; }
 
 [ \t]+
 

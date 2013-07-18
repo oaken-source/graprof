@@ -102,3 +102,19 @@ trace_free (const char *line)
 
   return 0;
 }
+
+int
+trace_end (const char *line)
+{
+  unsigned long long time;
+
+  unsigned int res = sscanf(line, "END %llu", &time);
+  assert_inner(res == 1, "sscanf");
+
+  timeline_event *e = timeline_push_event(TIMELINE_EVENT_END, time, 0);
+  assert_inner(e, "timeline_push_event");
+
+  timeline_sort();
+
+  return 0;
+}

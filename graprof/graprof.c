@@ -42,7 +42,9 @@ main (int argc, char *argv[])
         }
     }
 
-  timeline_sort();
+  timeline_event *e = timeline_head();
+
+  printf("0x%" PRIxPTR " : %s\n", e->func, addr_translate(e->func));
 
   graprof_out = stdout;
   if (args.out_filename && (args.tasks & ~GRAPROF_NO_GUI))
