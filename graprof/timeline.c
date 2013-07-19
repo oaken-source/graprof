@@ -6,8 +6,10 @@
 
 #include <grapes/util.h>
 
-timeline_event *events = NULL;
-unsigned int nevents = 0;
+static timeline_event *events = NULL;
+static unsigned int nevents = 0;
+
+static unsigned long long timeline_total_runtime = 0;
 
 timeline_event* 
 timeline_push_event (unsigned int type, unsigned long long time, uintptr_t caller)
@@ -40,7 +42,15 @@ timeline_compar (const void *p1, const void *p2)
 }
 
 void
-timeline_sort ()
+timeline_finalize ()
 {
   qsort(events, nevents, sizeof(*events), timeline_compar);
+
+  timeline_total_runtime = events[nevents - 1].time;
+}
+
+unsigned long long 
+timeline_get_total_runtime ()
+{
+  return timeline_total_runtime;
 }

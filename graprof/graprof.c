@@ -1,8 +1,8 @@
 
 #include "graprof.h"
 
-#include "timeline.h"
 #include "addr.h"
+#include "profileout.h"
 
 #include <grapes/feedback.h>
 
@@ -19,12 +19,6 @@ main (int argc, char *argv[])
   struct arguments args = { 0, 0, 0, 0 };
   argp_parse (&argp, argc, argv, 0, 0, &args);
 
-  yyin = fopen(args.trace_filename, "r");
-  feedback_assert(yyin, "%s", args.trace_filename);
-  
-  int res = yylex(args.trace_filename);
-  feedback_assert(!res, "%s", args.trace_filename);
- 
   if (args.binary_filename)
     {
       int res = addr_init(args.binary_filename);
@@ -41,15 +35,12 @@ main (int argc, char *argv[])
             }
         }
     }
-
-  timeline_event *e = timeline_head();
-
-  char *function;
-  char *file;
-  unsigned int line;
-  res = addr_translate(e->func, &function, &file, &line);
-
-  printf("0x%" PRIxPTR " : %s\n%s:%u\n", e->func, function, file, line);
+  
+  yyin = fopen(args.trace_filename, "r");
+  feedback_assert(yyin, "%s", args.trace_filename);
+  
+  int res = yylex(args.trace_filename);
+  feedback_assert(!res, "%s", args.trace_filename);
 
   graprof_out = stdout;
   if (args.out_filename && (args.tasks & ~GRAPROF_NO_GUI))
@@ -59,10 +50,7 @@ main (int argc, char *argv[])
     }
 
   if (args.tasks & GRAPROF_FLAT_PROFILE)
-    {
-      errno = ENOSYS;
-      feedback_assert_wrn(0, "--flat-profile");
-    }
+      profileout_flat_profile();
 
   if (args.tasks & GRAPROF_CALL_TREE)
     {

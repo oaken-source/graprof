@@ -36,4 +36,6 @@ timeline_event* timeline_push_event(unsigned int, unsigned long long, uintptr_t)
 
 timeline_event* timeline_head();
 
-void timeline_sort();
+void timeline_finalize();
+
+unsigned long long timeline_get_total_runtime();

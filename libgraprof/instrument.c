@@ -21,7 +21,7 @@ static void
 __cyg_profile_func_enter_impl (void *func, void *caller)
 {
   mallhooks_uninstall_hooks();
-  fprintf(libgraprof_out, "e 0x%" PRIxPTR " 0x%" PRIxPTR " %llu\n", (uintptr_t)func, (uintptr_t)caller, highrestimer_get());
+  fprintf(libgraprof_out, "e 0x%" PRIxPTR " 0x%" PRIxPTR " %llu\n", (uintptr_t)func, (uintptr_t)caller - 4, highrestimer_get());
   mallhooks_install_hooks();
 }
 
@@ -29,7 +29,7 @@ static void
 __cyg_profile_func_exit_impl (void *func, void *caller)
 {
   mallhooks_uninstall_hooks();
-  fprintf(libgraprof_out, "x 0x%" PRIxPTR " 0x%" PRIxPTR " %llu\n", (uintptr_t)func, (uintptr_t)caller, highrestimer_get());
+  fprintf(libgraprof_out, "x 0x%" PRIxPTR " 0x%" PRIxPTR " %llu\n", (uintptr_t)func, (uintptr_t)caller - 4, highrestimer_get());
   mallhooks_install_hooks();
 }
 
