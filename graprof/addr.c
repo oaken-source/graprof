@@ -49,9 +49,6 @@ static unsigned int addr_line;
 static unsigned int addr_discriminator;
 static int addr_found;
 
-/* Look for an address in a section.  This is called via
-   bfd_map_over_sections.  */
-
 static void
 addr_find_in_section (bfd *abfd, asection *section, void *data __attribute__ ((unused)))
 {

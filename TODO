@@ -4,6 +4,8 @@
  [   ] flat memory profile analysis
  [   ] trace visualization
 
+ [ ! ] dcument and comment
+
  [ ? ] Why does addr2line do some black magic on elf addresses
  [ ? ] why is there an offset for the caller address
  [ ? ] profiling multithreaded applications
