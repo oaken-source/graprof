@@ -44,7 +44,13 @@ main (int argc, char *argv[])
 
   timeline_event *e = timeline_head();
 
-  printf("0x%" PRIxPTR " : %s\n", e->func, addr_translate(e->func));
+  char *function;
+  char *file;
+  unsigned int line;
+  res = addr_translate(e->func, &function, &file, &line);
+
+  printf("0x%" PRIxPTR " : %s\n%s:%u", e->func, function, file, line);
+  fflush(stdout);
 
   graprof_out = stdout;
   if (args.out_filename && (args.tasks & ~GRAPROF_NO_GUI))

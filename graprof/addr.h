@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include <stdint.h>
+
 int addr_init(const char*);
 
-const char *addr_translate(unsigned long);
+int addr_translate(uintptr_t, char**, char**, unsigned int*);
