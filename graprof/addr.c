@@ -96,41 +96,26 @@ addr_init (const char *filename)
 int 
 addr_translate (uintptr_t pc, char **function, char **file, unsigned int *line)
 {
-  if (bfd_get_flavour(addr_bfd) == bfd_target_elf_flavour)
-    {
-      // TODO: understand
-    }
-
   addr_pc = pc;
   addr_found = 0;
   bfd_map_over_sections(addr_bfd, addr_find_in_section, NULL);
 
   if (function)
-    *function = NULL;
-  if (file)
-    *file = NULL;
-  if (line)
-    *line = 0;
-
-  if (addr_found)
     {
-      if (function)
-        {
-          *function = strdup(addr_functionname);
-          assert_inner(*function, "strdup");
-        }
-
-      if (file)
-        {
-          *file = strdup(addr_filename);
-          assert_inner(*file, "strdup");
-        }
-
-      if (line)
-        *line = addr_line;
+      *function = strdup(addr_found ? addr_functionname : "??");
+      assert_inner(*function, "strdup");
     }
+
+  if (file)
+    {
+      *file = strdup(addr_found ? addr_filename : "??");
+      assert_inner(*file, "strdup");
+    }
+
+  if (line)
+    *line = (addr_found ? addr_line : 0);
     
-  return addr_found;
+  return 0;
 }
 
 void

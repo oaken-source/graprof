@@ -7,4 +7,4 @@
  [ ? ] Why does addr2line do some black magic on elf addresses
  [ ? ] why is there an offset for the caller address
  [ ? ] profiling multithreaded applications
- [ ? ] interpolation for events that do not have distinguishable times (should not happen)
+ [ ? ] interpolation for events that do not have distinguishable times (should not happen until 2080)

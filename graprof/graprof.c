@@ -49,8 +49,7 @@ main (int argc, char *argv[])
   unsigned int line;
   res = addr_translate(e->func, &function, &file, &line);
 
-  printf("0x%" PRIxPTR " : %s\n%s:%u", e->func, function, file, line);
-  fflush(stdout);
+  printf("0x%" PRIxPTR " : %s\n%s:%u\n", e->func, function, file, line);
 
   graprof_out = stdout;
   if (args.out_filename && (args.tasks & ~GRAPROF_NO_GUI))
