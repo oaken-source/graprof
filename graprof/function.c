@@ -5,6 +5,7 @@
 
 #include <stdlib.h>
 #include <inttypes.h>
+#include <string.h>
 
 #include <grapes/util.h>
 #include <grapes/feedback.h>
@@ -38,6 +39,8 @@ function_push (uintptr_t address)
   f->line = 0;
  
   addr_translate(f->address, &(f->name), &(f->file), &(f->line));
+
+  feedback_assert_wrn(strcmp(f->name, "??"), "unable to identify instrumented function at 0x%" PRIxPTR " - missing debug symbols?", address);
 
   f->self_time = 0;
   f->cumulative_time = 0;

@@ -35,7 +35,7 @@ addr_read_symbol_table ()
   if (dynamic)
     symcount = bfd_canonicalize_dynamic_symtab(addr_bfd, addr_syms);
   else
-    symcount = bfd_canonicalize_symtab (addr_bfd, addr_syms);
+    symcount = bfd_canonicalize_symtab(addr_bfd, addr_syms);
 
   assert_set_errno(symcount > 0, ENOTSUP, "bfd_canonicalize_symtab");
 
@@ -98,7 +98,9 @@ addr_translate (uintptr_t pc, char **function, char **file, unsigned int *line)
 {
   addr_pc = pc;
   addr_found = 0;
-  bfd_map_over_sections(addr_bfd, addr_find_in_section, NULL);
+
+  if (addr_bfd)
+    bfd_map_over_sections(addr_bfd, addr_find_in_section, NULL);
 
   if (function)
     {
