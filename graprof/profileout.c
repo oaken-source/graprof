@@ -88,5 +88,26 @@ profileout_flat_profile ()
     fprintf(graprof_out, "\n");
   }
 
+  fprintf(graprof_out, "\n");
+  fprintf(graprof_out, "  %%         the percentage of the total running time of the\n"); 
+  fprintf(graprof_out, " time       program spent below this function in the call tree\n");
+  fprintf(graprof_out, "\n");
+  fprintf(graprof_out, " cumulative the absolute total running time of the program\n");
+  fprintf(graprof_out, "     time   spent below this function in the call tree\n");
+  fprintf(graprof_out, "\n");
+  fprintf(graprof_out, " self       the absolute total running time spent in this\n");
+  fprintf(graprof_out, "  time      function alone\n");
+  fprintf(graprof_out, "\n");
+  fprintf(graprof_out, " calls      the number of times this function was invoked\n");
+  fprintf(graprof_out, "\n");
+  fprintf(graprof_out, " self       the average running time spent in this function\n");
+  fprintf(graprof_out, " /call      per call\n");
+  fprintf(graprof_out, "\n");
+  fprintf(graprof_out, " total      the average running time spent below this function\n");
+  fprintf(graprof_out, "  /call     in the call tree per call\n");
+  fprintf(graprof_out, "\n");
+  fprintf(graprof_out, " name       the name of the function, if available, else its\n");
+  fprintf(graprof_out, "            address\n");
+
   return 0;
 }

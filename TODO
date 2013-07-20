@@ -3,6 +3,10 @@
  [   ] flat memory profile analysis
  [   ] trace visualization
 
+ [   ] start ChangeLog
+ [   ] add License header start ChangeLog
+ [   ] add License headerss
+
  [ ! ] document and comment
 
  [ ? ] Why does addr2line do some black magic on elf addresses
