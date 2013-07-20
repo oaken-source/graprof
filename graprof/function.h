@@ -17,14 +17,12 @@ struct function
 
 typedef struct function function;
 
-int function_enter(uintptr_t, unsigned long long);
+int function_enter(uintptr_t, uintptr_t, unsigned long long);
 
 int function_exit(uintptr_t, unsigned long long);
 
 int function_exit_all(unsigned long long);
 
 function* function_get_by_address(uintptr_t);
-
-function* function_get_by_nearest_address(uintptr_t);
 
 function* function_get_all(unsigned int*);

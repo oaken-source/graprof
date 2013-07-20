@@ -23,7 +23,7 @@ trace_enter (const char *line)
 
   e->func = func;
 
-  res = function_enter(func, time);
+  res = function_enter(func, caller, time);
   assert_inner(!res, "function_enter");
 
   return 0;
