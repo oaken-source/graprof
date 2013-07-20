@@ -32,20 +32,9 @@ timeline_head ()
   return events;
 }
 
-static int
-timeline_compar (const void *p1, const void *p2)
-{
-  const timeline_event *e1 = p1;
-  const timeline_event *e2 = p2;
-
-  return e1->time - e2->time;
-}
-
 void
 timeline_finalize ()
 {
-  qsort(events, nevents, sizeof(*events), timeline_compar);
-
   timeline_total_runtime = events[nevents - 1].time;
 }
 
