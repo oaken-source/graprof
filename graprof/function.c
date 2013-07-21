@@ -88,6 +88,8 @@ function_aggregate_recursive (tree_entry *t)
     {
       unsigned long long children_self_time = function_aggregate_recursive_for_id(t, t->function_id);
 
+      //printf("I am %s [0x%" PRIxPTR "] %llu-%llu (%llu, %llu)\n", functions[t->function_id].name, functions[t->function_id].address, t->entry_time, t->exit_time, children_time, children_self_time);
+
       functions[t->function_id].self_time += t->exit_time - t->entry_time - children_time;
       functions[t->function_id].cumulative_time += t->exit_time - t->entry_time - children_self_time;
     }

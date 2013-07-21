@@ -4,8 +4,8 @@
  [   ] trace visualization
 
  [   ] start ChangeLog
- [   ] add License header start ChangeLog
- [   ] add License headerss
+ [   ] add License headers
+ [   ] manpage
 
  [ ! ] document and comment
 
@@ -13,3 +13,4 @@
  [ ? ] why is there an offset for the caller address
  [ ? ] profiling multithreaded applications
  [ ? ] interpolation for events that do not have distinguishable times (should not happen until 2080)
+ [ ? ] the instrumentation time of functions are accounted as self time of their parents - sums up for functions with many children calls. can we avoid that somehow?
