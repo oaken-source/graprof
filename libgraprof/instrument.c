@@ -22,6 +22,8 @@ static void (*__cyg_profile_func_exit_ptr)(void*, void*) = &instrument_nop;
 static void
 __cyg_profile_func_enter_impl (void *func, void *caller)
 {
+  unsigned long long time = highrestimer_get();
+
   mallhooks_uninstall_hooks();
 
   unsigned long index = libgraprof_bufsize;
@@ -33,7 +35,7 @@ __cyg_profile_func_enter_impl (void *func, void *caller)
   index += sizeof(uintptr_t);
   *((uintptr_t*)(libgraprof_buf + index)) = (uintptr_t)(caller - 4);
   index += sizeof(uintptr_t);
-  *((unsigned long long*)(libgraprof_buf + index)) = highrestimer_get();
+  *((unsigned long long*)(libgraprof_buf + index)) = time;
 
   // fprintf(libgraprof_out, "e 0x%" PRIxPTR " 0x%" PRIxPTR " %llu\n", (uintptr_t)func, (uintptr_t)caller - 4, highrestimer_get());
 
@@ -50,11 +52,12 @@ __cyg_profile_func_exit_impl (void *func __attribute__ ((unused)), void *caller 
   libgraprof_buf = realloc(libgraprof_buf, libgraprof_bufsize);
   *((char*)(libgraprof_buf + index)) = 'x';
   index += sizeof(char);
-  *((unsigned long long*)(libgraprof_buf + index)) = highrestimer_get();
   
   // fprintf(libgraprof_out, "x 0x%" PRIxPTR " 0x%" PRIxPTR " %llu\n", (uintptr_t)func, (uintptr_t)caller - 4, highrestimer_get());
 
   mallhooks_install_hooks();
+  
+  *((unsigned long long*)(libgraprof_buf + index)) = highrestimer_get();
 }
 
 static void
