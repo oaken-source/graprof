@@ -3,13 +3,11 @@
 
 #include "mallhooks.h"
 #include "highrestimer.h"
+#include "buffer.h"
 
-#include <inttypes.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-extern void *libgraprof_buf;
-extern unsigned long libgraprof_bufsize;
 
 static void __cyg_profile_func_enter_impl(void *, void*);
 static void __cyg_profile_func_exit_impl(void*, void*);
@@ -26,18 +24,11 @@ __cyg_profile_func_enter_impl (void *func, void *caller)
 
   mallhooks_uninstall_hooks();
 
-  unsigned long index = libgraprof_bufsize;
-  libgraprof_bufsize += sizeof(char) + 2 * sizeof(uintptr_t) + sizeof(unsigned long long);
-  libgraprof_buf = realloc(libgraprof_buf, libgraprof_bufsize);
-  *((char*)(libgraprof_buf + index)) = 'e';
-  index += sizeof(char);
-  *((uintptr_t*)(libgraprof_buf + index)) = (uintptr_t)func;
-  index += sizeof(uintptr_t);
-  *((uintptr_t*)(libgraprof_buf + index)) = (uintptr_t)(caller - 4);
-  index += sizeof(uintptr_t);
-  *((unsigned long long*)(libgraprof_buf + index)) = time;
-
-  // fprintf(libgraprof_out, "e 0x%" PRIxPTR " 0x%" PRIxPTR " %llu\n", (uintptr_t)func, (uintptr_t)caller - 4, highrestimer_get());
+  buffer_enlarge(sizeof(char) + 2 * sizeof(uintptr_t) + sizeof(unsigned long long));
+  buffer_append(char, 'e');
+  buffer_append(uintptr_t, (uintptr_t)func);
+  buffer_append(uintptr_t, (uintptr_t)(caller - 4));
+  buffer_append(unsigned long long, time);
 
   mallhooks_install_hooks();
 }
@@ -47,17 +38,12 @@ __cyg_profile_func_exit_impl (void *func __attribute__ ((unused)), void *caller 
 {
   mallhooks_uninstall_hooks();
 
-  unsigned long index = libgraprof_bufsize;
-  libgraprof_bufsize += sizeof(char) + sizeof(unsigned long long);
-  libgraprof_buf = realloc(libgraprof_buf, libgraprof_bufsize);
-  *((char*)(libgraprof_buf + index)) = 'x';
-  index += sizeof(char);
-  
-  // fprintf(libgraprof_out, "x 0x%" PRIxPTR " 0x%" PRIxPTR " %llu\n", (uintptr_t)func, (uintptr_t)caller - 4, highrestimer_get());
+  buffer_enlarge(sizeof(char) + sizeof(unsigned long long));
+  buffer_append(char, 'x');
 
   mallhooks_install_hooks();
-  
-  *((unsigned long long*)(libgraprof_buf + index)) = highrestimer_get();
+ 
+  buffer_append(unsigned long long, highrestimer_get());
 }
 
 static void

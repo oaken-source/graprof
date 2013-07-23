@@ -2,12 +2,11 @@
 #include "mallhooks.h"
 
 #include "highrestimer.h"
+#include "buffer.h"
 
-#include <inttypes.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <malloc.h>
-
-extern FILE *libgraprof_out;
 
 static void *mallhooks_malloc_hook(size_t, const void*);
 static void *(*old_malloc_hook)(size_t, const void*);
@@ -27,7 +26,12 @@ mallhooks_malloc_hook (size_t size, const void *caller)
 
   result = malloc(size);
 
-  fprintf(libgraprof_out, "+ %zu 0x%" PRIxPTR " 0x%" PRIxPTR " %llu\n", size, (uintptr_t)caller, (uintptr_t)result, highrestimer_get());
+  buffer_enlarge(sizeof(char) + sizeof(size_t) + 2 * sizeof(uintptr_t) + sizeof(unsigned long long));
+  buffer_append(char, '+');
+  buffer_append(size_t, size);
+  buffer_append(uintptr_t, (uintptr_t)caller);
+  buffer_append(uintptr_t, (uintptr_t)result);
+  buffer_append(unsigned long long, highrestimer_get());
 
   mallhooks_install_hooks();
 
@@ -43,7 +47,13 @@ mallhooks_realloc_hook (void *ptr, size_t size, const void *caller)
 
   result = realloc(ptr, size);
 
-  fprintf(libgraprof_out, "* 0x%" PRIxPTR " %zu 0x%" PRIxPTR " 0x%" PRIxPTR " %llu\n", (uintptr_t)ptr, size, (uintptr_t)caller, (uintptr_t)result, highrestimer_get());
+  buffer_enlarge(sizeof(char) + sizeof(size_t) + 3 * sizeof(uintptr_t) + sizeof(unsigned long long));
+  buffer_append(char, '*');
+  buffer_append(uintptr_t, (uintptr_t)ptr);
+  buffer_append(size_t, size);
+  buffer_append(uintptr_t, (uintptr_t)caller);
+  buffer_append(uintptr_t, (uintptr_t)result);
+  buffer_append(unsigned long long, highrestimer_get());
 
   mallhooks_install_hooks();
 
@@ -58,7 +68,13 @@ mallhooks_free_hook (void *ptr, const void *caller)
   free(ptr);
  
   if (ptr)
-    fprintf(libgraprof_out, "- 0x%" PRIxPTR " 0x%" PRIxPTR " %llu\n", (uintptr_t)ptr, (uintptr_t)caller, highrestimer_get());
+    {
+      buffer_enlarge(sizeof(char) + 2 * sizeof(uintptr_t) + sizeof(unsigned long long));
+      buffer_append(char, '-');
+      buffer_append(uintptr_t, (uintptr_t)ptr);
+      buffer_append(uintptr_t, (uintptr_t)caller);
+      buffer_append(unsigned long long, highrestimer_get());
+    }
 
   mallhooks_install_hooks();
 }

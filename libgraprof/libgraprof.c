@@ -8,9 +8,9 @@
 #include "highrestimer.h"
 #include "mallhooks.h"
 #include "instrument.h"
+#include "buffer.h"
 
 FILE *libgraprof_out = NULL;
-
 void *libgraprof_buf = NULL;
 unsigned long libgraprof_bufsize = 0;
 
@@ -46,14 +46,9 @@ libgraprof_fini()
   {
     mallhooks_uninstall_hooks();
 
-    //fprintf(libgraprof_out, "END %llu\n", highrestimer_get());
-    
-    unsigned long index = libgraprof_bufsize;
-    libgraprof_bufsize += sizeof(char) + sizeof(unsigned long long);
-    libgraprof_buf = realloc(libgraprof_buf, libgraprof_bufsize);
-    *((char*)(libgraprof_buf + index)) = 'E';
-    index += sizeof(char);
-    *((unsigned long long*)(libgraprof_buf + index)) = highrestimer_get();
+    buffer_enlarge(sizeof(char) + sizeof(unsigned long long));
+    buffer_append(char, 'E');
+    buffer_append(unsigned long long, highrestimer_get());
 
     fwrite(&libgraprof_bufsize, sizeof(unsigned long), 1, libgraprof_out);
 

@@ -19,7 +19,7 @@ typedef struct function function;
 
 int function_enter(uintptr_t, uintptr_t, unsigned long long);
 
-int function_exit(uintptr_t, unsigned long long);
+int function_exit(unsigned long long);
 
 int function_exit_all(unsigned long long);
 

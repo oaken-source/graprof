@@ -1,37 +1,30 @@
 
 #include "trace.h"
 
-//#include "timeline.h"
 #include "function.h"
+#include "memory.h"
 
 #include <stdio.h>
 
 #include <grapes/feedback.h>
 
+#define buffer_get(T) *((T*)(buf)); buf += sizeof(T)
+
 static unsigned long long trace_total_runtime = 0;
 
-static int trace_enter(void *ptr);
-static int trace_exit(void *ptr);
-//static int trace_malloc(void *ptr);
-//static int trace_realloc(void *ptr);
-//static int trace_free(void *ptr);
-static int trace_end(void *ptr);
+static int trace_enter(void *buf);
+static int trace_exit(void *buf);
+static int trace_malloc(void *buf);
+static int trace_realloc(void *buf);
+static int trace_free(void *buf);
+static int trace_end(void *buf);
 
 static int
-trace_enter (void *ptr)
+trace_enter (void *buf)
 {
-  uintptr_t func;
-  uintptr_t caller;
-  unsigned long long time;
-
-  func = *((uintptr_t*)(ptr));
-  caller = *((uintptr_t*)(ptr + sizeof(uintptr_t)));
-  time = *((unsigned long long*)(ptr + 2 * sizeof(uintptr_t)));
-
-  //timeline_event *e = timeline_push_event(TIMELINE_EVENT_ENTER, time, caller);
-  //assert_inner(e, "timeline_push_event");
-
-  //e->func = func;
+  uintptr_t func = buffer_get(uintptr_t);
+  uintptr_t caller = buffer_get(uintptr_t);
+  unsigned long long time = buffer_get(unsigned long long);
 
   int res = function_enter(func, caller, time);
   assert_inner(!res, "function_enter");
@@ -40,92 +33,62 @@ trace_enter (void *ptr)
 }
 
 static int
-trace_exit (void *ptr)
+trace_exit (void *buf)
 {
-  unsigned long long time;
+  unsigned long long time = buffer_get(unsigned long long);
 
-  time = *((unsigned long long*)(ptr)); 
-
-  //timeline_event *e = timeline_push_event(TIMELINE_EVENT_EXIT, time, 0);
-  //assert_inner(e, "timeline_push_event");
-
-  int res = function_exit(0, time);
+  int res = function_exit(time);
   assert_inner(!res, "function_exit");
 
   return 0;
 }
 
-/*static int
-trace_malloc (void *ptr)
+static int
+trace_malloc (void *buf)
 {
-  size_t size;
-  uintptr_t caller;
-  uintptr_t result;
-  unsigned long long time;
+  size_t size = buffer_get(size_t);
+  uintptr_t caller = buffer_get(uintptr_t);
+  uintptr_t result = buffer_get(uintptr_t);
+  unsigned long long time = buffer_get(unsigned long long);
 
-  int res = sscanf(line, "+ %zu 0x%" SCNxPTR " 0x%" SCNxPTR " %llu", &size, &caller, &result, &time);
-  assert_inner(res == 4, "sscanf");
-
-  timeline_event *e = timeline_push_event(TIMELINE_EVENT_MALLOC, time, caller);
-  assert_inner(e, "timeline_push_event");
-
-  e->size = size;
-  e->result = result;
+  int res = memory_malloc(size, caller, result, time);
+  assert_inner(!res, "memory_malloc");
 
   return 0;
 }
 
 static int
-trace_realloc (void *ptr)
+trace_realloc (void *buf)
 {
-  uintptr_t ptr;
-  size_t size;
-  uintptr_t caller;
-  uintptr_t result;
-  unsigned long long time;
+  uintptr_t ptr = buffer_get(uintptr_t);
+  size_t size = buffer_get(size_t);
+  uintptr_t caller = buffer_get(uintptr_t);
+  uintptr_t result = buffer_get(uintptr_t);
+  unsigned long long time = buffer_get(unsigned long long);
 
-  int res = sscanf(line, "* 0x%" SCNxPTR " %zu 0x%" SCNxPTR " 0x%" SCNxPTR " %llu", &ptr, &size, &caller, &result, &time);
-  assert_inner(res == 5, "sscanf");
-
-  timeline_event *e = timeline_push_event(TIMELINE_EVENT_REALLOC, time, caller);
-  assert_inner(e, "timeline_push_event");
-
-  e->size = size;
-  e->result = result;
-  e->ptr = ptr;
+  int res = memory_realloc(ptr, size, caller, result, time);
+  assert_inner(!res, "memory_realloc");
 
   return 0;
 }
 
 static int
-trace_free (void *ptr)
+trace_free (void *buf)
 {
-  uintptr_t ptr;
-  uintptr_t caller;
-  unsigned long long time;
+  uintptr_t ptr = buffer_get(uintptr_t);
+  uintptr_t caller = buffer_get(uintptr_t);
+  unsigned long long time = buffer_get(unsigned long long);
 
-  int res = sscanf(line, "- 0x%" SCNxPTR " 0x%" SCNxPTR " %llu", &ptr, &caller, &time);
-  assert_inner(res == 3, "sscanf");
-
-  timeline_event *e = timeline_push_event(TIMELINE_EVENT_FREE, time, caller);
-  assert_inner(e, "timeline_push_event");
-
-  e->ptr = ptr;
+  int res = memory_free(ptr, caller, time);
+  assert_inner(!res, "memory_free");
 
   return 0;
-}*/
+}
 
 static int
-trace_end (void *ptr)
+trace_end (void *buf)
 {
-  unsigned long long time;
-
-  time = *((unsigned long long*)(ptr));
-
-  //timeline_event *e = timeline_push_event(TIMELINE_EVENT_END, time, 0);
-  //assert_inner(e, "timeline_push_event");
-
-  //timeline_finalize();
+  unsigned long long time = buffer_get(unsigned long long);
 
   int res = function_exit_all(time);
   assert_inner(!res, "function_exit_all");
@@ -170,13 +133,16 @@ trace_read (const char *filename)
           trace_index += sizeof(unsigned long long);
           break;
         case '+':
-          assert_set_errno(ENOSYS, 0, "+");
+          trace_malloc(trace_buf + trace_index);
+          trace_index += sizeof(size_t) + 2 * sizeof(uintptr_t) + sizeof(unsigned long long);
           break;
         case '*':
-          assert_set_errno(ENOSYS, 0, "*");
+          trace_realloc(trace_buf + trace_index);
+          trace_index += sizeof(size_t) + 3 * sizeof(uintptr_t) + sizeof(unsigned long long);
           break;
         case '-':
-          assert_set_errno(ENOSYS, 0, "-");
+          trace_free(trace_buf + trace_index);
+          trace_index += 2 * sizeof(uintptr_t) + sizeof(unsigned long long);
           break;
         case 'E':
           trace_end(trace_buf + trace_index);
