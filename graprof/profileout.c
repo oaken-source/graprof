@@ -58,7 +58,7 @@ profileout_flat_profile ()
   {
     function *f = functions + i;
 
-    fprintf(graprof_out, "%6.2f ", (100.0 * f->cumulative_time) / timeline_get_total_runtime());
+    fprintf(graprof_out, "%6.2f ", (100.0 * f->self_time) / timeline_get_total_runtime());
 
     time = f->cumulative_time;
     profileout_format_time(&time, &prefix);
@@ -90,7 +90,7 @@ profileout_flat_profile ()
 
   fprintf(graprof_out, "\n");
   fprintf(graprof_out, "  %%         the percentage of the total running time of the\n"); 
-  fprintf(graprof_out, " time       program spent below this function in the call tree\n");
+  fprintf(graprof_out, " time       program spent in this function\n");
   fprintf(graprof_out, "\n");
   fprintf(graprof_out, " cumulative the absolute total running time of the program\n");
   fprintf(graprof_out, "     time   spent below this function in the call tree\n");

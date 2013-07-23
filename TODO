@@ -7,6 +7,8 @@
  [   ] add License headers
  [   ] manpage
 
+ [   ] sort flat profile output
+
  [ ! ] document and comment
 
  [ ? ] Why does addr2line do some black magic on elf addresses
@@ -14,3 +16,5 @@
  [ ? ] profiling multithreaded applications
  [ ? ] interpolation for events that do not have distinguishable times (should not happen until 2080)
  [ ? ] the instrumentation time of functions are accounted as self time of their parents - sums up for functions with many children calls. can we avoid that somehow?
+ [ ? ] is there an alternative for the deprecated malloc hooks
+ [ ? ] can the readability of the absolute times in the flat profile be improved?
