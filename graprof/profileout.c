@@ -1,11 +1,13 @@
 
 #include "profileout.h"
 
-#include "timeline.h"
+//#include "timeline.h"
 #include "function.h"
+#include "trace.h"
 
 #include <stdio.h>
 #include <string.h>
+#include <inttypes.h>
 
 extern FILE *graprof_out;
 
@@ -41,7 +43,7 @@ profileout_flat_profile ()
   fprintf(graprof_out, "\n");
 
   const char *prefix;
-  unsigned long long time = timeline_get_total_runtime();
+  unsigned long long time = trace_get_total_runtime();
  
   profileout_format_time(&time, &prefix);
 
@@ -58,7 +60,7 @@ profileout_flat_profile ()
   {
     function *f = functions + i;
 
-    fprintf(graprof_out, "%6.2f ", (100.0 * f->self_time) / timeline_get_total_runtime());
+    fprintf(graprof_out, "%6.2f ", (100.0 * f->self_time) / trace_get_total_runtime());
 
     time = f->cumulative_time;
     profileout_format_time(&time, &prefix);

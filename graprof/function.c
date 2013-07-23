@@ -1,6 +1,6 @@
 
 #include "function.h"
-#include "timeline.h"
+//#include "timeline.h"
 #include "addr.h"
 
 #include <stdio.h>
@@ -127,17 +127,17 @@ function_enter (uintptr_t address, uintptr_t caller, unsigned long long time)
 }
 
 int
-function_exit (uintptr_t address, unsigned long long time __attribute__ ((unused)))
+function_exit (uintptr_t address __attribute__ ((unused)), unsigned long long time)
 {
-  function *f = function_get_by_address(address);
+  //function *f = function_get_by_address(address);
 
-  if (!f)
-    {
-      feedback_warning("0x%" PRIxPTR ": exting unknown function - skewed trace data?");
-      return 0;
-    }
+  //if (!f)
+  //  {
+  //    feedback_warning("0x%" PRIxPTR ": exting unknown function - skewed trace data?");
+  //    return 0;
+  //  }
 
-  if (call_tree_current_node->function_id == (unsigned int)-1 || functions[call_tree_current_node->function_id].address != address)
+  if (call_tree_current_node->function_id == (unsigned int)-1 /*|| functions[call_tree_current_node->function_id].address != address*/)
     {
       feedback_warning("0x%" PRIxPTR ": exiting function not on top of the call stack - skewed trace data?");
       return 0;

@@ -2,6 +2,7 @@
 #include "graprof.h"
 
 #include "addr.h"
+#include "trace.h"
 #include "profileout.h"
 
 #include <grapes/feedback.h>
@@ -36,11 +37,25 @@ main (int argc, char *argv[])
         }
     }
   
-  yyin = fopen(args.trace_filename, "r");
-  feedback_assert(yyin, "%s", args.trace_filename);
+  // yyin = fopen(args.trace_filename, "r");
+  // feedback_assert(yyin, "%s", args.trace_filename);
   
-  int res = yylex(args.trace_filename);
-  feedback_assert(!res, "%s", args.trace_filename);
+  // int res = yylex(args.trace_filename);
+  // feedback_assert(!res, "%s", args.trace_filename);
+
+  int res = trace_read(args.trace_filename);
+  if (res)
+    {
+      if (errno == ENOTSUP)
+        {
+          errno = 0;
+          feedback_error(EXIT_FAILURE, "%s: invalid trace data", args.trace_filename);
+        }
+      else
+        {
+          feedback_error(EXIT_FAILURE, "%s", args.trace_filename);
+        }
+    }
 
   graprof_out = stdout;
   if (args.out_filename && (args.tasks & ~GRAPROF_NO_GUI))
