@@ -20,7 +20,11 @@ libgraprof_init ()
 {
   int errsv = errno;
 
+  printf("alive\n");
+
   char *filename = getenv("GRAPROF_OUT");
+
+  printf("%s\n", filename);
 
   if (filename)
     {

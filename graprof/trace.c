@@ -3,6 +3,7 @@
 
 #include "function.h"
 #include "memory.h"
+#include "addr.h"
 
 #include <stdio.h>
 
@@ -51,6 +52,16 @@ trace_malloc (void *buf)
   uintptr_t result = buffer_get(uintptr_t);
   unsigned long long time = buffer_get(unsigned long long);
 
+  printf("+ 0x%lu\n", caller);
+ 
+  char *name;
+  char *file;
+  unsigned int line;
+
+  addr_translate(caller, &name, &file, &line);
+
+  printf("%s\n%s:%u\n", name, file, line);
+
   int res = memory_malloc(size, caller, result, time);
   assert_inner(!res, "memory_malloc");
 
@@ -60,6 +71,8 @@ trace_malloc (void *buf)
 static int
 trace_realloc (void *buf)
 {
+  printf("*\n");
+ 
   uintptr_t ptr = buffer_get(uintptr_t);
   size_t size = buffer_get(size_t);
   uintptr_t caller = buffer_get(uintptr_t);
@@ -75,6 +88,8 @@ trace_realloc (void *buf)
 static int
 trace_free (void *buf)
 {
+  printf("-\n");
+ 
   uintptr_t ptr = buffer_get(uintptr_t);
   uintptr_t caller = buffer_get(uintptr_t);
   unsigned long long time = buffer_get(unsigned long long);

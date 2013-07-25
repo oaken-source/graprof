@@ -6,16 +6,19 @@
 
 #include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h>
+#include <malloc.h>
 
-unsigned int mallhooks_active = 0;
+static void *mallhooks_malloc_hook(size_t, const void*);
+static void *(*old_malloc_hook)(size_t, const void*);
 
-extern void* __libc_malloc(size_t size);
-extern void* __libc_realloc(void *ptr, size_t size);
-extern void __libc_free(void *ptr);
+static void *mallhooks_realloc_hook(void*, size_t, const void*);
+static void *(*old_realloc_hook)(void*, size_t, const void*);
+
+static void mallhooks_free_hook(void*, const void*);
+static void (*old_free_hook)(void *, const void*);
 
 static void*
-malloc_impl (size_t size, void *caller)
+mallhooks_malloc_hook (size_t size, const void *caller)
 {
   void *result;
 
@@ -36,10 +39,8 @@ malloc_impl (size_t size, void *caller)
 }
 
 static void*
-realloc_impl (void *ptr, size_t size)
+mallhooks_realloc_hook (void *ptr, size_t size, const void *caller)
 {
-  void *caller = NULL;
-
   void *result;
 
   mallhooks_uninstall_hooks();
@@ -60,10 +61,8 @@ realloc_impl (void *ptr, size_t size)
 }
 
 static void
-free_impl (void *ptr)
+mallhooks_free_hook (void *ptr, const void *caller)
 {
-  void *caller = NULL;
-
   mallhooks_uninstall_hooks();
 
   free(ptr);
@@ -80,32 +79,23 @@ free_impl (void *ptr)
   mallhooks_install_hooks();
 }
 
-void
+void 
 mallhooks_install_hooks ()
 {
-  mallhooks_active = 1;
+  old_malloc_hook = __malloc_hook;
+  __malloc_hook = mallhooks_malloc_hook;
+
+  old_realloc_hook = __realloc_hook;
+  __realloc_hook = mallhooks_realloc_hook;
+
+  old_free_hook = __free_hook;
+  __free_hook = mallhooks_free_hook;
 }
 
-void 
-mallhooks_uninstall_hooks ()
+void mallhooks_uninstall_hooks ()
 {
-  mallhooks_active = 0;
+  __malloc_hook = old_malloc_hook;
+  __realloc_hook = old_realloc_hook;
+  __free_hook = old_free_hook;
 }
 
-void*
-malloc (size_t size)
-{
-  return (mallhooks_active ? malloc_impl(size, __builtin_return_address(0)) : __libc_malloc(size));
-}
-
-void*
-realloc (void *ptr, size_t size)
-{
-  return (mallhooks_active ? realloc_impl(ptr, size) : __libc_realloc(ptr, size));
-}
-
-void
-free (void *ptr)
-{
-  return (mallhooks_active ? free_impl(ptr) : __libc_free(ptr));
-}

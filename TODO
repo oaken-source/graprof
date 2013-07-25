@@ -12,9 +12,7 @@
  [ ! ] document and comment
 
  [ ? ] Why does addr2line do some black magic on elf addresses
- [ ? ] why is there an offset for the caller address
  [ ? ] profiling multithreaded applications
  [ ? ] interpolation for events that do not have distinguishable times (should not happen until 2080)
- [ ? ] is there an alternative for the deprecated malloc hooks
  [ ? ] can the readability of the absolute times in the flat profile be improved?
  [ ? ] calls to the instrumenting funcions are made *after* the function entry and *before* the function exit. This, and the calling times for the instrumenting functions themselves adds up if the function calls a lot of children, and produces inaccurate results depending on code structure and trace data. This is not good
