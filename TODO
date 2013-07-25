@@ -7,12 +7,9 @@
  [   ] add License headers
  [   ] manpage
 
- [   ] sort flat profile output
-
  [ ! ] document and comment
 
  [ ? ] Why does addr2line do some black magic on elf addresses
  [ ? ] profiling multithreaded applications
  [ ? ] interpolation for events that do not have distinguishable times (should not happen until 2080)
- [ ? ] can the readability of the absolute times in the flat profile be improved?
  [ ? ] calls to the instrumenting funcions are made *after* the function entry and *before* the function exit. This, and the calling times for the instrumenting functions themselves adds up if the function calls a lot of children, and produces inaccurate results depending on code structure and trace data. This is not good
