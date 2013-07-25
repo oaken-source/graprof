@@ -11,11 +11,12 @@
 unsigned int mallhooks_active = 0;
 
 extern void* __libc_malloc(size_t size);
+extern void* __libc_calloc(size_t nmemb, size_t size);
 extern void* __libc_realloc(void *ptr, size_t size);
 extern void __libc_free(void *ptr);
 
 static void*
-malloc_impl (size_t size, void *caller)
+malloc_hook (size_t size, void *caller)
 {
   void *result;
 
@@ -36,10 +37,29 @@ malloc_impl (size_t size, void *caller)
 }
 
 static void*
-realloc_impl (void *ptr, size_t size)
+calloc_hook (size_t nmemb, size_t size, void *caller)
 {
-  void *caller = NULL;
+  void *result;
 
+  mallhooks_uninstall_hooks();
+
+  result = calloc(nmemb, size);
+
+  buffer_enlarge(sizeof(char) + sizeof(size_t) + 2 * sizeof(uintptr_t) + sizeof(unsigned long long));
+  buffer_append(char, '+');
+  buffer_append(size_t, nmemb * size);
+  buffer_append(uintptr_t, (uintptr_t)caller);
+  buffer_append(uintptr_t, (uintptr_t)result);
+  buffer_append(unsigned long long, highrestimer_get());
+
+  mallhooks_install_hooks();
+
+  return result;
+}
+
+static void*
+realloc_hook (void *ptr, size_t size, void *caller)
+{
   void *result;
 
   mallhooks_uninstall_hooks();
@@ -60,10 +80,8 @@ realloc_impl (void *ptr, size_t size)
 }
 
 static void
-free_impl (void *ptr)
+free_hook (void *ptr, void *caller)
 {
-  void *caller = NULL;
-
   mallhooks_uninstall_hooks();
 
   free(ptr);
@@ -95,17 +113,23 @@ mallhooks_uninstall_hooks ()
 void*
 malloc (size_t size)
 {
-  return (mallhooks_active ? malloc_impl(size, __builtin_return_address(0)) : __libc_malloc(size));
+  return (mallhooks_active ? malloc_hook(size, __builtin_return_address(0)) : __libc_malloc(size));
+}
+
+void*
+calloc (size_t nmemb, size_t size)
+{
+  return (mallhooks_active ? calloc_hook(nmemb, size, __builtin_return_address(0)) : __libc_calloc(nmemb, size));
 }
 
 void*
 realloc (void *ptr, size_t size)
 {
-  return (mallhooks_active ? realloc_impl(ptr, size) : __libc_realloc(ptr, size));
+  return (mallhooks_active ? realloc_hook(ptr, size, __builtin_return_address(0)) : __libc_realloc(ptr, size));
 }
 
 void
 free (void *ptr)
 {
-  return (mallhooks_active ? free_impl(ptr) : __libc_free(ptr));
+  return (mallhooks_active ? free_hook(ptr, __builtin_return_address(0)) : __libc_free(ptr));
 }
