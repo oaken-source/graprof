@@ -132,6 +132,7 @@ flatprofile_print ()
   fprintf(graprof_out, " name       the name of the function, if available, else its\n");
   fprintf(graprof_out, "            address, and a unique id for reference in the call\n");
   fprintf(graprof_out, "            graph - this is the minor sort of this listing\n");
+  fprintf(graprof_out, "\n");
 
   return 0;
 }

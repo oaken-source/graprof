@@ -9,6 +9,7 @@ tasks
  [ 7 ] add License headers
  [ 6 ] manpage
  [ 9 ] document and comment
+ [ 1 ] configure flag to turn off gui and/or instrumentation and/or memory hooks
 
 questions
  [ 5 ] Why does addr2line do some black magic on elf addresses

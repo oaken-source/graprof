@@ -4,6 +4,7 @@
 #include "addr.h"
 #include "trace.h"
 #include "flatprofile.h"
+#include "callgraph.h"
 
 #include <grapes/feedback.h>
 
@@ -59,13 +60,10 @@ main (int argc, char *argv[])
     }
 
   if (args.tasks & GRAPROF_FLAT_PROFILE)
-      flatprofile_print();
+    flatprofile_print();
 
-  if (args.tasks & GRAPROF_CALL_TREE)
-    {
-      errno = ENOSYS;
-      feedback_assert_wrn(0, "--call-tree");
-    }
+  if (args.tasks & GRAPROF_CALL_GRAPH)
+    callgraph_print();  
 
   if (args.tasks & GRAPROF_MEMORY_PROFILE)
     {
