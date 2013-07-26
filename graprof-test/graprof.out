@@ -1,0 +1,34 @@
+Flat profile:
+
+ total runtime: 356 mseconds
+
+  %    cumulative   self               self     total
+ time      time      time     calls    /call     /call   name
+ 99.96    356 ms    356 ms        1    356 ms    356 ms  0x7fedff2f3402 [1]
+  0.01  37180 ns  37180 ns      100    371 ns    371 ns  recursive [4]
+  0.01  87076 ns  25716 ns        1  25716 ns  87076 ns  dostuff [2]
+  0.01  24180 ns  24180 ns      100    241 ns    241 ns  single [3]
+  0.01  21568 ns  21568 ns      100    215 ns    215 ns  timing_inner [5]
+  0.00    356 ms  16751 ns        1  16751 ns    356 ms  main [0]
+
+  %         the percentage of the total running time of the
+ time       program spent in this function
+
+ cumulative the absolute total running time of the program
+     time   spent below this function in the call tree
+
+ self       the absolute total running time spent in this
+  time      function alone - this is the major sort of this
+            listing
+
+ calls      the number of times this function was invoked
+
+ self       the average running time spent in this function
+ /call      per call
+
+ total      the average running time spent below this function
+  /call     in the call tree per call
+
+ name       the name of the function, if available, else its
+            address, and a unique id for reference in the call
+            graph - this is the minor sort of this listing

@@ -26,13 +26,13 @@ recursive (unsigned int x)
   return (x ? recursive(x) : 0);
 }
 
-__attribute__ ((no_instrument_function)) int
+int
 timing_inner (void)
 {
   return;
 }
 
-int 
+__attribute__ ((no_instrument_function)) int 
 timing (unsigned int x)
 {
   volatile unsigned int i;
@@ -41,8 +41,8 @@ timing (unsigned int x)
   return 0;
 }
 
-#define SIN_MAX 1000000
-#define REC_MAX 1000
+#define SIN_MAX 100
+#define REC_MAX 100
 
 int
 dostuff ()
