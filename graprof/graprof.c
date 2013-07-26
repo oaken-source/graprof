@@ -3,7 +3,7 @@
 
 #include "addr.h"
 #include "trace.h"
-#include "profileout.h"
+#include "flatprofile.h"
 
 #include <grapes/feedback.h>
 
@@ -37,12 +37,6 @@ main (int argc, char *argv[])
         }
     }
   
-  // yyin = fopen(args.trace_filename, "r");
-  // feedback_assert(yyin, "%s", args.trace_filename);
-  
-  // int res = yylex(args.trace_filename);
-  // feedback_assert(!res, "%s", args.trace_filename);
-
   int res = trace_read(args.trace_filename);
   if (res)
     {
@@ -65,7 +59,7 @@ main (int argc, char *argv[])
     }
 
   if (args.tasks & GRAPROF_FLAT_PROFILE)
-      profileout_flat_profile();
+      flatprofile_print();
 
   if (args.tasks & GRAPROF_CALL_TREE)
     {

@@ -1,5 +1,5 @@
 
-#include "profileout.h"
+#include "flatprofile.h"
 
 #include "function.h"
 #include "trace.h"
@@ -14,7 +14,7 @@ extern FILE *graprof_out;
 #define MAX_TIMEVAL 100000
 
 static void 
-profileout_format_time (unsigned long long *time, const char **prefix)
+flatprofile_format_time (unsigned long long *time, const char **prefix)
 {
   *prefix = "n";
   if (*time >= MAX_TIMEVAL)
@@ -48,7 +48,7 @@ cmpfunction (const void *p1, const void *p2)
 }
 
 int 
-profileout_flat_profile ()
+flatprofile_print ()
 {
   fprintf(graprof_out, "Flat profile:\n");
   fprintf(graprof_out, "\n");
@@ -56,7 +56,7 @@ profileout_flat_profile ()
   const char *prefix;
   unsigned long long time = trace_get_total_runtime();
  
-  profileout_format_time(&time, &prefix);
+  flatprofile_format_time(&time, &prefix);
 
   fprintf(graprof_out, " total runtime: %llu %sseconds\n", time, prefix);
   fprintf(graprof_out, "\n");
@@ -80,24 +80,24 @@ profileout_flat_profile ()
     fprintf(graprof_out, "%6.2f ", (100.0 * f->self_time) / trace_get_total_runtime());
 
     time = f->cumulative_time;
-    profileout_format_time(&time, &prefix);
+    flatprofile_format_time(&time, &prefix);
 
     fprintf(graprof_out, "%6llu %ss ", time, prefix);
 
     time = f->self_time;
-    profileout_format_time(&time, &prefix);
+    flatprofile_format_time(&time, &prefix);
 
     fprintf(graprof_out, "%6llu %ss ", time, prefix);
 
     fprintf(graprof_out, "%8lu ", f->calls);
 
     time = f->self_time / f->calls;
-    profileout_format_time(&time, &prefix);
+    flatprofile_format_time(&time, &prefix);
 
     fprintf(graprof_out, "%6llu %ss ", time, prefix);
 
     time = f->cumulative_time / f->calls;
-    profileout_format_time(&time, &prefix);
+    flatprofile_format_time(&time, &prefix);
 
     fprintf(graprof_out, "%6llu %ss  ", time, prefix);
 
