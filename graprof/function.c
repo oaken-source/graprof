@@ -85,12 +85,26 @@ function_aggregate_recursive (tree_entry *t)
 
   if (t->function_id != (unsigned int)-1)
     {
+      unsigned long long children_spontaneous_time = 0;
+      for (i = 0; i < t->nchildren; ++i)
+        {
+          char *file;
+          char *name;
+          int res = addr_translate(t->children[i].caller, &name, &file, NULL);
+
+          if (res || strcmp(file, functions[t->function_id].file) || strcmp(name, functions[t->function_id].name))
+            children_spontaneous_time += t->children[i].exit_time - t->children[i].entry_time;
+
+          free(file);
+          free(name);
+        }
+
       unsigned long long children_self_time = function_aggregate_recursive_for_id(t, t->function_id);
 
-      //printf("I am %s [0x%" PRIxPTR "] %llu-%llu (%llu, %llu)\n", functions[t->function_id].name, functions[t->function_id].address, t->entry_time, t->exit_time, children_time, children_self_time);
+      // printf("I am %s [0x%" PRIxPTR "] { 0x%" PRIxPTR " } %llu-%llu (%llu, %llu, %llu)\n", functions[t->function_id].name, functions[t->function_id].address, t->caller, t->entry_time, t->exit_time, children_time, children_self_time, children_spontaneous_time);
 
       functions[t->function_id].self_time += t->exit_time - t->entry_time - children_time;
-      functions[t->function_id].cumulative_time += t->exit_time - t->entry_time - children_self_time;
+      functions[t->function_id].cumulative_time += t->exit_time - t->entry_time - children_self_time - children_spontaneous_time;
     }
 }
 
@@ -101,7 +115,7 @@ function_enter (uintptr_t address, uintptr_t caller, unsigned long long time)
   if (!f)
     f = function_push(address);
   assert_inner(f, "function_push");
- 
+
   ++(f->calls);
 
   ++(call_tree_current_node->nchildren);
