@@ -1,15 +1,18 @@
 
- [   ] call graph analysis
- [   ] flat memory profile analysis
- [   ] trace visualization
+planned features
+ [ 9 ] call graph analysis
+ [ 8 ] flat memory profile analysis
+ [ 7 ] trace visualization
 
- [   ] start ChangeLog
- [   ] add License headers
- [   ] manpage
+tasks
+ [ 5 ] start ChangeLog
+ [ 7 ] add License headers
+ [ 6 ] manpage
+ [ 9 ] document and comment
 
- [ ! ] document and comment
+questions
+ [ 5 ] Why does addr2line do some black magic on elf addresses
+ [ 5 ] profiling multithreaded applications
 
- [ ? ] Why does addr2line do some black magic on elf addresses
- [ ? ] profiling multithreaded applications
- [ ? ] interpolation for events that do not have distinguishable times (should not happen until 2080)
- [ ? ] calls to the instrumenting funcions are made *after* the function entry and *before* the function exit. This, and the calling times for the instrumenting functions themselves adds up if the function calls a lot of children, and produces inaccurate results depending on code structure and trace data. This is not good
+open issues
+ [ 9 ] calls to the instrumenting funcions are made *after* the function entry and *before* the function exit. This, and the calling times for the instrumenting functions themselves adds up if the function calls a lot of children, and produces inaccurate results depending on code structure and trace data. This is not good.
