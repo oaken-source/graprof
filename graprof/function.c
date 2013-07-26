@@ -52,7 +52,12 @@ function_push (uintptr_t address)
   f->self_time = 0;
   f->cumulative_time = 0;
   f->calls = 0;
- 
+
+  f->callers = NULL;
+  f->ncallers = 0;
+  f->callees = NULL;
+  f->ncallees = 0;
+
   return f;
 }
 
@@ -108,6 +113,48 @@ function_aggregate_recursive (tree_entry *t)
     }
 }
 
+static int 
+function_add_caller (function *f, unsigned int caller_id)
+{
+  unsigned int i;
+  for (i = 0; i < f->ncallers; ++i)
+    if (f->callers[i].function_id == caller_id)
+      {
+        ++(f->callers[i].calls);
+        return 0;
+      }
+
+  ++(f->ncallers);
+  f->callers = realloc(f->callers, sizeof(*(f->callers)) * f->ncallers);
+  assert_inner(f->callers, "realloc");
+
+  f->callers[f->ncallers - 1].function_id = caller_id;
+  f->callers[f->ncallers - 1].calls = 1;
+
+  return 0;
+}
+
+static int
+function_add_callee (function *f, unsigned int callee_id)
+{
+  unsigned int i;
+  for (i = 0; i < f->ncallees; ++i)
+    if (f->callees[i].function_id == callee_id)
+      {
+        ++(f->callees[i].calls);
+        return 0;
+      }
+
+  ++(f->ncallees);
+  f->callees = realloc(f->callees, sizeof(*(f->callees)) * f->ncallees);
+  assert_inner(f->callees, "realloc");
+
+  f->callees[f->ncallees - 1].function_id = callee_id;
+  f->callees[f->ncallees - 1].calls = 1;
+
+  return 0;
+}
+
 int
 function_enter (uintptr_t address, uintptr_t caller, unsigned long long time)
 {
@@ -133,6 +180,23 @@ function_enter (uintptr_t address, uintptr_t caller, unsigned long long time)
   next_node->parent = call_tree_current_node;
   next_node->children = NULL;
   next_node->nchildren = 0;
+
+  char *name;
+  char *file;
+  int res = addr_translate(caller, &name, &file, NULL);
+
+  unsigned int caller_id = (unsigned int)-1;
+  if (!res && call_tree_current_node->function_id != (unsigned int)-1 && !strcmp(file, functions[call_tree_current_node->function_id].file) && !strcmp(name, functions[call_tree_current_node->function_id].name))
+    caller_id = call_tree_current_node->function_id;
+
+  res = function_add_caller(f, caller_id);
+  assert_inner(!res, "function_add_caller");
+
+  if (caller_id != (unsigned int)-1)
+    {
+      res = function_add_callee(functions + caller_id, f - functions);
+      assert_inner(!res, "function_add_callee");
+    }
 
   call_tree_current_node = next_node;
 

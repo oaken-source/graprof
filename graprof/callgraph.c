@@ -36,6 +36,31 @@ callgraph_print ()
       function *f = functions + i;
 
       // print parents
+      unsigned int j;
+      for (j = 0; j < f->ncallers; ++j)
+        {
+          if (f->callers[j].function_id == (unsigned int)-1)
+            {
+              fprintf(graprof_out, "                                   %8lu/%-8lu      <spontaneous>\n", f->callers[j].calls, f->calls);
+            }
+          else
+            {
+              time = trace_get_total_runtime();
+              fprintf(graprof_out, "        %6.2f ", 0.0);
+ 
+              fprintf(graprof_out, "%6llu ns ", 0LL);
+
+              fprintf(graprof_out, "%6llu ns ", 0LL);
+
+              fprintf(graprof_out, "%8lu/%-8lu  ", f->callers[j].calls, f->calls);
+
+              if (!strcmp(functions[f->callers[j].function_id].name, "??"))
+                fprintf(graprof_out, "    0x%" PRIxPTR , f->address);
+              else
+                fprintf(graprof_out, "    %s", functions[f->callers[j].function_id].name);
+              fprintf(graprof_out, " [%u]\n", f->callers[j].function_id);
+            }
+        }
 
       // print self
       time = trace_get_total_runtime();
@@ -50,7 +75,6 @@ callgraph_print ()
       fprintf(graprof_out, "%6llu %ss ", time, prefix);
 
       fprintf(graprof_out, "%8lu           ", f->calls);
-      // fprintf(graprof_out, "%8lu/%-8lu  ", f->calls, f->calls);
 
       if (!strcmp(f->name, "??"))
         fprintf(graprof_out, "0x%" PRIxPTR , f->address);
@@ -59,7 +83,23 @@ callgraph_print ()
       fprintf(graprof_out, " [%u]\n", i);
 
       // print children
-      
+      for (j = 0; j < f->ncallees; ++j)
+        {
+          fprintf(graprof_out, "        %6.2f ", 0.0);
+ 
+          fprintf(graprof_out, "%6llu ns ", 0LL);
+
+          fprintf(graprof_out, "%6llu ns ", 0LL);
+
+          fprintf(graprof_out, "%8lu/%-8lu  ", f->callees[j].calls, functions[f->callees[j].function_id].calls);
+
+          if (!strcmp(functions[f->callees[j].function_id].name, "??"))
+            fprintf(graprof_out, "    0x%" PRIxPTR , f->address);
+          else
+            fprintf(graprof_out, "    %s", functions[f->callees[j].function_id].name);
+          fprintf(graprof_out, " [%u]\n", f->callees[j].function_id);
+        }
+
       fprintf(graprof_out, " -------------------------------------------------------\n");
     }
  
