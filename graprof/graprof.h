@@ -23,7 +23,7 @@ static struct argp_option options[] =
 };
 
 #define GRAPROF_FLAT_PROFILE      0x01
-#define GRAPROF_CALL_GRAPH         0x02
+#define GRAPROF_CALL_GRAPH        0x02
 #define GRAPROF_MEMORY_PROFILE    0x04
 #define GRAPROF_NO_GUI            0x08
 

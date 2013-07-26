@@ -3,6 +3,7 @@
 
 #include "function.h"
 #include "trace.h"
+#include "strtime.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,31 +11,6 @@
 #include <inttypes.h>
 
 extern FILE *graprof_out;
-
-#define MAX_TIMEVAL 100000
-
-static void 
-flatprofile_format_time (unsigned long long *time, const char **prefix)
-{
-  *prefix = "n";
-  if (*time >= MAX_TIMEVAL)
-    {
-      *prefix = "µ";
-      *time /= 1000;
-    }
-
-  if (*time >= MAX_TIMEVAL)
-    {
-      *prefix = "m";
-      *time /= 1000;
-    }
-
-  if (*time >= MAX_TIMEVAL)
-    {
-      *prefix = " ";
-      *time /= 1000;
-    }
-}
 
 static int
 cmpfunction (const void *p1, const void *p2)
@@ -56,12 +32,12 @@ flatprofile_print ()
   const char *prefix;
   unsigned long long time = trace_get_total_runtime();
  
-  flatprofile_format_time(&time, &prefix);
+  strtime(&time, &prefix);
 
   fprintf(graprof_out, " total runtime: %llu %sseconds\n", time, prefix);
   fprintf(graprof_out, "\n");
   fprintf(graprof_out, "  %%    cumulative   self               self     total\n");
-  fprintf(graprof_out, " time      time      time     calls    /call     /call   name\n");
+  fprintf(graprof_out, " time      time      time     calls    /call     /call  name\n");
  
   unsigned int nfunctions = 0;
   function *functions = function_get_all(&nfunctions);
@@ -74,39 +50,40 @@ flatprofile_print ()
   qsort(sorted_functions, nfunctions, sizeof(function*), cmpfunction);
 
   for (i = 0; i < nfunctions; ++i)
-  {
-    function *f = sorted_functions[i];
+    {
+      function *f = sorted_functions[i];
 
-    fprintf(graprof_out, "%6.2f ", (100.0 * f->self_time) / trace_get_total_runtime());
+      time = trace_get_total_runtime();
+      fprintf(graprof_out, "%6.2f ", (100.0 * f->self_time) / time);
 
-    time = f->cumulative_time;
-    flatprofile_format_time(&time, &prefix);
+      time = f->cumulative_time;
+      strtime(&time, &prefix);
 
-    fprintf(graprof_out, "%6llu %ss ", time, prefix);
+      fprintf(graprof_out, "%6llu %ss ", time, prefix);
 
-    time = f->self_time;
-    flatprofile_format_time(&time, &prefix);
+      time = f->self_time;
+      strtime(&time, &prefix);
 
-    fprintf(graprof_out, "%6llu %ss ", time, prefix);
+      fprintf(graprof_out, "%6llu %ss ", time, prefix);
+  
+      fprintf(graprof_out, "%8lu ", f->calls);
 
-    fprintf(graprof_out, "%8lu ", f->calls);
+      time = f->self_time / f->calls;
+      strtime(&time, &prefix);
 
-    time = f->self_time / f->calls;
-    flatprofile_format_time(&time, &prefix);
+      fprintf(graprof_out, "%6llu %ss ", time, prefix);
 
-    fprintf(graprof_out, "%6llu %ss ", time, prefix);
+      time = f->cumulative_time / f->calls;
+      strtime(&time, &prefix);
 
-    time = f->cumulative_time / f->calls;
-    flatprofile_format_time(&time, &prefix);
+      fprintf(graprof_out, "%6llu %ss  ", time, prefix);
 
-    fprintf(graprof_out, "%6llu %ss  ", time, prefix);
-
-    if (!strcmp(f->name, "??"))
-      fprintf(graprof_out, "0x%" PRIxPTR , f->address);
-    else
-      fprintf(graprof_out, "%s", f->name);
-    fprintf(graprof_out, " [%tu]\n", f - functions);
-  }
+      if (!strcmp(f->name, "??"))
+        fprintf(graprof_out, "0x%" PRIxPTR , f->address);
+      else
+        fprintf(graprof_out, "%s", f->name);
+      fprintf(graprof_out, " [%tu]\n", f - functions);
+    }
 
   free(sorted_functions);
 
