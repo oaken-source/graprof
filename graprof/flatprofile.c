@@ -20,7 +20,10 @@ cmpfunction (const void *p1, const void *p2)
 
   if (f2->self_time == f1->self_time)
     return strcmp(f1->name, f2->name);
-  return f2->self_time - f1->self_time;
+
+  if (f2->self_time < f1->self_time)
+    return -1;
+  return 1;
 }
 
 int 
