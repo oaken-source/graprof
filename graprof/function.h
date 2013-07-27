@@ -7,6 +7,8 @@ struct call_data
 {
   unsigned int function_id;
   unsigned long calls;
+  unsigned long long self_time;
+  unsigned long long children_time;
 };
 
 typedef struct call_data call_data;

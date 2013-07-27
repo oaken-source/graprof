@@ -130,6 +130,8 @@ function_add_caller (function *f, unsigned int caller_id)
 
   f->callers[f->ncallers - 1].function_id = caller_id;
   f->callers[f->ncallers - 1].calls = 1;
+  f->callers[f->ncallers - 1].self_time = 0;
+  f->callers[f->ncallers - 1].children_time = 0;
 
   return 0;
 }
@@ -151,6 +153,8 @@ function_add_callee (function *f, unsigned int callee_id)
 
   f->callees[f->ncallees - 1].function_id = callee_id;
   f->callees[f->ncallees - 1].calls = 1;
+  f->callees[f->ncallees - 1].self_time = 0;
+  f->callees[f->ncallees - 1].children_time = 0;
 
   return 0;
 }
