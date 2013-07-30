@@ -65,14 +65,14 @@ function_call_tree_entry_init (tree_entry *e)
   e->norphans = 0;
 }
 
-/*static void
+static void
 function_call_data_init (call_data *d)
 {
   d->function_id = 0;
   d->calls = 0;
   d->self_time = 0;
   d->children_time = 0;
-}*/
+}
 
 static function* 
 function_push (uintptr_t address)
@@ -92,7 +92,7 @@ function_push (uintptr_t address)
   return f;
 }
 
-/*static int 
+static int 
 function_add_caller (function *f, unsigned int caller_id)
 {
   unsigned int i;
@@ -136,7 +136,7 @@ function_add_callee (function *f, unsigned int callee_id)
   d->calls = 1;
 
   return 0;
-}*/
+}
 
 static int
 function_compare (function *f, uintptr_t addr)
@@ -146,13 +146,32 @@ function_compare (function *f, uintptr_t addr)
   int res = addr_translate(addr, &name, &file, NULL);
   assert_inner(!res, "addr_translate");
 
+  assert_inner(f >= functions, "wrong!");
+
   return (strcmp(f->name, name) || strcmp(f->file, file));
 }
 
 static void
 function_call_tree_aggregate_node_times (tree_entry *t)
 {
-  t = t;
+  unsigned long long children_cumulative_time = 0;
+  unsigned long long orphans_cumulative_time = 0;
+
+  unsigned int i;
+  for (i = 0; i < t->nchildren; ++i)
+    {
+      function_call_tree_aggregate_node_times(t->children + i);
+      children_cumulative_time += t->children[i].cumulative_time;
+    }
+
+  for (i = 0; i < t->norphans; ++i)
+    {
+      function_call_tree_aggregate_node_times(t->orphans + i);
+      orphans_cumulative_time += t->orphans[i].cumulative_time;
+    }
+
+  t->self_time = t->exit_time - t->entry_time - children_cumulative_time - orphans_cumulative_time;
+  t->cumulative_time = t->exit_time - t->entry_time - orphans_cumulative_time;
 }
 
 int
@@ -163,11 +182,20 @@ function_enter (uintptr_t address, uintptr_t caller, unsigned long long time)
     f = function_push(address);
   assert_inner(f, "function_push");
 
+  ++(f->calls);
+
   tree_entry *n = call_tree_current_node;
   tree_entry *next = NULL;
 
+  unsigned int caller_id = -1;
+
   if (n->parent == NULL || !function_compare(functions + n->function_id, caller))
     {
+      caller_id = n->function_id;
+
+      if (n->parent != NULL)
+        function_add_callee(functions + n->function_id, f - functions);
+
       ++(n->nchildren);
       n->children = realloc(n->children, sizeof(*(n->children)) * n->nchildren);
       assert_inner(n->children, "realloc");
@@ -183,8 +211,10 @@ function_enter (uintptr_t address, uintptr_t caller, unsigned long long time)
       next = n->orphans + n->norphans - 1;
     }
 
+  function_add_caller(f, caller_id);
+
   function_call_tree_entry_init(next);
-  next->function_id = address;
+  next->function_id = f - functions;
   next->entry_time = time;
   next->parent = call_tree_current_node;
 
