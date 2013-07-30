@@ -118,6 +118,8 @@ trace_read (const char *filename)
   assert_set_errno(ENOTSUP, n == trace_bufsize, "fread");
   assert_set_errno(ENOTSUP, feof(trace), "feof");
 
+  unsigned int trace_ended = 0;
+
   unsigned long trace_index = 0;
   while (trace_index < trace_bufsize)
     {
@@ -148,15 +150,17 @@ trace_read (const char *filename)
         case 'E':
           trace_end(trace_buf + trace_index);
           trace_index += sizeof(unsigned long long);
+          trace_ended = 1;
           assert_set_errno(ENOTSUP, trace_bufsize == trace_index, "END not at end");
-          return 0;
+          break;
         default:
           assert_set_errno(ENOTSUP, 0, "sign switch");
           break;
         }
     }
 
-  assert_set_errno(ENOTSUP, 0, "no END at end");
+  if (!trace_ended)
+    assert_set_errno(ENOTSUP, 0, "no END at end");
 
   free(trace_buf);
   fclose(trace);
