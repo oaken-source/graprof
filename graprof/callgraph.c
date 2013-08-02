@@ -65,7 +65,7 @@ callgraph_print ()
 
       // print self
       time = trace_get_total_runtime();
-      fprintf(graprof_out, " %6u %6.2f ", i, (100.0 * f->children_time) / time);
+      fprintf(graprof_out, " %6u %6.2f ", i, (100.0 * (f->self_time + f->children_time)) / time);
  
       time = f->self_time;
       strtime(&time, &prefix);

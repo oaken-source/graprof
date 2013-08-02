@@ -166,20 +166,19 @@ function_call_tree_aggregate_node_times (tree_entry *t, unsigned int is_orphan)
   for (i = 0; i < t->norphans; ++i)
     function_call_tree_aggregate_node_times(t->orphans + i, 1);
 
-  t->self_time = t->exit_time - t->entry_time - children_cumulative_time;
-  t->children_time = children_cumulative_time;
+  t->self_time += t->exit_time - t->entry_time - children_cumulative_time;
+  t->children_time += children_cumulative_time;
 
-  if (t->parent != NULL)
+  if (t->function_id != (unsigned int)-1)
     functions[t->function_id].self_time += t->self_time;
 
   // subtract orphan times from all parents
   if (is_orphan)
     {
-      tree_entry *n = t;
-      while (n->parent != NULL)
+      tree_entry *n = t->parent;
+      while (n != NULL)
         {
-          n->parent->self_time -= t->children_time + t->self_time;
-          n->parent->children_time -= t->children_time + t->self_time;
+          n->self_time -= t->children_time + t->self_time;
           n = n->parent;
         }
     }
