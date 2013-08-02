@@ -17,11 +17,21 @@ single ()
   return 0;
 }
 
+int recursive2 (unsigned int);
+
 int
 recursive (unsigned int x)
 {
   --x;
   //printf("recursive\n");
+
+  return (x ? recursive2(x) : 0);
+}
+
+int
+recursive2 (unsigned int x)
+{
+  --x;
 
   return (x ? recursive(x) : 0);
 }

@@ -21,6 +21,7 @@ struct tree_entry
 
   unsigned long long self_time;
   unsigned long long children_time;
+  unsigned long long orphan_time;
 
   struct tree_entry *parent;
   struct tree_entry *children;
@@ -31,7 +32,7 @@ struct tree_entry
 
 typedef struct tree_entry tree_entry;
 
-static tree_entry call_tree_root = { -1, 0, 0, 0, 0, NULL, NULL, 0, NULL, 0 };
+static tree_entry call_tree_root = { -1, 0, 0, 0, 0, 0, NULL, NULL, 0, NULL, 0 };
 static tree_entry *call_tree_current_node = &call_tree_root;
 
 static void
@@ -58,6 +59,7 @@ function_call_tree_entry_init (tree_entry *e)
   e->exit_time = 0;
   e->self_time = 0;
   e->children_time = 0;
+  e->orphan_time = 0;
   e->parent = NULL;
   e->children = NULL;
   e->nchildren = 0;
@@ -152,54 +154,49 @@ function_compare (function *f, uintptr_t addr)
 }
 
 static void
-function_call_tree_aggregate_node_times (tree_entry *t, unsigned int is_orphan)
+function_aggregate_call_tree_node_times (tree_entry *t)
 {
-  unsigned long long children_cumulative_time = 0;
-
   unsigned int i;
   for (i = 0; i < t->nchildren; ++i)
     {
-      function_call_tree_aggregate_node_times(t->children + i, 0);
-      children_cumulative_time += t->children[i].children_time + t->children[i].self_time;
-    } 
+      function_aggregate_call_tree_node_times(t->children + i);
+      t->children_time += t->children[i].self_time + t->children[i].children_time;
+      t->orphan_time += t->children[i].orphan_time;
+    }
 
   for (i = 0; i < t->norphans; ++i)
-    function_call_tree_aggregate_node_times(t->orphans + i, 1);
-
-  t->self_time += t->exit_time - t->entry_time - children_cumulative_time;
-  t->children_time += children_cumulative_time;
-
-  if (t->function_id != (unsigned int)-1)
-    functions[t->function_id].self_time += t->self_time;
-
-  // subtract orphan times from all parents
-  if (is_orphan)
     {
-      tree_entry *n = t->parent;
-      while (n != NULL)
-        {
-          n->self_time -= t->children_time + t->self_time;
-          n = n->parent;
-        }
+      function_aggregate_call_tree_node_times(t->orphans + i);
+      t->orphan_time += t->orphans[i].self_time + t->orphans[i].children_time + t->orphans[i].orphan_time;
     }
-    
+
+  t->self_time = t->exit_time - t->entry_time - t->children_time - t->orphan_time;
 }
 
 static void
-function_aggregate_children_time_from_call_tree (unsigned int function_id, tree_entry *n)
+function_aggregate_function_time_for_id (tree_entry *e, unsigned int function_id, unsigned int found)
+{
+  if (e->function_id == function_id)
+    {
+      functions[function_id].self_time += e->self_time;
+      if (!found)
+        functions[function_id].children_time += e->children_time;
+      found = 1;
+    }
+
+  unsigned int i;
+  for (i = 0; i < e->nchildren; ++i)
+    function_aggregate_function_time_for_id (e->children + i, function_id, found);
+  for (i = 0; i < e->norphans; ++i)
+    function_aggregate_function_time_for_id (e->orphans + i, function_id, found);
+}
+
+static void
+function_aggregate_function_times ()
 {
   unsigned int i;
-  for (i = 0; i < n->nchildren; ++i)
-    if (n->children[i].function_id == function_id)
-      functions[function_id].children_time += n->children[i].children_time;
-    else
-      function_aggregate_children_time_from_call_tree (function_id, n->children + i);
-  
-  for (i = 0; i < n->norphans; ++i)
-    if (n->orphans[i].function_id == function_id)
-      functions[function_id].children_time += n->orphans[i].children_time;
-    else
-      function_aggregate_children_time_from_call_tree (function_id, n->orphans + i);
+  for (i = 0; i < nfunctions; ++i)
+    function_aggregate_function_time_for_id(&call_tree_root, i, 0);
 }
 
 int
@@ -275,11 +272,8 @@ function_exit_all (unsigned long long time)
       assert_inner(!res, "function_exit");
     }
 
-  function_call_tree_aggregate_node_times(&call_tree_root, 0);
-
-  unsigned int i;
-  for (i = 0; i < nfunctions; ++i)
-    function_aggregate_children_time_from_call_tree(i, &call_tree_root);
+  function_aggregate_call_tree_node_times(&call_tree_root);
+  function_aggregate_function_times();
 
   return 0;
 }
