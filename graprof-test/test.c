@@ -41,8 +41,9 @@ timing (unsigned int x)
   return 0;
 }
 
-#define SIN_MAX 100
-#define REC_MAX 100
+#define SIN_MAX 10000
+#define REC_MAX 10000
+#define TIM_MAX 10000
 
 int
 dostuff ()
@@ -52,7 +53,7 @@ dostuff ()
     single();
   recursive (REC_MAX);
 
-  timing(SIN_MAX);
+  timing(TIM_MAX);
 
   return 0;
 }

@@ -39,7 +39,7 @@ flatprofile_print ()
 
   fprintf(graprof_out, " total runtime: %llu %sseconds\n", time, prefix);
   fprintf(graprof_out, "\n");
-  fprintf(graprof_out, "  %%    cumulative   self               self     total\n");
+  fprintf(graprof_out, "  %%       self    children             self     total\n");
   fprintf(graprof_out, " time      time      time     calls    /call     /call  name\n");
  
   unsigned int nfunctions = 0;
@@ -59,12 +59,12 @@ flatprofile_print ()
       time = trace_get_total_runtime();
       fprintf(graprof_out, "%6.2f ", (100.0 * f->self_time) / time);
 
-      time = f->cumulative_time;
+      time = f->self_time;
       strtime(&time, &prefix);
 
       fprintf(graprof_out, "%6llu %ss ", time, prefix);
 
-      time = f->self_time;
+      time = f->children_time;
       strtime(&time, &prefix);
 
       fprintf(graprof_out, "%6llu %ss ", time, prefix);
@@ -76,7 +76,7 @@ flatprofile_print ()
 
       fprintf(graprof_out, "%6llu %ss ", time, prefix);
 
-      time = f->cumulative_time / f->calls;
+      time = f->children_time / f->calls;
       strtime(&time, &prefix);
 
       fprintf(graprof_out, "%6llu %ss  ", time, prefix);
@@ -94,12 +94,12 @@ flatprofile_print ()
   fprintf(graprof_out, "  %%         the percentage of the total running time of the\n"); 
   fprintf(graprof_out, " time       program spent in this function\n");
   fprintf(graprof_out, "\n");
-  fprintf(graprof_out, " cumulative the absolute total running time of the program\n");
-  fprintf(graprof_out, "     time   spent below this function in the call tree\n");
-  fprintf(graprof_out, "\n");
   fprintf(graprof_out, " self       the absolute total running time spent in this\n");
   fprintf(graprof_out, "  time      function alone - this is the major sort of this\n");
   fprintf(graprof_out, "            listing\n");
+  fprintf(graprof_out, "\n");
+  fprintf(graprof_out, " children   the absolute total running time of the program\n");
+  fprintf(graprof_out, "     time   spent below this function in the call tree\n");
   fprintf(graprof_out, "\n");
   fprintf(graprof_out, " calls      the number of times this function was invoked\n");
   fprintf(graprof_out, "\n");

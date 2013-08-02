@@ -21,7 +21,7 @@ struct function
   unsigned int line;
 
   unsigned long long self_time;
-  unsigned long long cumulative_time;
+  unsigned long long children_time;
   unsigned long calls;
 
   call_data *callers;
