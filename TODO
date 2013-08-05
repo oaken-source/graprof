@@ -13,7 +13,7 @@ tasks
 
 questions
  [ 5 ] Why does addr2line do some black magic on elf addresses
- [ 5 ] profiling multithreaded applications
 
 open issues
  [ 9 ] calls to the instrumenting funcions are made *after* the function entry and *before* the function exit. This, and the calling times for the instrumenting functions themselves adds up if the function calls a lot of children, and produces inaccurate results depending on code structure and trace data. This is not good.
+ [ 5 ] profiling multithreaded applications

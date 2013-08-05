@@ -55,6 +55,16 @@ timing (unsigned int x)
 #define REC_MAX 10000
 #define TIM_MAX 10000
 
+int 
+dostuff2 ()
+{
+  unsigned int i;
+  for (i = 0; i < SIN_MAX; ++i)
+    single();
+
+  return 0;
+}
+
 int
 dostuff ()
 {
@@ -75,6 +85,7 @@ main ()
 
   foo = calloc(1000, 1);
   dostuff();
+  dostuff2();
   free(foo);
 
   char *foo = strdup("hello world");

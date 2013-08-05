@@ -85,7 +85,7 @@ flatprofile_print ()
         fprintf(graprof_out, "0x%" PRIxPTR , f->address);
       else
         fprintf(graprof_out, "%s", f->name);
-      fprintf(graprof_out, " [%tu]\n", f - functions);
+      fprintf(graprof_out, "\n");
     }
 
   free(sorted_functions);
@@ -111,8 +111,7 @@ flatprofile_print ()
   fprintf(graprof_out, "            of this function in the call tree per call\n");
   fprintf(graprof_out, "\n");
   fprintf(graprof_out, " name       the name of the function, if available, else its\n");
-  fprintf(graprof_out, "            address, and a unique id for reference in the call\n");
-  fprintf(graprof_out, "            graph - this is the minor sort of this listing\n");
+  fprintf(graprof_out, "            address - this is the minor sort of this listing\n");
   fprintf(graprof_out, "\n");
 
   return 0;
