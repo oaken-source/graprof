@@ -24,9 +24,9 @@ struct tree_entry
   unsigned long long orphan_time;
 
   struct tree_entry *parent;
-  struct tree_entry *children;
+  struct tree_entry **children;
   unsigned int nchildren;
-  struct tree_entry *orphans;
+  struct tree_entry **orphans;
   unsigned int norphans;
 };
 
@@ -148,8 +148,6 @@ function_compare (function *f, uintptr_t addr)
   int res = addr_translate(addr, &name, &file, NULL);
   assert_inner(!res, "addr_translate");
 
-  assert_inner(f >= functions, "wrong!");
-
   return (strcmp(f->name, name) || strcmp(f->file, file));
 }
 
@@ -159,18 +157,35 @@ function_aggregate_call_tree_node_times (tree_entry *t)
   unsigned int i;
   for (i = 0; i < t->nchildren; ++i)
     {
-      function_aggregate_call_tree_node_times(t->children + i);
-      t->children_time += t->children[i].self_time + t->children[i].children_time;
-      t->orphan_time += t->children[i].orphan_time;
+      function_aggregate_call_tree_node_times(t->children[i]);
+      t->children_time += t->children[i]->self_time + t->children[i]->children_time;
+      t->orphan_time += t->children[i]->orphan_time;
     }
 
   for (i = 0; i < t->norphans; ++i)
     {
-      function_aggregate_call_tree_node_times(t->orphans + i);
-      t->orphan_time += t->orphans[i].self_time + t->orphans[i].children_time + t->orphans[i].orphan_time;
+      function_aggregate_call_tree_node_times(t->orphans[i]);
+      t->orphan_time += t->orphans[i]->self_time + t->orphans[i]->children_time + t->orphans[i]->orphan_time;
     }
 
   t->self_time = t->exit_time - t->entry_time - t->children_time - t->orphan_time;
+}
+
+static void
+function_add_caller_self_time (unsigned int caller_id, unsigned int callee_id, unsigned long long time)
+{
+  function *f = functions + caller_id;
+  
+  unsigned int i;
+  for (i = 0; i < f->ncallees; ++i)
+    if (f->callees[i].function_id == callee_id)
+      f->callees[i].self_time += time;
+
+  f = functions + callee_id;
+
+  for (i = 0; i < f->ncallers; ++i)
+    if (f->callers[i].function_id == caller_id)
+      f->callers[i].self_time += time;
 }
 
 static void
@@ -179,6 +194,8 @@ function_aggregate_function_time_for_id (tree_entry *e, unsigned int function_id
   if (e->function_id == function_id)
     {
       functions[function_id].self_time += e->self_time;
+      if (e->parent != NULL && e->parent->function_id != (unsigned int)-1)
+          function_add_caller_self_time(e->parent->function_id, e->function_id, e->self_time);
       if (!found)
         functions[function_id].children_time += e->children_time;
       found = 1;
@@ -186,9 +203,9 @@ function_aggregate_function_time_for_id (tree_entry *e, unsigned int function_id
 
   unsigned int i;
   for (i = 0; i < e->nchildren; ++i)
-    function_aggregate_function_time_for_id (e->children + i, function_id, found);
+    function_aggregate_function_time_for_id (e->children[i], function_id, found);
   for (i = 0; i < e->norphans; ++i)
-    function_aggregate_function_time_for_id (e->orphans + i, function_id, found);
+    function_aggregate_function_time_for_id (e->orphans[i], function_id, found);
 }
 
 static void
@@ -210,22 +227,22 @@ function_enter (uintptr_t address, uintptr_t caller, unsigned long long time)
   ++(f->calls);
 
   tree_entry *n = call_tree_current_node;
-  tree_entry *next = NULL;
+  tree_entry *next = malloc(sizeof(*next));
 
-  unsigned int caller_id = -1;
+  unsigned int caller_id = (unsigned int)-1;
 
   if (n->parent != NULL && !function_compare(functions + n->function_id, caller))
     {
       caller_id = n->function_id;
 
-      if (n->parent != NULL)
+      if (n->function_id != (unsigned int)-1)
         function_add_callee(functions + n->function_id, f - functions);
 
       ++(n->nchildren);
       n->children = realloc(n->children, sizeof(*(n->children)) * n->nchildren);
       assert_inner(n->children, "realloc");
 
-      next = n->children + n->nchildren - 1;
+      n->children[n->nchildren - 1] = next;
     }
   else
     {
@@ -233,7 +250,7 @@ function_enter (uintptr_t address, uintptr_t caller, unsigned long long time)
       n->orphans = realloc(n->orphans, sizeof(*(n->orphans)) * n->norphans);
       assert_inner(n->orphans, "realloc");
 
-      next = n->orphans + n->norphans - 1;
+      n->orphans[n->norphans - 1] = next;
     }
 
   function_add_caller(f, caller_id);

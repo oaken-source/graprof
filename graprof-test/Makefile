@@ -1,6 +1,10 @@
 
 all: vanilla gprof graprof graprof-static
 
+gp.out:
+	gcc -o test test.c -g -finstrument-functions -lgraprof -lgrapes
+	echo "f\n" | GRAPROF_OUT=gp.out ./test
+
 vanilla:
 	gcc -o test test.c -g -lgrapes
 	echo "f\n" | ./test
