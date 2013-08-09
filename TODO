@@ -1,8 +1,7 @@
 
 planned features
- [ 9 ] call graph analysis
- [ 8 ] flat memory profile analysis
- [ 7 ] trace visualization
+ [ 9 ] flat memory profile analysis
+ [ 8 ] trace visualization
 
 tasks
  [ 5 ] start ChangeLog
@@ -10,6 +9,7 @@ tasks
  [ 6 ] manpage
  [ 9 ] document and comment
  [ 1 ] configure flag to turn off gui and/or instrumentation and/or memory hooks
+ [ 4 ] fix children time aggregation for recursive call trees
 
 questions
  [ 5 ] Why does addr2line do some black magic on elf addresses
