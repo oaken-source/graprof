@@ -189,6 +189,24 @@ function_add_caller_self_time (unsigned int caller_id, unsigned int callee_id, u
 }
 
 static void
+function_add_caller_children_time (unsigned int caller_id, unsigned int callee_id, unsigned long long time)
+{
+  function *f = functions + caller_id;
+  
+  unsigned int i;
+  for (i = 0; i < f->ncallees; ++i)
+    if (f->callees[i].function_id == callee_id)
+      f->callees[i].children_time += time;
+
+  f = functions + callee_id;
+
+  for (i = 0; i < f->ncallers; ++i)
+    if (f->callers[i].function_id == caller_id)
+      f->callers[i].children_time += time;
+}
+
+
+static void
 function_aggregate_function_time_for_id (tree_entry *e, unsigned int function_id, unsigned int found)
 {
   if (e->function_id == function_id)
@@ -197,7 +215,11 @@ function_aggregate_function_time_for_id (tree_entry *e, unsigned int function_id
       if (e->parent != NULL && e->parent->function_id != (unsigned int)-1)
           function_add_caller_self_time(e->parent->function_id, e->function_id, e->self_time);
       if (!found)
-        functions[function_id].children_time += e->children_time;
+        {
+          functions[function_id].children_time += e->children_time;
+          if (e->parent != NULL && e->parent->function_id != (unsigned int)-1)
+            function_add_caller_children_time(e->parent->function_id, e->function_id, e->children_time);
+        }
       found = 1;
     }
 
