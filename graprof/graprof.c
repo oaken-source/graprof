@@ -5,6 +5,7 @@
 #include "trace.h"
 #include "flatprofile.h"
 #include "callgraph.h"
+#include "memprofile.h"
 
 #include <grapes/feedback.h>
 
@@ -66,10 +67,7 @@ main (int argc, char *argv[])
     callgraph_print();  
 
   if (args.tasks & GRAPROF_MEMORY_PROFILE)
-    {
-      errno = ENOSYS;
-      feedback_assert_wrn(0, "--memory-profile");
-    }
+    memprofile_print();
 
   if (graprof_out != stdout)
     fclose(graprof_out);

@@ -10,6 +10,7 @@ tasks
  [ 9 ] document and comment
  [ 1 ] configure flag to turn off gui and/or instrumentation and/or memory hooks
  [ 4 ] fix children time aggregation for recursive call trees
+ [ 5 ] add value description to call graph
 
 questions
  [ 5 ] Why does addr2line do some black magic on elf addresses

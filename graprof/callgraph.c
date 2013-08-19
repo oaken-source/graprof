@@ -106,6 +106,8 @@ callgraph_print ()
 
       fprintf(graprof_out, " -------------------------------------------------------\n");
     }
+
+  fprintf(graprof_out, "\n");
  
   return 0;
 }

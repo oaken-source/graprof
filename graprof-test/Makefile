@@ -18,13 +18,13 @@ gprof:
 graprof:
 	gcc -o test test.c -g -finstrument-functions -lgraprof -lgrapes
 	echo "f\n" | GRAPROF_OUT=gp.out ./test
-	graprof test gp.out -FCg -o graprof.out
+	graprof test gp.out -FCMg -o graprof.out
 	rm gp.out
 
 graprof-static:
 	gcc -o test test.c -g -finstrument-functions -lgraprof -Wl,-Bstatic -lgrapes-graprof -Wl,-Bdynamic
 	echo "f\n" | GRAPROF_OUT=gp.out ./test
-	graprof test gp.out -FCg -o graprof.out.static
+	graprof test gp.out -FCMg -o graprof.out.static
 	rm gp.out
 
 clean:
