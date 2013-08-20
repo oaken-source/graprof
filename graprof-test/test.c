@@ -89,6 +89,8 @@ main ()
   realloc(foo, 1000000000000LL);
   dostuff();
   dostuff2();
+  free(foo + 1);
+  free(foo);
   free(foo);
 
   char *foo = strdup("hello world");

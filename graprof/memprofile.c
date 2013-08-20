@@ -37,14 +37,34 @@ memprofile_print ()
   failed_realloc *failed_reallocs = memory_get_failed_reallocs(&nfailed_reallocs);
 
   for (i = 0; i < nfailed_reallocs; ++i)
-    if (failed_reallocs[i].reason == FAILED_INVALID_PTR)
-      fprintf(graprof_out, " %s:%u: %sfailed to reallocate a block at 0x%" PRIxPTR ", which was never allocated\n", failed_reallocs[i].file, failed_reallocs[i].line, (failed_reallocs[i].direct_call ? "" : "library call "), failed_reallocs[i].ptr);
-    else
-      fprintf(graprof_out, " %s:%u: %sfailed to reallocate a block at 0x%" PRIxPTR " of size %zu to size %zu\n", failed_reallocs[i].file, failed_reallocs[i].line, (failed_reallocs[i].direct_call ? "" : "library call "), failed_reallocs[i].ptr, failed_reallocs[i].start_size, failed_reallocs[i].end_size);
+    {
+      fprintf(graprof_out, " %s:%u: ", failed_reallocs[i].file, failed_reallocs[i].line);
+      if (!failed_reallocs[i].direct_call)
+        fprintf(graprof_out, "library call ");
+      fprintf(graprof_out, "failed to reallocate a block at 0x%" PRIxPTR, failed_reallocs[i].ptr);
+      if (failed_reallocs[i].reason == FAILED_INVALID_PTR)
+        fprintf(graprof_out, ", which was never allocated\n");
+      else
+        fprintf(graprof_out, " of size %zu to size %zu\n", failed_reallocs[i].start_size, failed_reallocs[i].end_size);
+    }
       
-
   if (nfailed_reallocs)
     fprintf(graprof_out, "\n");
+
+  unsigned int nfailed_frees = 0;
+  failed_free *failed_frees = memory_get_failed_frees(&nfailed_frees);
+
+  for (i = 0; i < nfailed_frees; ++i)
+    {
+      fprintf(graprof_out, " %s:%u: ", failed_frees[i].file, failed_frees[i].line);
+      if (!failed_frees[i].direct_call)
+        fprintf(graprof_out, "library_call ");
+      fprintf(graprof_out, "failed to free a block at 0x%" PRIxPTR, failed_frees[i].ptr);
+      if (failed_frees[i].reason == FAILED_INVALID_PTR)
+        fprintf(graprof_out, ", which was never allocated\n");
+      else
+        fprintf(graprof_out, ", which was already freed\n");
+    }
 
   fprintf(graprof_out, "\n");
 }

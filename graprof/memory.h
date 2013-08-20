@@ -40,6 +40,20 @@ struct failed_realloc
 
 typedef struct failed_realloc failed_realloc;
 
+struct failed_free
+{
+  unsigned int reason;
+  uintptr_t ptr;
+  function *caller;
+  unsigned int direct_call;
+  unsigned long long time;
+
+  char *file;
+  unsigned int line;
+};
+
+typedef struct failed_free failed_free;
+
 int memory_malloc(size_t, uintptr_t, uintptr_t, unsigned long long);
 
 int memory_realloc(uintptr_t, size_t, uintptr_t, uintptr_t, unsigned long long);
@@ -56,3 +70,4 @@ unsigned int memory_get_total_frees();
 
 failed_malloc* memory_get_failed_mallocs(unsigned int *nfailed_mallocs);
 failed_realloc* memory_get_failed_reallocs(unsigned int *nfailed_reallocs);
+failed_free* memory_get_failed_frees(unsigned int *nfailed_frees);
