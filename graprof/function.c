@@ -140,17 +140,6 @@ function_add_callee (function *f, unsigned int callee_id)
   return 0;
 }
 
-static int
-function_compare (function *f, uintptr_t addr)
-{
-  char *name;
-  char *file;
-  int res = addr_translate(addr, &name, &file, NULL);
-  assert_inner(!res, "addr_translate");
-
-  return (strcmp(f->name, name) || strcmp(f->file, file));
-}
-
 static void
 function_aggregate_call_tree_node_times (tree_entry *t)
 {
@@ -329,8 +318,33 @@ function_get_by_address (uintptr_t address)
 }
 
 function*
-function_get_all(unsigned int *nfunctions_ptr)
+function_get_all (unsigned int *nfunctions_ptr)
 {
   *nfunctions_ptr = nfunctions;
   return functions;
 }
+
+function*
+function_get_current ()
+{
+  if (call_tree_current_node->function_id != (unsigned int)-1)
+    return functions + call_tree_current_node->function_id;
+  return NULL;
+}
+
+int
+function_compare (function *f, uintptr_t addr)
+{
+  char *name;
+  char *file;
+  int res = addr_translate(addr, &name, &file, NULL);
+  assert_inner(!res, "addr_translate");
+
+  res = (strcmp(f->name, name) || strcmp(f->file, file));
+
+  free(name);
+  free(file);
+
+  return res;
+}
+

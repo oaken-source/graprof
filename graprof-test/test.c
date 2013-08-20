@@ -83,7 +83,10 @@ main ()
 {
   feedback_readline("say");
 
+  foo = calloc(1000000, 1000000);
   foo = calloc(1000, 1);
+  realloc(foo + 1, 15);
+  realloc(foo, 1000000000000LL);
   dostuff();
   dostuff2();
   free(foo);

@@ -27,7 +27,7 @@ malloc_hook (size_t size, void *caller)
   buffer_enlarge(sizeof(char) + sizeof(size_t) + 2 * sizeof(uintptr_t) + sizeof(unsigned long long));
   buffer_append(char, '+');
   buffer_append(size_t, size);
-  buffer_append(uintptr_t, (uintptr_t)caller);
+  buffer_append(uintptr_t, (uintptr_t)(caller - 4));
   buffer_append(uintptr_t, (uintptr_t)result);
   buffer_append(unsigned long long, highrestimer_get());
 
@@ -48,7 +48,7 @@ calloc_hook (size_t nmemb, size_t size, void *caller)
   buffer_enlarge(sizeof(char) + sizeof(size_t) + 2 * sizeof(uintptr_t) + sizeof(unsigned long long));
   buffer_append(char, '+');
   buffer_append(size_t, nmemb * size);
-  buffer_append(uintptr_t, (uintptr_t)caller);
+  buffer_append(uintptr_t, (uintptr_t)(caller - 4));
   buffer_append(uintptr_t, (uintptr_t)result);
   buffer_append(unsigned long long, highrestimer_get());
 
@@ -70,7 +70,7 @@ realloc_hook (void *ptr, size_t size, void *caller)
   buffer_append(char, '*');
   buffer_append(uintptr_t, (uintptr_t)ptr);
   buffer_append(size_t, size);
-  buffer_append(uintptr_t, (uintptr_t)caller);
+  buffer_append(uintptr_t, (uintptr_t)(caller - 4));
   buffer_append(uintptr_t, (uintptr_t)result);
   buffer_append(unsigned long long, highrestimer_get());
 
@@ -91,7 +91,7 @@ free_hook (void *ptr, void *caller)
       buffer_enlarge(sizeof(char) + 2 * sizeof(uintptr_t) + sizeof(unsigned long long));
       buffer_append(char, '-');
       buffer_append(uintptr_t, (uintptr_t)ptr);
-      buffer_append(uintptr_t, (uintptr_t)caller);
+      buffer_append(uintptr_t, (uintptr_t)(caller - 4));
       buffer_append(unsigned long long, highrestimer_get());
     }
 

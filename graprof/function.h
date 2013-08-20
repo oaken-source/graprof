@@ -41,3 +41,7 @@ int function_exit_all(unsigned long long);
 function* function_get_by_address(uintptr_t);
 
 function* function_get_all(unsigned int*);
+
+function* function_get_current();
+
+int function_compare(function *f, uintptr_t addr);

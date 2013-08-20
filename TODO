@@ -11,7 +11,8 @@ tasks
  [ 1 ] configure flag to turn off gui and/or instrumentation and/or memory hooks
  [ 4 ] fix children time aggregation for recursive call trees
  [ 5 ] add value description to call graph
-
+ [ 3 ] add parameter names to header declarations
+ 
 questions
  [ 5 ] Why does addr2line do some black magic on elf addresses
 

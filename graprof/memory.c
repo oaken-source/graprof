@@ -1,5 +1,6 @@
 
 #include "memory.h"
+#include "addr.h"
 
 #include <stdio.h>
 #include <inttypes.h>
@@ -9,6 +10,7 @@
 #define _ __attribute__ ((unused))
 
 unsigned long long total_allocated = 0;
+unsigned long long current_allocated = 0;
 unsigned long long maximum_allocated = 0;
 unsigned long long total_freed = 0;
 
@@ -25,8 +27,15 @@ struct block
 
 typedef struct block block;
 
+
 block *blocks = NULL;
 unsigned int nblocks = 0;
+
+failed_malloc *failed_mallocs = NULL;
+unsigned int nfailed_mallocs = 0;
+
+failed_realloc *failed_reallocs = NULL;
+unsigned int nfailed_reallocs = 0;
 
 static block*
 memory_get_block_by_address (uintptr_t address)
@@ -39,21 +48,100 @@ memory_get_block_by_address (uintptr_t address)
   return NULL;
 }
 
-int
-memory_malloc (size_t size, _ uintptr_t caller, uintptr_t result, _ unsigned long long time)
+static int
+memory_add_failed_malloc (size_t size, uintptr_t caller, unsigned long long time)
 {
+  ++nfailed_mallocs;
+  failed_mallocs = realloc(failed_mallocs, sizeof(*failed_mallocs) * nfailed_mallocs);
+  assert_inner(failed_mallocs, "realloc");
+
+  failed_malloc *f = failed_mallocs + nfailed_mallocs - 1;
+
+  f->size = size;
+  f->time = time;
+  f->file = NULL;
+  f->line = 0;
+
+  function *func = function_get_current();
+
+  f->caller = func;
+  
+  if (!function_compare(func, caller))
+    {
+      f->direct_call = 1;
+      int res = addr_translate(caller, NULL, &(f->file), &(f->line)); 
+      assert_inner(!res, "addr_translate");
+    }
+  else
+    {
+      f->direct_call = 0;
+      f->file = func->file;
+      f->line = func->line;
+    }
+
+  return 0;
+}
+
+static int 
+memory_add_failed_realloc (uintptr_t ptr, size_t size, uintptr_t caller, unsigned long long time, unsigned int reason)
+{
+  ++nfailed_reallocs;
+  failed_reallocs = realloc(failed_reallocs, sizeof(*failed_reallocs) * nfailed_reallocs);
+  assert_inner(failed_reallocs, "realloc");
+
+  failed_realloc *f = failed_reallocs + nfailed_reallocs - 1;
+
+  f->reason = reason;
+
+  f->start_size = 0;
+  if (f->reason != FAILED_INVALID_PTR)
+    {
+      block *b = memory_get_block_by_address(ptr);
+      f->start_size = b->size;
+    }
+  
+  f->end_size = size;
+  f->ptr = ptr;
+  f->time = time;
+  f->file = NULL;
+  f->line = 0;
+
+  function *func = function_get_current();
+
+  f->caller = func;
+
+  if (!function_compare(func, caller))
+    {
+      f->direct_call = 1;
+      int res = addr_translate(caller, NULL, &(f->file), &(f->line));
+      assert_inner(!res, "addr_reanslate");
+    } 
+  else
+    {
+      f->direct_call = 0;
+      f->file = func->file;
+      f->line = func->line;
+    }
+
+  return 0;
+}
+
+int
+memory_malloc (size_t size, uintptr_t caller, uintptr_t result, unsigned long long time)
+{
+  ++total_allocations;
+
   if (!result)
     {
-      // TODO: memory_add_failed_malloc(size, caller, result, time, FAILED_RESULT);
+      memory_add_failed_malloc(size, caller, time);
       return 0;
     }
 
   total_allocated += size;
+  current_allocated += size;
 
-  ++total_allocations;
-
-  if (total_allocated > maximum_allocated)
-    maximum_allocated = total_allocated;
+  if (current_allocated > maximum_allocated)
+    maximum_allocated = current_allocated;
 
   ++nblocks;
   blocks = realloc(blocks, sizeof(*blocks) * nblocks);
@@ -69,46 +157,46 @@ memory_malloc (size_t size, _ uintptr_t caller, uintptr_t result, _ unsigned lon
 int
 memory_realloc (uintptr_t ptr, size_t size, uintptr_t caller, uintptr_t result, unsigned long long time)
 {
+  ++total_reallocations;
+  
   // edge cases: 
   //   if ptr == NULL, behave like malloc but keep correct counters
   if (!ptr)
     {
-      ++total_reallocations;
-      --total_allocations;
       memory_malloc(size, caller, result, time);
+      --total_allocations;
       return 0;
     }
 
   //   if size == 0, behave like free but keep correct counters
   if (!size)
     {
-      ++total_reallocations;
-      --total_frees;
       memory_free(ptr, caller, time);
-      return 0;
-    }
-
-  if (!result)
-    {
-      // TODO: memory_add_failed_realloc(ptr, size, caller, result, time, FAILED_RESULT);
+      --total_frees;
       return 0;
     }
 
   block *b = memory_get_block_by_address(ptr);
   if (!b || b->freed)
     {
-      // TODO: memory_add_failed_realloc(ptr, size, caller, result, time, FAILED_INVALID_PTR);
+      memory_add_failed_realloc(ptr, size, caller, time, FAILED_INVALID_PTR);
       return 0;
     }
 
-  ++total_reallocations;
+  if (!result)
+    {
+      memory_add_failed_realloc(ptr, size, caller, time, FAILED_RESULT);
+      return 0;
+    }
 
   int diff = size - b->size;
   if (diff > 0)
     total_allocated += diff;
 
-  if (total_allocated > maximum_allocated)
-    maximum_allocated = total_allocated;
+  current_allocated += diff;
+
+  if (current_allocated > maximum_allocated)
+    maximum_allocated = current_allocated;
 
   b->address = result;
   b->size = size;
@@ -118,6 +206,8 @@ memory_realloc (uintptr_t ptr, size_t size, uintptr_t caller, uintptr_t result, 
 
 int memory_free (uintptr_t ptr, _ uintptr_t caller, _ unsigned long long time)
 {
+  ++total_frees;
+  
   block *b = memory_get_block_by_address(ptr);
   if (!b)
     {
@@ -133,7 +223,7 @@ int memory_free (uintptr_t ptr, _ uintptr_t caller, _ unsigned long long time)
 
   b->freed = 1;
   total_freed += b->size;
-  ++total_frees;
+  current_allocated -= b->size;
 
   return 0;
 }
@@ -174,4 +264,18 @@ unsigned int
 memory_get_total_frees ()
 {
   return total_frees;
+}
+
+failed_malloc*
+memory_get_failed_mallocs (unsigned int *n)
+{
+  *n = nfailed_mallocs;
+  return failed_mallocs;
+}
+
+failed_realloc*
+memory_get_failed_reallocs (unsigned int *n)
+{
+  *n = nfailed_reallocs;
+  return failed_reallocs;
 }
