@@ -1,17 +1,16 @@
 
 planned features
- [ 9 ] flat memory profile analysis
- [ 8 ] trace visualization
+ [ 9 ] trace visualization
 
-tasks
- [ 5 ] start ChangeLog
- [ 7 ] add License headers
+tasks (marked with * are necessary for next release)
+ [*5 ] start ChangeLog
  [ 6 ] manpage
- [ 9 ] document and comment
+ [*9 ] document and comment
  [ 1 ] configure flag to turn off gui and/or instrumentation and/or memory hooks
- [ 4 ] fix children time aggregation for recursive call trees
- [ 5 ] add value description to call graph
- [ 3 ] add parameter names to header declarations
+ [*5 ] add value description to call graph
+ [*3 ] add parameter names to header declarations
+ [*8 ] add a bugtracker to graprof.grapentin.org
+ [*7 ] readme
 
 questions
  [ 5 ] Why does addr2line do some black magic on elf addresses

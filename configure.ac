@@ -10,7 +10,7 @@ AC_CONFIG_MACRO_DIR([scripts/m4])
 
 AC_SUBST([AM_CFLAGS], [])
 
-AM_INIT_AUTOMAKE([-Wall -Werror foreign])
+AM_INIT_AUTOMAKE([-Wall -Werror gnu])
 
 AC_PROG_CC
 AM_PROG_AR
