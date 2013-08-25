@@ -1,5 +1,4 @@
 2013-08-25  Andreas Grapentin  <andreas@grapentin.org>
 
 	* libgraprof/highrestimer.h: added functional comments to public declaration
-	* libgraprof/highrestimer.c: moved away from function pointer approach, and
-	added proper error handling to highrestimer_get
+	* libgraprof/highrestimer.c: moved away from function pointer approach, added proper error handling to highrestimer_get

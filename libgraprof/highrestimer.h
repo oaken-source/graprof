@@ -21,7 +21,7 @@
 
 #pragma once
 
-/* get the nanoseconds elapsed since the start of the program 
+/* get the number of nanoseconds elapsed since the start of the program 
  *
  * errors:
  *   EINVAL - your system does not support CLOCK_MONOTONIC_RAW
