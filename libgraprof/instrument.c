@@ -29,16 +29,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static void __cyg_profile_func_enter_impl(void *, void*);
-static void __cyg_profile_func_exit_impl(void*, void*);
-
-static void instrument_nop(void*, void*);
-
-static void (*__cyg_profile_func_enter_ptr)(void*, void*) = &instrument_nop;
-static void (*__cyg_profile_func_exit_ptr)(void*, void*) = &instrument_nop;
+static unsigned int instrument_active = 0;
 
 static void
-__cyg_profile_func_enter_impl (void *func, void *caller)
+instrument_enter (void *func, void *caller)
 {
   unsigned long long time = highrestimer_get();
 
@@ -54,7 +48,7 @@ __cyg_profile_func_enter_impl (void *func, void *caller)
 }
 
 static void
-__cyg_profile_func_exit_impl (void *func __attribute__ ((unused)), void *caller __attribute__ ((unused)))
+instrument_exit (void *func __attribute__ ((unused)), void *caller __attribute__ ((unused)))
 {
   mallhooks_uninstall_hooks();
 
@@ -66,34 +60,28 @@ __cyg_profile_func_exit_impl (void *func __attribute__ ((unused)), void *caller 
   buffer_append(unsigned long long, highrestimer_get());
 }
 
-static void
-instrument_nop (void *func __attribute__ ((unused)), void *caller __attribute__ ((unused)))
-{
-  return;
-}
-
 void
 instrument_install_hooks ()
 {
-  __cyg_profile_func_enter_ptr = &__cyg_profile_func_enter_impl;
-  __cyg_profile_func_exit_ptr = &__cyg_profile_func_exit_impl;
+  instrument_active = 1;
 }
 
 void
 instrument_uninstall_hooks ()
 {
-  __cyg_profile_func_enter_ptr = &instrument_nop;
-  __cyg_profile_func_exit_ptr = &instrument_nop;
+  instrument_active = 0;
 }
 
 void
 __cyg_profile_func_enter (void *func, void *caller)
 {
-  (*__cyg_profile_func_enter_ptr)(func, caller);
+  if (instrument_active)
+    instrument_enter(func, caller);
 }
 
 void
 __cyg_profile_func_exit (void *func, void *caller)
 {
-  (*__cyg_profile_func_exit_ptr)(func, caller);
+  if (instrument_active)
+    instrument_exit(func, caller);
 }

@@ -10,7 +10,9 @@ tasks (marked with * are necessary for next release)
  [*3 ] add parameter names to header declarations
  [*8 ] add a bugtracker to graprof.grapentin.org
  [*7 ] readme
-
+ [ 1 ] make highrestimer clock configurable
+ [ 4 ] profile different methods of hook activation / deactivation
+ 
 questions
  [ 5 ] Why does addr2line do some black magic on elf addresses
  [ 9 ] Can I write traces on crash?

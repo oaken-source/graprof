@@ -24,6 +24,11 @@
 extern void *libgraprof_buf;
 extern unsigned long libgraprof_bufsize;
 
+/* these macros are used by the intrumentation and the malloc hooks to
+ * build an in-memory trace data block, that is written to disk upon
+ * program termination.
+ */
+
 #define buffer_enlarge(S) \
   unsigned long index = libgraprof_bufsize; \
   libgraprof_bufsize += (S); \

@@ -21,6 +21,10 @@
 
 #pragma once
 
+/* activate the function instrumentation hooks
+ */
 void instrument_install_hooks();
 
+/* deactivate the function instrumentation hooks
+ */
 void instrument_uninstall_hooks();

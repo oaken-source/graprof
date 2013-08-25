@@ -21,6 +21,10 @@
 
 #pragma once
 
+/* activate the allocation hooks
+ */
 void mallhooks_install_hooks();
 
+/* deactivate the allocation hooks
+ */
 void mallhooks_uninstall_hooks();

@@ -58,7 +58,7 @@ libgraprof_init ()
 
 void
 __attribute__ ((destructor))
-libgraprof_fini()
+libgraprof_fini ()
 {
   int errsv = errno;
 

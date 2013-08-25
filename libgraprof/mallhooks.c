@@ -28,7 +28,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-unsigned int mallhooks_active = 0;
+static unsigned int mallhooks_active = 0;
 
 extern void* __libc_malloc(size_t size);
 extern void* __libc_calloc(size_t nmemb, size_t size);

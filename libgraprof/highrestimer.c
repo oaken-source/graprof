@@ -24,6 +24,7 @@
 #include <time.h>
 
 #include <grapes/util.h>
+#include <grapes/feedback.h>
 
 static struct timespec highrestimer_ts;
 
@@ -33,7 +34,12 @@ static void
 __attribute__((constructor))
 highrestimer_init ()
 {
-  clock_gettime(HIGHRESTIMER_CLOCK, &highrestimer_ts);
+  int res = clock_gettime(HIGHRESTIMER_CLOCK, &highrestimer_ts);
+  if (res)
+    {
+      errno = 0;
+      feedback_warning("selected clock_id is not valid. Time measurement will not work.");
+    }
 }
 
 unsigned long long

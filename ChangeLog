@@ -1,4 +1,9 @@
 2013-08-25  Andreas Grapentin  <andreas@grapentin.org>
 
-	* libgraprof/highrestimer.h: added functional comments to public declaration
-	* libgraprof/highrestimer.c: moved away from function pointer approach, added proper error handling to highrestimer_get
+	* libgraprof/highrestimer.c: removed function pointer approach, added proper error handling 
+	* libgraprof/instrument.c: removed function pointer approach
+	* libgraprof/mallhooks.c: made file-global variable static
+	* libgraprof/buffer.h: added functional comments to public declaration
+	* libgraprof/highrestimer.h: likewise
+	* libgraprof/instrument.h: likewise
+	* libgraprof/mallhooks.h: likewise
