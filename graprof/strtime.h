@@ -21,4 +21,13 @@
 
 #pragma once
 
-void strtime(unsigned long long*, const char**);
+/* convenience function for human-readable times converts ns to µs, ms or s, 
+ * depending on which is most appropriate for the given value.
+ *
+ * params:
+ *   time - the time value in ns, this is modified to fit the resulting time
+ *     unit.
+ *   prefix - the prefix of the resulting time unit. this is either 'n', 'µ', 
+ *     'm' or ''
+ */
+void strtime(unsigned long long *time, const char **prefix);

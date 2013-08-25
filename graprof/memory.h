@@ -26,11 +26,15 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+/* some types of memory allocation / deallocation failures
+ */
 #define FAILED_RESULT      0x01
 #define FAILED_INVALID_PTR 0x02
 #define FAILED_DOUBLE_FREE 0x03
 
 
+/* this struct holds all information relevant to a malloc failure
+ */
 struct failed_malloc
 {
   size_t size;
@@ -44,6 +48,8 @@ struct failed_malloc
 
 typedef struct failed_malloc failed_malloc;
 
+/* this struct holds all information relevant to a realloc failure
+ */
 struct failed_realloc
 {
   unsigned int reason;
@@ -60,6 +66,8 @@ struct failed_realloc
 
 typedef struct failed_realloc failed_realloc;
 
+/* this struct holds all information relevant to a free failure
+ */
 struct failed_free
 {
   unsigned int reason;
@@ -74,20 +82,125 @@ struct failed_free
 
 typedef struct failed_free failed_free;
 
-int memory_malloc(size_t, uintptr_t, uintptr_t, unsigned long long);
+/* process an allocation event that has been read from the trace data. This
+ * event may have been gathered from calls to malloc or calloc
+ *
+ * params:
+ *   size - the size of the allocation in bytes
+ *   caller - the return address of the malloc call - 4
+ *   result - the return value of the malloc call
+ *   time - the time of the malloc call in ns
+ *
+ * errors:
+ *   may fail and set errno for the same reasons as realloc and addr_translate
+ *
+ * returns:
+ *   -1 on failure, 0 on success
+ */
+int memory_malloc(size_t size, uintptr_t caller, uintptr_t result, unsigned long long time);
 
-int memory_realloc(uintptr_t, size_t, uintptr_t, uintptr_t, unsigned long long);
+/* process a reallocation event that has been read from the trace data. Events
+ * that fulfill certain conditions are relayed as allocation or free events.
+ *
+ * params:
+ *   ptr - the pointer passed to realloc
+ *   size - the size of the reallocation in bytes
+ *   caller - the return address of the realloc call - 4
+ *   result - the return value of the realloc call
+ *   time - the time of the realloc call in ns
+ *
+ * errors:
+ *   may fail and set errno for the same reasons as realloc and addr_translate
+ *   
+ * returns:
+ *   -1 on failure, 0 on success
+ */
+int memory_realloc(uintptr_t ptr, size_t size, uintptr_t caller, uintptr_t result, unsigned long long time);
 
-int memory_free(uintptr_t, uintptr_t, unsigned long long);
+/* process a free event that has been read from the trace data
+ *
+ * params:
+ *   ptr - the pointer passed to free
+ *   caller - the return address of the free call - 4
+ *   time - the time of the free call in ns
+ *
+ * errors:
+ *   may fail and set errno for the same reasons as realloc and addr_translate
+ *
+ * returns:
+ *   -1 on failure, 0 on success
+ */
+int memory_free(uintptr_t ptr, uintptr_t caller, unsigned long long time);
 
+/* get the total number of bytes allocated
+ *
+ * returns:
+ *   the total number of bytes allocated
+ */
 unsigned long long memory_get_total_allocated();
+
+/* get the maximum number of bytes allocated during child runtime
+ *
+ * returns:
+ *   the maximum number of bytes allocated
+ */
 unsigned long long memory_get_maximum_allocated();
+
+/* get the total number of bytes freed
+ *
+ * returns:
+ *   the total number of bytes freed
+ */
 unsigned long long memory_get_total_freed();
 
+/* get the total number of allocation trace events
+ *
+ * returns:
+ *   the total number of allocations
+ */
 unsigned int memory_get_total_allocations();
+
+/* get the total number of reallocation trace events
+ *
+ * returns:
+ *   the total number of reallocation events
+ */
 unsigned int memory_get_total_reallocations();
+
+/* get the total number of deallocation trace events
+ *
+ * returns:
+ *   the total number of deallocation events
+ */
 unsigned int memory_get_total_frees();
 
+/* get a list of failed allocation events and their meta information
+ *
+ * params:
+ *   nfailed_mallocs - pointer where the size of the returned array is stored
+ *
+ * returns:
+ *   a pointer to the first element in an array of failed allocation events
+ */
 failed_malloc* memory_get_failed_mallocs(unsigned int *nfailed_mallocs);
+
+/* get a list of failed reallocation events and their meta information
+ *
+ * params:
+ *   nfailed_reallocs - pointer where the size of the returned array is stored
+ *
+ * returns:
+ *   a pointer to the first element in an array of failed reallocation events
+ */
 failed_realloc* memory_get_failed_reallocs(unsigned int *nfailed_reallocs);
+
+/* get a list of failed deallocation events and their meta information
+ *
+ * params:
+ *   nfailed_freed - pointer where the size of the returned array is stored
+ *
+ * returns:
+ *   a pointer to the first element in an array of failed deallocation events
+ */
 failed_free* memory_get_failed_frees(unsigned int *nfailed_frees);
+

@@ -21,4 +21,6 @@
 
 #pragma once
 
-int flatprofile_print();
+/* print the flat runtime profile to graprof_out, declared in graprof.c 
+ */
+void flatprofile_print();

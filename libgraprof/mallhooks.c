@@ -25,7 +25,6 @@
 #include "buffer.h"
 
 #include <stdint.h>
-#include <stdio.h>
 #include <stdlib.h>
 
 static unsigned int mallhooks_active = 0;

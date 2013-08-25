@@ -46,7 +46,7 @@ cmpfunction (const void *p1, const void *p2)
   return 1;
 }
 
-int 
+void 
 flatprofile_print ()
 {
   fprintf(graprof_out, "Flat profile:\n");
@@ -133,6 +133,4 @@ flatprofile_print ()
   fprintf(graprof_out, " name       the name of the function, if available, else its\n");
   fprintf(graprof_out, "            address - this is the minor sort of this listing\n");
   fprintf(graprof_out, "\n");
-
-  return 0;
 }

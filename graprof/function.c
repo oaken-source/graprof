@@ -22,7 +22,6 @@
 #include "function.h"
 #include "addr.h"
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <inttypes.h>
 #include <string.h>
@@ -259,6 +258,7 @@ function_enter (uintptr_t address, uintptr_t caller, unsigned long long time)
 
   tree_entry *n = call_tree_current_node;
   tree_entry *next = malloc(sizeof(*next));
+  assert_inner(next,  "malloc");
 
   unsigned int caller_id = (unsigned int)-1;
 
@@ -267,7 +267,10 @@ function_enter (uintptr_t address, uintptr_t caller, unsigned long long time)
       caller_id = n->function_id;
 
       if (n->function_id != (unsigned int)-1)
-        function_add_callee(functions + n->function_id, f - functions);
+        {
+          int res = function_add_callee(functions + n->function_id, f - functions);
+          assert_inner(!res, "function_add_callee");
+        }
 
       ++(n->nchildren);
       n->children = realloc(n->children, sizeof(*(n->children)) * n->nchildren);
@@ -284,7 +287,8 @@ function_enter (uintptr_t address, uintptr_t caller, unsigned long long time)
       n->orphans[n->norphans - 1] = next;
     }
 
-  function_add_caller(f, caller_id);
+  int res = function_add_caller(f, caller_id);
+  assert_inner(!res, "function_add_callee");
 
   function_call_tree_entry_init(next);
   next->function_id = f - functions;
@@ -315,7 +319,7 @@ int
 function_exit_all (unsigned long long time)
 {
   while (call_tree_current_node->parent != NULL)
-    {
+      {
       int res = function_exit(time);
       assert_inner(!res, "function_exit");
     }
@@ -338,9 +342,9 @@ function_get_by_address (uintptr_t address)
 }
 
 function*
-function_get_all (unsigned int *nfunctions_ptr)
+function_get_all (unsigned int *n)
 {
-  *nfunctions_ptr = nfunctions;
+  *n = nfunctions;
   return functions;
 }
 

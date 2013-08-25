@@ -23,6 +23,9 @@
 
 #include <stdint.h>
 
+/* this struct holds the call data information of one side of a caller-callee 
+ * pair, as well as some aggregated timing values. 
+ */
 struct call_data
 {
   unsigned int function_id;
@@ -33,6 +36,8 @@ struct call_data
 
 typedef struct call_data call_data;
 
+/* this struct holds all information related to a function
+ */
 struct function
 {
   uintptr_t address;
@@ -52,16 +57,84 @@ struct function
 
 typedef struct function function;
 
-int function_enter(uintptr_t, uintptr_t, unsigned long long);
+/* process an enter event for a given function, that has been read from the
+ * trace data
+ *
+ * params:
+ *   address - the address of the function entry
+ *   caller - thr return address of the function minus 4
+ *   time - the time of the call in ns
+ *
+ * errors:
+ *   may fail and set errno for the same reasons as malloc and realloc
+ *
+ * returns:
+ *   -1 on failure, 0 on success
+ */
+int function_enter(uintptr_t address, uintptr_t caller, unsigned long long time);
 
-int function_exit(unsigned long long);
+/* process an exit event for the last entered function, that has been read
+ * from the trace data
+ *
+ * params:
+ *   time - the time of the return in ns
+ *
+ * returns:
+ *   0
+ */
+int function_exit(unsigned long long time);
 
-int function_exit_all(unsigned long long);
+/* this function is called at the end of the trace data, representing child
+ * termination. The call stack is cleared by exiting all unexited functions,
+ * and the time aggregation is initiated.
+ *
+ * params:
+ *   time - the time of the end symbol in ns
+ *
+ * returns:
+ *   0
+ */
+int function_exit_all(unsigned long long time);
 
-function* function_get_by_address(uintptr_t);
+/* get the function represented by a given address
+ *
+ * params:
+ *   address - the address of the requested function
+ *
+ * returns:
+ *   a pointer to the function, if avaiable, NULL otherwise
+ */
+function* function_get_by_address(uintptr_t address);
 
-function* function_get_all(unsigned int*);
+/* get the list of known functions
+ *
+ * params:
+ *   nfunctions - a pointer where the length of the returned array is stored
+ *
+ * returns:
+ *   a pointer to the first of an array of functions
+ */
+function* function_get_all(unsigned int *nfunctions);
 
+/* get the function currently on the top of the call stack
+ *
+ * returns:
+ *   a pointer to the function currently on top of the call stack, if not 
+ *   empty, NULL otherwise
+ */
 function* function_get_current();
 
+/* compare a function and an address, translate the address to file name and
+ * function name, and return the result of the string comparison of both, 
+ * analogous to strcmp.
+ *
+ * errors:
+ *   may (or may not) fail and set errno for the same reasons as addr_translate
+ *
+ * returns:
+ *   -1 on failure,
+ *   < 0, if function "<" address
+ *   0, if function "=" address
+ *   > 0, if function ">" address
+ */
 int function_compare(function *f, uintptr_t addr);

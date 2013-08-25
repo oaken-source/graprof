@@ -21,6 +21,24 @@
 
 #pragma once
 
-int trace_read(const char*);
+/* read trace data from a given file and distribute the contained information
+ * to the appropriate submodules.
+ *
+ * params:
+ *   filename - the file that contains the trace data
+ *
+ * errors:
+ *   ENOTSUP - the trace data is somehow invalid
+ *   may also fail and set errno for the same reasons as fopen and malloc
+ *
+ * returns:
+ *   -1 on failure, 0 on success
+ */
+int trace_read(const char *filename);
 
+/* get the total number of ns elapsed from start to end of the program
+ *
+ * returns:
+ *   the time value associated with the end trace symbol
+ */
 unsigned long long trace_get_total_runtime();

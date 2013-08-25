@@ -1,9 +1,23 @@
 2013-08-25  Andreas Grapentin  <andreas@grapentin.org>
 
-	* libgraprof/highrestimer.c: removed function pointer approach, added proper error handling 
+	* libgraprof/highrestimer.c: removed function pointer approach, added
+	proper error handling, made highrestimer_init static
 	* libgraprof/instrument.c: removed function pointer approach
-	* libgraprof/mallhooks.c: made file-global variable static
-	* libgraprof/buffer.h: added functional comments to public declaration
+	* libgraprof/mallhooks.c: made mallhooks_active static
+	* libgraprof/libgraprof.c: made libgraprof_init libgraprof_fini	static
+	* graprof/addr.c: made addr_fini static
+	* graprof/function.c: improved error handling for subfunctions in
+	function_enter
+
+	* libgraprof/buffer.h: added comments to public declarations
 	* libgraprof/highrestimer.h: likewise
 	* libgraprof/instrument.h: likewise
 	* libgraprof/mallhooks.h: likewise
+	* graprof/addr.h: likewise
+	* graprof/callgraph.h: likewise
+	* graprof/flatprofile.h: likewise
+	* graprof/function.h: likewise
+	* graprof/memory.h: likewise
+	* graprof/memprofile.h: likewise
+	* graprof/strtime.h: likewise
+	* graprof/trace.h: likewise

@@ -26,7 +26,6 @@
 #include "buffer.h"
 
 #include <stdint.h>
-#include <stdio.h>
 #include <stdlib.h>
 
 static unsigned int instrument_active = 0;

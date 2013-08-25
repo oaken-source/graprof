@@ -34,7 +34,7 @@ FILE *libgraprof_out = NULL;
 void *libgraprof_buf = NULL;
 unsigned long libgraprof_bufsize = 0;
 
-void 
+static void 
 __attribute__ ((constructor))
 libgraprof_init ()
 {
@@ -56,7 +56,7 @@ libgraprof_init ()
   errno = errsv;
 }
 
-void
+static void
 __attribute__ ((destructor))
 libgraprof_fini ()
 {

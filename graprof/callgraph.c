@@ -32,7 +32,7 @@
 
 extern FILE *graprof_out;
 
-int
+void
 callgraph_print ()
 {
   fprintf(graprof_out, "Call graph:\n");
@@ -128,6 +128,4 @@ callgraph_print ()
     }
 
   fprintf(graprof_out, "\n");
- 
-  return 0;
 }

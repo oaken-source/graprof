@@ -25,7 +25,6 @@
 #include <bfd.h>
 
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 
 #include <grapes/util.h>
@@ -137,7 +136,7 @@ addr_translate (uintptr_t pc, char **function, char **file, unsigned int *line)
   return 0;
 }
 
-void
+static void
 __attribute__ ((destructor))
 addr_fini ()
 {
