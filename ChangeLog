@@ -21,3 +21,9 @@
 	* graprof/memprofile.h: likewise
 	* graprof/strtime.h: likewise
 	* graprof/trace.h: likewise
+
+	* graprof/memory.h: struct block from memory.c moved here, added
+	prototype for an accessor function for the block array contained in
+	memory.c
+	* graprof/memory.c: removed struct block (now in memory.h), added
+	accessor function to block array memory_get_blocks

@@ -38,16 +38,6 @@ unsigned int total_allocations = 0;
 unsigned int total_reallocations = 0;
 unsigned int total_frees = 0;
 
-struct block
-{
-  uintptr_t address;
-  size_t size;
-  unsigned int freed;
-};
-
-typedef struct block block;
-
-
 block *blocks = NULL;
 unsigned int nblocks = 0;
 
@@ -349,4 +339,11 @@ memory_get_failed_frees (unsigned int *n)
 {
   *n = nfailed_frees;
   return failed_frees;
+}
+
+block*
+memory_get_blocks (unsigned int *n)
+{
+  *n = nblocks;
+  return blocks;
 }

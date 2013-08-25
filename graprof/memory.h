@@ -32,6 +32,16 @@
 #define FAILED_INVALID_PTR 0x02
 #define FAILED_DOUBLE_FREE 0x03
 
+/* this struct holds all information related to an allocated block of memory
+ */
+struct block
+{
+  uintptr_t address;
+  size_t size;
+  unsigned int freed;
+};
+
+typedef struct block block;
 
 /* this struct holds all information relevant to a malloc failure
  */
@@ -204,3 +214,12 @@ failed_realloc* memory_get_failed_reallocs(unsigned int *nfailed_reallocs);
  */
 failed_free* memory_get_failed_frees(unsigned int *nfailed_frees);
 
+/* get the list of allocated blocks
+ *
+ * params:
+ *   nblocks - pointer where the size of the returned array is stored
+ *
+ * returns:
+ *   a pointer to the first element in an array of known memory blocks
+ */
+block* memory_get_blocks(unsigned int *nblocks);
