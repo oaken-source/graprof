@@ -3,7 +3,6 @@ planned features
  [ 9 ] trace visualization
 
 tasks (marked with * are necessary for next release)
- [*5 ] start ChangeLog
  [ 6 ] manpage
  [*9 ] document and comment
  [ 1 ] configure flag to turn off gui and/or instrumentation and/or memory hooks

@@ -1,3 +1,5 @@
-2013-08-23  Andreas Grapentin  <andreas@grapentin.org>
+2013-08-25  Andreas Grapentin  <andreas@grapentin.org>
 
-	* finalizing first release candidate of graprof-0.5
+	* libgraprof/highrestimer.h: added functional comments to public declaration
+	* libgraprof/highrestimer.c: moved away from function pointer approach, and
+	added proper error handling to highrestimer_get

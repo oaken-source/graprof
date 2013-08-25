@@ -21,4 +21,13 @@
 
 #pragma once
 
+/* get the nanoseconds elapsed since the start of the program 
+ *
+ * errors:
+ *   EINVAL - your system does not support CLOCK_MONOTONIC_RAW
+ *
+ * returns:
+ *   the number of nanoseconds elapsed since the start of the program on
+ *   success, -1 on failure
+ */
 unsigned long long highrestimer_get();
