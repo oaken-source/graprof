@@ -27,3 +27,7 @@
 	memory.c
 	* graprof/memory.c: removed struct block (now in memory.h), added
 	accessor function to block array memory_get_blocks
+
+	* graprof/memory.h: added caller information fields to block struct
+	* graprof/memory.c: memory_malloc fills caller information on blocks
+	* graprof/memprofile.c: memory profile now includes unfreed blocks

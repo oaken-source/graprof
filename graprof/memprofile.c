@@ -86,5 +86,23 @@ memprofile_print ()
         fprintf(graprof_out, ", which was already freed\n");
     }
 
-  fprintf(graprof_out, "\n");
+  if (nfailed_frees)
+    fprintf(graprof_out, "\n");
+
+  unsigned int nblocks = 0;
+  block *blocks = memory_get_blocks(&nblocks);
+
+  unsigned int nunfreed_blocks = 0;
+  for (i = 0; i < nblocks; ++i)
+    if (!blocks[i].freed)
+      {
+        ++nunfreed_blocks;
+        fprintf(graprof_out, " %s:%u: ", blocks[i].file, blocks[i].line);
+        if (!blocks[i].direct_call)
+          fprintf(graprof_out, "library call ");
+        fprintf(graprof_out, "allocated block at 0x%" PRIxPTR " of size %zu that was never freed\n", blocks[i].address, blocks[i].size);
+      }
+
+  if (nunfreed_blocks)
+    fprintf(graprof_out, "\n");
 }

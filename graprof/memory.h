@@ -39,6 +39,10 @@ struct block
   uintptr_t address;
   size_t size;
   unsigned int freed;
+
+  unsigned int direct_call;
+  char *file;
+  unsigned int line;
 };
 
 typedef struct block block;

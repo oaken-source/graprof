@@ -197,9 +197,26 @@ memory_malloc (size_t size, uintptr_t caller, uintptr_t result, unsigned long lo
   blocks = realloc(blocks, sizeof(*blocks) * nblocks);
   assert_inner(blocks, "realloc");
 
-  blocks[nblocks - 1].address = result;
-  blocks[nblocks - 1].size = size;
-  blocks[nblocks - 1].freed = 0;
+  block *b = blocks + nblocks - 1;
+
+  b->address = result;
+  b->size = size;
+  b->freed = 0;
+
+  function *func = function_get_current();
+
+  if (!function_compare(func, caller))
+    {
+      b->direct_call = 1;
+      int res = addr_translate(caller, NULL, &(b->file), &(b->line));
+      assert_inner(!res, "addr_reanslate");
+    } 
+  else
+    {
+      b->direct_call = 0;
+      b->file = func->file;
+      b->line = func->line;
+    }
 
   return 0;
 }
