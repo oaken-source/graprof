@@ -30,8 +30,8 @@ graprof-static:
 graprof-meta:
 	gcc -o test test.c -g -finstrument-functions -lgraprof -Wl,-Bstatic -lgrapes-graprof -Wl,-Bdynamic
 	echo "f\n" | GRAPROF_OUT=gp.out ./test
-	GRAPROF_OUT=gp.out.outer graprof-gp test gp.out -FCMg -o graprof.out.static.inner
-	graprof /usr/local/bin/graprof-gp gp.out.outer -FCMg -o graprof.out.static.outer
+	GRAPROF_OUT=gp.out.outer graprof-test test gp.out -FCMg -o graprof.out.static.inner
+	graprof /usr/local/bin/graprof-test gp.out.outer -FCMg -o graprof.out.static.outer
 	rm gp.out*
 
 clean:

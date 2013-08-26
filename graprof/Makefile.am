@@ -1,8 +1,12 @@
 
 ## process this file with automake to produce Makefile.in
 
-bin_PROGRAMS = graprof
+bin_PROGRAMS = graprof graprof-test
 
 graprof_SOURCES = graprof.c graprof.h trace.c trace.h addr.c addr.h function.c function.h memory.c memory.h flatprofile.c flatprofile.h callgraph.c callgraph.h strtime.c strtime.h memprofile.c memprofile.h
 
 graprof_LDADD = -lgrapes -lbfd
+
+graprof_test_SOURCES = ${graprof_SOURCES}
+graprof_test_LDADD = -lgrapes -lbfd -lgraprof
+graprof_test_CFLAGS = -finstrument-functions -g

@@ -10,7 +10,8 @@ tasks (marked with * are necessary for next release)
  [*7 ] readme
  [ 1 ] make highrestimer clock configurable
  [ 4 ] profile different methods of hook activation / deactivation
- [ 2 ] add a testsuite (profiler profiling itself)
+ [ 1 ] improve testsuite (profiler profiling itself)
+	 - test binary should not be part of dist
 
 questions
  [ 5 ] Why does addr2line do some black magic on elf addresses
