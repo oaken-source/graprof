@@ -81,7 +81,7 @@ main (int argc, char *argv[])
     }
 
   if (args.tasks & GRAPROF_FLAT_PROFILE)
-    flatprofile_print();
+    flatprofile_print(args.tasks & GRAPROF_CALL_GRAPH);
 
   if (args.tasks & GRAPROF_CALL_GRAPH)
     callgraph_print();  

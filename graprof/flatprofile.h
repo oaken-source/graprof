@@ -21,6 +21,9 @@
 
 #pragma once
 
-/* print the flat runtime profile to graprof_out, declared in graprof.c 
+/* print the flat runtime profile to graprof_out, declared in graprof.c
+ *
+ * params:
+ *   callgraph_enabled - flag to turn on function ids in flat profile
  */
-void flatprofile_print();
+void flatprofile_print(int callgraph_enabled);

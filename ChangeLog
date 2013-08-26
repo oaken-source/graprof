@@ -42,3 +42,8 @@
 	locations are allocated again
 	* graprof/memprofile.c: removed distinction between invalid ptr and
 	double free
+
+	* graprof/flatprofile.h: added parameter to tell flatprofile_print to
+	enable function id printing
+	* graprof/flatprofile.c: implemented the behaviour of this parameter
+	* graprof/graprof.c: changed call to flatprofile_print accordingly

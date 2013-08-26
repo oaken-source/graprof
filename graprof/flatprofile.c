@@ -47,7 +47,7 @@ cmpfunction (const void *p1, const void *p2)
 }
 
 void 
-flatprofile_print ()
+flatprofile_print (int callgraph_enabled)
 {
   fprintf(graprof_out, "Flat profile:\n");
   fprintf(graprof_out, "\n");
@@ -105,7 +105,11 @@ flatprofile_print ()
         fprintf(graprof_out, "0x%" PRIxPTR , f->address);
       else
         fprintf(graprof_out, "%s", f->name);
-      fprintf(graprof_out, " [%u]\n", (unsigned int)(f - functions));
+
+      if (callgraph_enabled)
+        fprintf(graprof_out, " [%u]", (unsigned int)(f - functions));
+
+      fprintf(graprof_out, "\n");
     }
 
   free(sorted_functions);
