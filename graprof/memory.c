@@ -23,11 +23,10 @@
 #include "addr.h"
 
 #include <stdio.h>
+#include <string.h>
 #include <inttypes.h>
 
 #include <grapes/util.h>
-
-#define _ __attribute__ ((unused))
 
 unsigned long long total_allocated = 0;
 unsigned long long current_allocated = 0;
@@ -49,6 +48,9 @@ unsigned int nfailed_reallocs = 0;
 
 failed_free *failed_frees = NULL;
 unsigned int nfailed_frees = 0;
+
+uintptr_t *freed_addresses = NULL;
+unsigned int nfreed_addresses = 0;
 
 static block*
 memory_get_block_by_address (uintptr_t address)
@@ -201,7 +203,6 @@ memory_malloc (size_t size, uintptr_t caller, uintptr_t result, unsigned long lo
 
   b->address = result;
   b->size = size;
-  b->freed = 0;
 
   function *func = function_get_current();
 
@@ -230,7 +231,8 @@ memory_realloc (uintptr_t ptr, size_t size, uintptr_t caller, uintptr_t result, 
   //   if ptr == NULL, behave like malloc but keep correct counters
   if (!ptr)
     {
-      memory_malloc(size, caller, result, time);
+      int res = memory_malloc(size, caller, result, time);
+      assert_inner(!res, "memory_malloc");
       --total_allocations;
       return 0;
     }
@@ -238,13 +240,14 @@ memory_realloc (uintptr_t ptr, size_t size, uintptr_t caller, uintptr_t result, 
   //   if size == 0, behave like free but keep correct counters
   if (!size)
     {
-      memory_free(ptr, caller, time);
+      int res = memory_free(ptr, caller, time);
+      assert_inner(!res, "memory_free");
       --total_frees;
       return 0;
     }
 
   block *b = memory_get_block_by_address(ptr);
-  if (!b || b->freed)
+  if (!b)
     {
       int res = memory_add_failed_realloc(ptr, size, caller, time, FAILED_INVALID_PTR);
       assert_inner(!res, "memory_add_failed_realloc");
@@ -273,7 +276,7 @@ memory_realloc (uintptr_t ptr, size_t size, uintptr_t caller, uintptr_t result, 
   return 0;
 }
 
-int memory_free (uintptr_t ptr, _ uintptr_t caller, _ unsigned long long time)
+int memory_free (uintptr_t ptr, uintptr_t caller, unsigned long long time)
 {
   ++total_frees;
   
@@ -285,16 +288,11 @@ int memory_free (uintptr_t ptr, _ uintptr_t caller, _ unsigned long long time)
       return 0;
     }
 
-  if (b->freed)
-    {
-      int res = memory_add_failed_free(ptr, caller, time, FAILED_DOUBLE_FREE);
-      assert_inner(!res, "memory_add_failed_free");
-      return 0;
-    }
-
-  b->freed = 1;
   total_freed += b->size;
   current_allocated -= b->size;
+
+  --nblocks;
+  memmove(b, b + 1, (nblocks - (b - blocks)) * sizeof(*blocks));
 
   return 0;
 }

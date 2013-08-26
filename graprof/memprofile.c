@@ -63,7 +63,7 @@ memprofile_print ()
         fprintf(graprof_out, "library call ");
       fprintf(graprof_out, "failed to reallocate a block at 0x%" PRIxPTR, failed_reallocs[i].ptr);
       if (failed_reallocs[i].reason == FAILED_INVALID_PTR)
-        fprintf(graprof_out, ", which was never allocated\n");
+        fprintf(graprof_out, ", already free'd or invalid ptr\n");
       else
         fprintf(graprof_out, " of size %zu to size %zu\n", failed_reallocs[i].start_size, failed_reallocs[i].end_size);
     }
@@ -78,12 +78,9 @@ memprofile_print ()
     {
       fprintf(graprof_out, " %s:%u: ", failed_frees[i].file, failed_frees[i].line);
       if (!failed_frees[i].direct_call)
-        fprintf(graprof_out, "library_call ");
+        fprintf(graprof_out, "library call ");
       fprintf(graprof_out, "failed to free a block at 0x%" PRIxPTR, failed_frees[i].ptr);
-      if (failed_frees[i].reason == FAILED_INVALID_PTR)
-        fprintf(graprof_out, ", which was never allocated\n");
-      else
-        fprintf(graprof_out, ", which was already freed\n");
+      fprintf(graprof_out, ", double free or invalid ptr\n");
     }
 
   if (nfailed_frees)
@@ -92,17 +89,14 @@ memprofile_print ()
   unsigned int nblocks = 0;
   block *blocks = memory_get_blocks(&nblocks);
 
-  unsigned int nunfreed_blocks = 0;
   for (i = 0; i < nblocks; ++i)
-    if (!blocks[i].freed)
-      {
-        ++nunfreed_blocks;
-        fprintf(graprof_out, " %s:%u: ", blocks[i].file, blocks[i].line);
-        if (!blocks[i].direct_call)
-          fprintf(graprof_out, "library call ");
-        fprintf(graprof_out, "allocated block at 0x%" PRIxPTR " of size %zu that was never freed\n", blocks[i].address, blocks[i].size);
-      }
+    {
+      fprintf(graprof_out, " %s:%u: ", blocks[i].file, blocks[i].line);
+      if (!blocks[i].direct_call)
+        fprintf(graprof_out, "library call ");
+      fprintf(graprof_out, "allocated block at 0x%" PRIxPTR " of size %zu that was never freed\n", blocks[i].address, blocks[i].size);
+    }
 
-  if (nunfreed_blocks)
+  if (nblocks)
     fprintf(graprof_out, "\n");
 }

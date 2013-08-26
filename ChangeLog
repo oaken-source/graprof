@@ -35,3 +35,10 @@
 2013-08-26  Andreas Grapentin  <andreas@grapentin.org>
 
 	* graprof/flatprofile.c: fixed profile header and description
+	* graprof/flatprofile.c: if call graph and flat profile are enabled,
+	print function ids in flat profile
+
+	* graprof/memory.c: fixed allocation tracking bug if already freed
+	locations are allocated again
+	* graprof/memprofile.c: removed distinction between invalid ptr and
+	double free

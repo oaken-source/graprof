@@ -30,7 +30,6 @@
  */
 #define FAILED_RESULT      0x01
 #define FAILED_INVALID_PTR 0x02
-#define FAILED_DOUBLE_FREE 0x03
 
 /* this struct holds all information related to an allocated block of memory
  */
@@ -38,7 +37,6 @@ struct block
 {
   uintptr_t address;
   size_t size;
-  unsigned int freed;
 
   unsigned int direct_call;
   char *file;

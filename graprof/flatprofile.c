@@ -59,7 +59,7 @@ flatprofile_print ()
 
   fprintf(graprof_out, " total runtime: %llu %sseconds\n", time, prefix);
   fprintf(graprof_out, "\n");
-  fprintf(graprof_out, "  %%       self    children             self  children\n");
+  fprintf(graprof_out, "  %%       self    children             self    children\n");
   fprintf(graprof_out, " time      time      time     calls    /call     /call  name\n");
  
   unsigned int nfunctions = 0;
@@ -105,7 +105,7 @@ flatprofile_print ()
         fprintf(graprof_out, "0x%" PRIxPTR , f->address);
       else
         fprintf(graprof_out, "%s", f->name);
-      fprintf(graprof_out, "\n");
+      fprintf(graprof_out, " [%u]\n", (unsigned int)(f - functions));
     }
 
   free(sorted_functions);

@@ -87,6 +87,9 @@ main ()
   foo = calloc(1000, 1);
   realloc(foo + 1, 15);
   realloc(foo, 1000000000000LL);
+  char *foo2 = NULL;
+  foo2 = realloc(foo2, 50);
+  foo2 = realloc(foo, 100);
   dostuff();
   dostuff2();
   free(foo + 1);
