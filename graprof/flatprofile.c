@@ -59,7 +59,7 @@ flatprofile_print ()
 
   fprintf(graprof_out, " total runtime: %llu %sseconds\n", time, prefix);
   fprintf(graprof_out, "\n");
-  fprintf(graprof_out, "  %%       self    children             self     total\n");
+  fprintf(graprof_out, "  %%       self    children             self  children\n");
   fprintf(graprof_out, " time      time      time     calls    /call     /call  name\n");
  
   unsigned int nfunctions = 0;
@@ -111,15 +111,15 @@ flatprofile_print ()
   free(sorted_functions);
 
   fprintf(graprof_out, "\n");
-  fprintf(graprof_out, "  %%         the percentage of the total running time of the\n"); 
-  fprintf(graprof_out, " time       program spent in this function\n");
+  fprintf(graprof_out, " %%          the percentage of the total running time of the\n"); 
+  fprintf(graprof_out, "  time      program spent in this function\n");
   fprintf(graprof_out, "\n");
   fprintf(graprof_out, " self       the absolute total running time spent in this\n");
   fprintf(graprof_out, "  time      function alone - this is the major sort of this\n");
   fprintf(graprof_out, "            listing\n");
   fprintf(graprof_out, "\n");
   fprintf(graprof_out, " children   the absolute total running time of the program\n");
-  fprintf(graprof_out, "    time    spent in the descendants of this function in the\n");
+  fprintf(graprof_out, "  time      spent in the descendants of this function in the\n");
   fprintf(graprof_out, "            call tree\n");
   fprintf(graprof_out, "\n");
   fprintf(graprof_out, " calls      the number of times this function was invoked\n");
@@ -127,8 +127,8 @@ flatprofile_print ()
   fprintf(graprof_out, " self       the average running time spent in this function\n");
   fprintf(graprof_out, " /call      per call\n");
   fprintf(graprof_out, "\n");
-  fprintf(graprof_out, " total      the average running time spent in the descendants\n");
-  fprintf(graprof_out, "            of this function in the call tree per call\n");
+  fprintf(graprof_out, " chlidre    the average running time spent in the descendants\n");
+  fprintf(graprof_out, " /call      of this function in the call tree per call\n");
   fprintf(graprof_out, "\n");
   fprintf(graprof_out, " name       the name of the function, if available, else its\n");
   fprintf(graprof_out, "            address - this is the minor sort of this listing\n");

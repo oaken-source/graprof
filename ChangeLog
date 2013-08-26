@@ -31,3 +31,7 @@
 	* graprof/memory.h: added caller information fields to block struct
 	* graprof/memory.c: memory_malloc fills caller information on blocks
 	* graprof/memprofile.c: memory profile now includes unfreed blocks
+
+2013-08-26  Andreas Grapentin  <andreas@grapentin.org>
+
+	* graprof/flatprofile.c: fixed profile header and description
