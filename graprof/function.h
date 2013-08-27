@@ -138,3 +138,10 @@ function* function_get_current();
  *   > 0, if function ">" address
  */
 int function_compare(function *f, uintptr_t addr);
+
+/* get the total number of function calls
+ *
+ * returns:
+ *   the total number of functions called during profilee runtime
+ */
+unsigned long long function_get_total_calls();

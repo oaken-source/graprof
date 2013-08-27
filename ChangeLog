@@ -47,3 +47,11 @@
 	enable function id printing
 	* graprof/flatprofile.c: implemented the behaviour of this parameter
 	* graprof/graprof.c: changed call to flatprofile_print accordingly
+
+2013-08-27  Andreas Grapentin  <andreas@grapentin.org>
+
+	* graprof/function.c: added total function count incremented in
+	function_enter, and added accessor function definition
+	* graprof/function.h: added declaration
+	* graprof/callgraph.c: added print for total function calls
+	* graprof/flatprofile.c: added print for total function calls

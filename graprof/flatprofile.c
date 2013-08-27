@@ -57,7 +57,8 @@ flatprofile_print (int callgraph_enabled)
  
   strtime(&time, &prefix);
 
-  fprintf(graprof_out, " total runtime: %llu %sseconds\n", time, prefix);
+  fprintf(graprof_out, " total runtime:                  %llu %sseconds\n", time, prefix);
+  fprintf(graprof_out, " total number of function calls: %llu\n", function_get_total_calls());
   fprintf(graprof_out, "\n");
   fprintf(graprof_out, "  %%       self    children             self    children\n");
   fprintf(graprof_out, " time      time      time     calls    /call     /call  name\n");

@@ -32,6 +32,8 @@
 static function *functions = NULL;
 static unsigned int nfunctions = 0;
 
+unsigned long long total_calls = 0;
+
 struct tree_entry
 {
   unsigned int function_id;
@@ -249,6 +251,8 @@ function_aggregate_function_times ()
 int
 function_enter (uintptr_t address, uintptr_t caller, unsigned long long time)
 {
+  ++total_calls;
+
   function *f = function_get_by_address(address);
   if (!f)
     f = function_push(address);
@@ -370,4 +374,10 @@ function_compare (function *f, uintptr_t addr)
   free(file);
 
   return res;
+}
+
+unsigned long long
+function_get_total_calls ()
+{
+  return total_calls;
 }
