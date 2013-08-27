@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <config.h>
+
 /* print the call graph to graprof_out, declared in graprof.c
  */
 void callgraph_print();

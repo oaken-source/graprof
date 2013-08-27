@@ -13,7 +13,7 @@
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of          *
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           *
  *    GNU General Public License for more details.                            *
-   *                                                                            *
+ *                                                                            *
  *    You should have received a copy of the GNU General Public License       *
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.   *
  ******************************************************************************/
@@ -27,8 +27,6 @@
 #include <inttypes.h>
 
 #include <grapes/util.h>
-
-#include <config.h>
 
 unsigned long long total_allocated = 0;
 unsigned long long current_allocated = 0;
@@ -266,6 +264,8 @@ memory_realloc (uintptr_t ptr, size_t size, uintptr_t caller, uintptr_t result, 
   int diff = size - b->size;
   if (diff > 0)
     total_allocated += diff;
+  else
+    total_freed -= diff;
 
   current_allocated += diff;
 
@@ -378,8 +378,22 @@ memory_fini ()
   for (i = 0; i < nblocks; ++i)
     if (blocks[i].direct_call)
       free(blocks[i].file);
-
   free(blocks);
+
+  for (i = 0; i < nfailed_mallocs; ++i)
+    if (failed_mallocs[i].direct_call)
+      free(failed_mallocs[i].file);
+  free(failed_mallocs);
+
+  for (i = 0; i < nfailed_reallocs; ++i)
+    if (failed_reallocs[i].direct_call)
+      free(failed_reallocs[i].file);
+  free(failed_reallocs);
+
+  for (i = 0; i < nfailed_frees; ++i)
+    if (failed_frees[i].direct_call)
+      free(failed_frees[i].file);
+  free(failed_frees);
 }
 
 #endif // FREE_ALL_MEMORY_EXPLICITLY

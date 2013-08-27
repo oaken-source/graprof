@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <config.h>
+
 /* read trace data from a given file and distribute the contained information
  * to the appropriate submodules.
  *

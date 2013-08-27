@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <config.h>
+
 #include "function.h"
 
 #include <stdlib.h>

@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <config.h>
+
 extern void *libgraprof_buf;
 extern unsigned long libgraprof_bufsize;
 

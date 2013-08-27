@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <config.h>
+
 #include <stdint.h>
 
 /* initialize the bfd library and read the sybol table from the file specified

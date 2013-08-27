@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <config.h>
+
 /* activate the function instrumentation hooks
  */
 void instrument_install_hooks();

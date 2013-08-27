@@ -17,6 +17,9 @@ AM_PROG_CC_C_O
 AM_PROG_AR
 AM_PROG_LEX
 
+AC_DEFINE([DEBUG], [1], [This causes error messages to usually print their origins])
+AC_DEFINE([FREE_ALL_MEMORY_EXPLICITLY], [1], [Useful for debugging memory leaks.])
+
 LT_INIT
 
 AC_CONFIG_FILES([

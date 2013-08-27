@@ -29,8 +29,6 @@
 #include <grapes/util.h>
 #include <grapes/feedback.h>
 
-#include <config.h>
-
 static function *functions = NULL;
 static unsigned int nfunctions = 0;
 

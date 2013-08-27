@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <config.h>
+
 /* convenience function for human-readable times converts ns to µs, ms or s, 
  * depending on which is most appropriate for the given value.
  *

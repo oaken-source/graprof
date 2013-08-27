@@ -12,6 +12,7 @@ tasks (marked with * are necessary for next release)
  [ 4 ] profile different methods of hook activation / deactivation
  [ 1 ] test binary should not be part of dist
  [ 1 ] config parameter for explicit memory free-ing
+ [ 2 ] sort inner output in call graph
 
 questions
  [ 5 ] Why does addr2line do some black magic on elf addresses

@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <config.h>
+
 /* activate the allocation hooks
  */
 void mallhooks_install_hooks();

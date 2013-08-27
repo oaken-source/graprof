@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <config.h>
+
 /* get the number of nanoseconds elapsed since the start of the program 
  *
  * errors:

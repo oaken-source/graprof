@@ -21,7 +21,6 @@
 
 #include "addr.h"
 
-#include <config.h>
 #include <bfd.h>
 
 #include <stdlib.h>

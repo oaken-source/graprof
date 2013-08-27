@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <config.h>
+
 #include <stdint.h>
 
 /* this struct holds the call data information of one side of a caller-callee 

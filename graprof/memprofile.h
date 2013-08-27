@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <config.h>
+
 /* print the memory profile to graprof_out, declared in graprof.c
  */
 void memprofile_print();

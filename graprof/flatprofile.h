@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <config.h>
+
 /* print the flat runtime profile to graprof_out, declared in graprof.c
  *
  * params:
