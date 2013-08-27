@@ -70,9 +70,15 @@ libgraprof_fini ()
     buffer_append(char, 'E');
     buffer_append(unsigned long long, highrestimer_get());
 
-    fwrite(&libgraprof_bufsize, sizeof(unsigned long), 1, libgraprof_out);
+    size_t res; 
+    res = fwrite(&libgraprof_bufsize, sizeof(unsigned long), 1, libgraprof_out);
+    if (res != 1)
+      perror("libgraprof: error writing trace file");
+      
+    res = fwrite(libgraprof_buf, 1, libgraprof_bufsize, libgraprof_out);
+    if (res != libgraprof_bufsize)
+      perror("libgraprof: error writing trace file");
 
-    fwrite(libgraprof_buf, 1, libgraprof_bufsize, libgraprof_out);
     fclose(libgraprof_out);
   }
 

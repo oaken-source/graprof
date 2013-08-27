@@ -3,7 +3,7 @@ BIN_GP=graprof-gp
 BIN_PG=graprof-pg
 BIN_PATH=/usr/local/bin/
 
-all: pass0 pass1 pass2 pass3 
+all: pass0 pass1 pass2 pass3
 
 pass0:
 	GRAPROF_OUT=gp.out.0 $(BIN_GP) --help &> /dev/null

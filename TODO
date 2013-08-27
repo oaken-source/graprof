@@ -13,6 +13,8 @@ tasks (marked with * are necessary for next release)
  [ 1 ] test binary should not be part of dist
  [ 1 ] config parameter for explicit memory free-ing
  [ 2 ] sort inner output in call graph
+ [ 3 ] function traversation is too slow.
+ [ 4 ] tracing lib is proably too slow as well
 
 questions
  [ 5 ] Why does addr2line do some black magic on elf addresses
@@ -22,3 +24,4 @@ open issues
  [ 9 ] calls to the instrumenting funcions are made *after* the function entry and *before* the function exit. This, and the calling times for the instrumenting functions themselves adds up if the function calls a lot of children, and produces inaccurate results depending on code structure and trace data. This is not good.
  [ 5 ] profiling multithreaded applications
  [ 6 ] I know the parent function of orphaned functions. sometimes these are real parents with "missing links" sometimes they are not. can I do something here?
+ [ 4 ] sometimes, (why?) inlined functions can not be translated to their corresponding debug symbols. addr2line is unable to do that as well
