@@ -109,7 +109,7 @@ addr_init (const char *filename)
   return 0;
 }
 
-int 
+int
 addr_translate (uintptr_t pc, char **function, char **file, unsigned int *line)
 {
   addr_pc = pc;

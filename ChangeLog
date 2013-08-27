@@ -55,3 +55,6 @@
 	* graprof/function.h: added declaration
 	* graprof/callgraph.c: added print for total function calls
 	* graprof/flatprofile.c: added print for total function calls
+
+	* graprof/function.c: added explicit memory deallocation routine
+	* graprof/memory.c: likewise, fixed memory leak in memory_free

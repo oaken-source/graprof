@@ -28,6 +28,8 @@
 
 #include <grapes/util.h>
 
+#include <config.h>
+
 unsigned long long total_allocated = 0;
 unsigned long long current_allocated = 0;
 unsigned long long maximum_allocated = 0;
@@ -291,6 +293,9 @@ int memory_free (uintptr_t ptr, uintptr_t caller, unsigned long long time)
   total_freed += b->size;
   current_allocated -= b->size;
 
+  if (b->direct_call)
+    free(b->file);
+
   --nblocks;
   memmove(b, b + 1, (nblocks - (b - blocks)) * sizeof(*blocks));
 
@@ -354,7 +359,7 @@ memory_get_failed_frees (unsigned int *n)
 {
   *n = nfailed_frees;
   return failed_frees;
-}
+};
 
 block*
 memory_get_blocks (unsigned int *n)
@@ -362,3 +367,19 @@ memory_get_blocks (unsigned int *n)
   *n = nblocks;
   return blocks;
 }
+
+#if FREE_ALL_MEMORY_EXPLICITLY
+
+static void
+__attribute__((destructor))
+memory_fini ()
+{
+  unsigned int i;
+  for (i = 0; i < nblocks; ++i)
+    if (blocks[i].direct_call)
+      free(blocks[i].file);
+
+  free(blocks);
+}
+
+#endif // FREE_ALL_MEMORY_EXPLICITLY

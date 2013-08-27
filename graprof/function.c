@@ -29,6 +29,8 @@
 #include <grapes/util.h>
 #include <grapes/feedback.h>
 
+#include <config.h>
+
 static function *functions = NULL;
 static unsigned int nfunctions = 0;
 
@@ -66,9 +68,9 @@ function_init (function *f)
   f->self_time = 0;
   f->children_time = 0;
   f->calls = 0;
-  f->callers = 0;
+  f->callers = NULL;
   f->ncallers = 0;
-  f->callees = 0;
+  f->callees = NULL;
   f->ncallees = 0;
 }
 
@@ -381,3 +383,43 @@ function_get_total_calls ()
 {
   return total_calls;
 }
+
+#if FREE_ALL_MEMORY_EXPLICITLY
+
+static void
+free_call_tree (tree_entry *e)
+{
+  unsigned int i;
+  for (i = 0; i < e->nchildren; ++i)
+    {
+      free_call_tree(e->children[i]);
+      free(e->children[i]);
+    }
+  for (i = 0; i < e->norphans; ++i)
+    {
+      free_call_tree(e->orphans[i]);
+      free(e->orphans[i]);
+    }
+
+  free(e->children);
+  free(e->orphans);
+}
+
+static void
+__attribute__((destructor))
+function_fini ()
+{
+  unsigned int i;
+  for (i = 0; i < nfunctions; ++i)
+    {
+      free(functions[i].name);
+      free(functions[i].file);
+      free(functions[i].callers);
+      free(functions[i].callees);
+    }
+  free(functions);
+
+  free_call_tree(&call_tree_root);
+}
+
+#endif // FREE_ALL_MEMORY_EXPLICITLY
