@@ -6,7 +6,6 @@ tasks (marked with * are necessary for next release)
  [*6 ] manpage
  [ 1 ] configure flag to turn off gui and/or instrumentation and/or memory hooks
  [*5 ] add value description to call graph
- [*8 ] add a bugtracker to graprof.grapentin.org
  [*7 ] readme
  [ 1 ] make highrestimer clock configurable
  [ 4 ] profile different methods of hook activation / deactivation

@@ -2,4 +2,34 @@
 graprof - profiling and trace analysis tool
 -------------------------------------------
 
+Please send graprof bug reports via <http://bugs.grapentin.org/>
+using `graprof' in the "category" field.
 
+ Table of Contents:
+   1. Introduction
+   2. Tracing
+     2.1. Function Instrumentation
+     2.2. Allocation Hooks
+     2.3. Trace Files
+   3. Analysis
+     3.1. Flat Profile
+     3.2. Call Graph
+     3.3. Memory Profile
+   4. Implementation
+   5. Limitations
+
+
+1. Introduction
+---------------
+
+ The development of graprof has been inspired by the profiling tools gprof and
+ mtrace, and their inability to work together. Based on the most basic 
+ profiling methods the GNU toolchain has to offer, graprof aims to provice a
+ low-impact, high-precision profiling method, as well as a high-detail trace
+ analysis tool which, sadly, is not yet implemented as of the current 0.5 
+ release.
+
+
+2. Tracing
+----------
+ 
