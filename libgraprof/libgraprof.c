@@ -73,11 +73,11 @@ libgraprof_fini ()
     size_t res; 
     res = fwrite(&libgraprof_bufsize, sizeof(unsigned long), 1, libgraprof_out);
     if (res != 1)
-      perror("libgraprof: error writing trace file");
+      perror("libgraprof: error writing trace file.");
       
     res = fwrite(libgraprof_buf, 1, libgraprof_bufsize, libgraprof_out);
     if (res != libgraprof_bufsize)
-      perror("libgraprof: error writing trace file");
+      perror("libgraprof: error writing trace file.");
 
     fclose(libgraprof_out);
   }

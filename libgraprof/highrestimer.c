@@ -21,10 +21,9 @@
 
 #include "highrestimer.h"
 
+#include <stdio.h>
+#include <errno.h>
 #include <time.h>
-
-#include <grapes/util.h>
-#include <grapes/feedback.h>
 
 static struct timespec highrestimer_ts;
 
@@ -38,7 +37,7 @@ highrestimer_init ()
   if (res)
     {
       errno = 0;
-      feedback_warning("selected clock_id is not valid. Time measurement will not work.");
+      perror("libgraprof: selected clock_id is not valid. Time measurement will not work.");
     }
 }
 
@@ -47,8 +46,7 @@ highrestimer_get ()
 {
   struct timespec tmp_ts;
 
-  int res = clock_gettime(HIGHRESTIMER_CLOCK, &tmp_ts);
-  assert_inner(!res, "clock_gettime");
+  clock_gettime(HIGHRESTIMER_CLOCK, &tmp_ts);
 
   unsigned long long t = tmp_ts.tv_sec - highrestimer_ts.tv_sec;
   t *= 1000000000;

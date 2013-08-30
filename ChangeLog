@@ -1,4 +1,10 @@
 
+2013-08-30  Andreas Grapentin  <andreas@grapentin.org>
+
+	* libgraprof/libgraprof.c: minor change to const char* errors
+	* libgraprof/highrestimer.c: replaced feedback_warning call with
+	perror, effectively removing the grapes dependency of libgraprof
+
 2013-08-27  Andreas Grapentin  <andreas@grapentin.org>
 
 	* graprof/function.c: added total function count incremented in
