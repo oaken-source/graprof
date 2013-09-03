@@ -6,7 +6,7 @@ tasks (marked with * are necessary for next release)
  [*6 ] manpage
  [ 1 ] configure flag to turn off gui and/or instrumentation and/or memory hooks
  [*5 ] add value description to call graph
- [*7 ] readme
+ [*6 ] finish website
  [ 1 ] make highrestimer clock configurable
  [ 4 ] profile different methods of hook activation / deactivation
  [ 1 ] test binary should not be part of dist
@@ -14,6 +14,9 @@ tasks (marked with * are necessary for next release)
  [ 2 ] sort inner output in call graph
  [ 3 ] function traversation is too slow.
  [ 4 ] tracing lib is proably too slow as well
+ [*2 ] include grapes in graprof - does not make sense yet to separate these
+ [*3 ] add configure switch for deprecated malloc hooks
+ [*2 ] change #ifdefs to ifs in libgraprof
 
 questions
  [ 5 ] Why does addr2line do some black magic on elf addresses

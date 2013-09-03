@@ -5,18 +5,29 @@ graprof - profiling and trace analysis tool
 Please send graprof bug reports via <http://bugs.grapentin.org/>
 using `graprof' in the "category" field.
 
+Or mail me at <andreas@grapentin.org>!
+
  Table of Contents:
    1. Introduction
-   2. Tracing
-     2.1. Function Instrumentation
-     2.2. Allocation Hooks
-     2.3. Trace Files
-   3. Analysis
-     3.1. Flat Profile
-     3.2. Call Graph
-     3.3. Memory Profile
-   4. Implementation
+   2. Quick-Start Guide (TM)
+   3. Tracing
+     3.1. Function Instrumentation
+     3.2. Allocation Hooks
+     3.3. Measuring Time
+     3.4. Trace Files
+   4. Analysis
+     4.1. Flat Profile
+     4.2. Call Graph
+     4.3. Memory Profile
+     4.4. Tracing GUI
+     4.5. Debug Symbols
    5. Limitations
+     5.1. Runtime Error
+     5.2. Memory Footprint
+     5.3. Profilee Termination
+     5.4. Multithreaded Applications
+   6. Tricks and Hints
+     6.1. Profiling Libraries
 
 
 1. Introduction
@@ -24,12 +35,412 @@ using `graprof' in the "category" field.
 
  The development of graprof has been inspired by the profiling tools gprof and
  mtrace, and their inability to work together. Based on the most basic 
- profiling methods the GNU toolchain has to offer, graprof aims to provice a
- low-impact, high-precision profiling method, as well as a high-detail trace
- analysis tool which, sadly, is not yet implemented as of the current 0.5 
- release.
+ profiling methods the GNU toolchain has to offer, graprof aims to provide a
+ low-impact easy to use, high-precision profiling method, as well as a 
+ sophisticated trace analysis tool which, sadly, is not yet implemented as of 
+ the current 0.5 release.
+
+ The information in this file, as well as some additional documentation, can
+ be found on <http://graprof.grapentin.org>.
+
+ If you have found a bug, please do not hesitate to report it at graprof's 
+ bug tracker found on <http://bugs.grapentin.org>, using graprof in the 
+ `category' field.
+
+ If you have any suggestions, on how graprof can be improved, or want to 
+ submit a bug but loathe to create an account at the bug tracking system, just
+ send an email to <andreas@grapentin.org> and I will see what I can do.
+
+ If you want to support graprof, or its developers (me), have a look at
+ <http://graprof.grapentin.org?page=support>, there are numerous ways to 
+ support graprof, from donating to just using it and spreading the word! I
+ would appreciate it :)
 
 
-2. Tracing
-----------
+2. Quick-Start Guide
+--------------------
+
+ First, you need to install graprof. Refer to INSTALL for detailed installation
+ instructions. Usually `./configure && make && sudo make install' does the job.
+
+ To instruct your application to write program traces, you have to add
+  to CFLAGS:   -finstrument-functions -g
+  to LDFLAGS:  -lgraprof
+ and recompile.
+
+ This instrumented binary should now be invoked with GRAPROF_OUT set to the
+ filename you want the trace data to be written to, for example
+
+  GRAPROF_OUT=gp.out ./your_application
+
+ To analyze the trace, invoke the graprof application, and pass the path to
+ your binary, and the path to the trace file as arguments, for example:
+
+  graprof your_application gp.out -FCMg -o your_application.profile
  
+ The -FCMg switch tells graprof to print the full analysis result to the 
+ specified file. For more information on the command line parameters of 
+ graprof, run:
+
+  graprof --help
+
+ More information on edge cases, limitations and implementation details can
+ be found below this point, and on <http://graprof.grapentin.org>. I suggest
+ that you read these, before sending angry mail to me because something broke.
+
+
+3. Tracing
+----------
+
+ The tracing library of graprof is called libgraprof. Its purpose is the 
+ collection of events during the runtime of the profilee, and writing these
+ information out to file specified by the environment variable GRAPROF_OUT on
+ program termination. The information gathered includes function entry and 
+ exit events, and memory allocation, reallocation and deallocation events.
+
+ The tracing is only enabled, if the file specified in GRAPROF_OUT is writable
+ by the profilee. Otherwise, nothing is traced.
+
+
+3.1. Function Instrumentation
+-----------------------------
+
+ Tracing function entry and exit events with graprof requires the profilee to
+ be compiled by gcc with --finstrument-functions enabled. This switch causes
+ the resulting binary to have instrumented function calls, that are preceded 
+ with a call to __cyg_profile_func_enter, and followed by a call to the analog
+ __cyg_profile_func_exit, both of which are defined in libgraprof.
+ these functions recieve the address of the called function, and the address
+ of the calling function.
+ 
+ __cyg_profile_func_enter 
+  This function appends a function entry event to the trace. An entry event 
+  is identified by the character `e' and contains the address of the called 
+  function, the address of the calling function, and the current timestamp.
+
+ __cyg_profile_func_exit
+  This function appends a function exit event to the trace. An exit event is
+  identified by the character `x' and contains only the current timestamp.
+  This is sufficient, because graprof assumes that only the function o top of
+  the call stack may be exited, and this has to be the one last entered.
+
+ There may be functions, that a developer feels should not be instrumented,
+ for whatever reason. For this, it is possible to add the following attribute
+ to the function definition:
+
+  __attribute__((no_instrument_function))
+
+ Alternatively, if the code is not to be altered in any way, there are command
+ line options for gcc that exclude functions or entire files from the #
+ instrumentation, for example:
+
+  --finstrument-functions-exclude-file-list=file,file,...
+  --finstrument-functions-exclude-function-list=sym,sym,...
+
+ For more information on this, see `man gcc'.
+
+
+3.2. Allocation Hooks
+---------------------
+
+ libgraprof provides two different methods to intercept and log memory 
+ allocation methods. The default method works by overriding the weak symbols
+ of the allocation functions `malloc', `calloc', `realloc' and `free' with
+ its own methods. These methods call their original couterparts, ivestigate 
+ the results, and append their respective events to the trace file. The second
+ method uses glibc's `malloc_hook' functionality, which has been deprecated.
+ Both approaches depend directly on a recent glibc version, and the first one
+ has been chosen over the second because of `malloc_hook's deprecation and the
+ poor behaviour in multithreaded environments. However, as overriding weak 
+ symbols in glibc tends to break in statically linked applications, the
+ `malloc_hook' approach has been included as a backup.
+
+ malloc / calloc
+  These functions append a memory allocation event to the trace. An allocation
+  event is identified by the character `+' and contains the size of the 
+  allocation, the address of the caller, the result of __libc_malloc and a
+  timestamp. 
+ 
+ realloc
+  This function appends a memory reallocation event to the trace. A 
+  reallocation event is identified by the character `*' and contains the `ptr'
+  argument passed to realloc, the size of the reallocation, the address of the
+  caller, the result of __libc_realloc and a timestamp.
+
+ free
+  This function appends a memory deallocation event to the trace. A
+  deallocation event is identified by the character `-' and contains the `ptr'
+  argument passed to free, the caller address and a timestamp.
+
+ This results in all allocation related events being enveloped in entry and 
+ exit events, and hence the information of the last instrumented calling 
+ function. By comparison with the caller address gathered by calling
+ __builtin_return_address(0), which is a builtin of gcc that yields the return
+ address of the current function, the analysis module of graprof is able to 
+ decide if an allocation method is called directly by the application, or a 
+ non-instrumented third party library function. In that case, the analysis 
+ tool can output the last known instrumented function below which the 
+ allocation was made, which should be more useful to a developer than an
+ obscure address.
+
+
+3.3. Measuring Time
+-------------------
+
+ Measuring time is difficult in profiling, because all times are inaccurate,
+ subject to statistical error, and even worse, the profiling itself has a
+ time footprint. For graprof, we decided against the usual sampling approach
+ and instead measured real time. This decision is subject to change, depending
+ on further studies on the reliability of either method.
+
+ The current implementation of libgraprof uses clock_gettime called with the
+ clock_id CLOCK_MONOTONIC_RAW to get approximate timing values with nanosecond
+ precision.
+
+
+3.4. Trace Files
+----------------
+
+ During the execution of the profilee, libgraprof builds up an in memory buffer
+ of all relevant events. When the profilee returns from main, or calls exit, 
+ libgraprof writes this buffer directly to a file, preceded by an unsigned long
+ long containing the buffers size. This file is not in human-readable format,
+ but should be processed by the graprof analysis tool. 
+ Additionally, the tracefiles are not necessarily portable. Size and endianness
+ of the contained data fields may be different on two systems, resuling in the 
+ traces written on System A to not be readable on System B. If you want to 
+ share profiling information, share the output of the analysis and not the 
+ trace files.
+
+
+4. Analysis
+-----------
+
+ Analyzing traces is the most complex part of graprof. To invoke the analyzer,
+ call `graprof <your binary> <your tracefile> [OPTIONS ...]', for example:
+
+  graprof a.out gp.out -FCMg
+
+ This call will invoke the analysis tool on the trace file gp.out, which was 
+ generated by the binary a.out, and generate the flat profile, call graph and
+ memory profile, and not open the tracing gui. 
+
+ Graprofs analyis is separated into four parts, each of which can be activated
+ separately on the command line, that are designed to tackle different problems
+ in profiling an application.
+
+
+4.1. Flat Profile
+-----------------
+
+ The flat profile is a very coarse-grained representation of the profilees 
+ runtime behaviour, not unlike the one provided by gprof. All instrumented 
+ functions are listed, in order of the total runtime spent in each one. 
+
+ Each line contains function related information that has been aggregated from
+ the trace file. Detailed information on the different columns is contained in
+ the footer of this listing.
+
+
+4.2. Call Graph
+---------------
+
+ The call graph is a more fine-grained representation of the profilees runtime
+ behaviour, again not unlike the one provided by gprof, that in addition to
+ listing all instrumented functions, also lists their callers and callees, 
+ putting them in a context in the program. 
+
+ This listing contains one block per function, which are ordered by the id of
+ the function. Each block consists of three parts. Firstly, the caller 
+ information, secondly the function information, and thirdly the callee 
+ information. Each of these sections has slightly different semantics for the
+ different columns of the listing, all of which are described in detail in the
+ footer of the listing.
+
+
+4.3. Memory Profile
+-------------------
+
+ The memory profile aims to give an overview of the memory footprint of the
+ profilee, as well as any notable failures of allocation or deallocation, not
+ unlike the memory profile provided by mtrace.
+
+ The listing starts with the total number of bytes allocated and freed, and the
+ maximum number of bytes allocated at any given time of the profilees runtime,
+ followed by the number of calls to malloc realloc and free. 
+ 
+ The memory profile counts calls to calloc as calls to malloc.
+
+ Following these general aggregated values are notable allocation failures, 
+ reallocation failures, free failures, and a list of unfreed blocks.
+
+
+4.4. Tracing GUI
+----------------
+
+ As of graprof version 0.5, this is still a planned feature. The main goal of
+ graprof is to provide an intuitive, efficient tracing gui that is backed with
+ the profiling information gathered by the analysis tool. With this gui, 
+ developers should be enabled to instantly view the call behaviour of their 
+ applications, as well as hot-spots in the code where allocation or runtime
+ related problems reside.
+ The finishing of this feature will mark the 1.0 release of graprof.
+
+
+4.5. Debug Symbols
+------------------
+
+ The events in the trace file usually contain one or more addresses, that
+ represent locations in the profiled application. These addresses carry little
+ semantical value, so they need to be translated to human-readable function 
+ names, and if possible also file names and lines, so that developers can 
+ instantly see what function an event is about, and where this function is
+ defined. The information required to translate addresses to function names is
+ contained in the binary of the profilee, if it was compiled with debug symbols
+ enabled. This is the reason why graprof requires the profilee to be compiled
+ with the `-g' switch. 
+
+ To extract the debug information from the binary, graprof uses libbfd, which
+ invokes a lot of black magic on the binary that shall not be discussed in 
+ detail in this manual. If you are interested in the details, have a look at
+ the manual of libbfd, or read the documentation of addr2line that uses these
+ same features excessively.
+
+ If you have no debug symbols available in the profilees binary, graprof will
+ still work, but the profile will be less useful.
+
+
+5. Limitations
+--------------
+
+ Graprof is still mainly untested. There is only so much testing a single 
+ person can do, so this is mainly where graprof needs support from YOU!
+ If you find any suspicious, reproducable behaviour, please file a bug on
+ <http://bugs.grapentin.org> with `graprof' in the category field.
+ If you want to send suggestions, regarding graprof itself, the website, or
+ just want to chat with me a little, you can also mail <andreas@grapentin.org>
+ and I will answer as soon as I can.
+
+ Apart from the lack of testing, graprof also has a couple of conceptual
+ limitations, all of which are decribed in detail in the following chapters.
+
+5.1. Runtime Error
+------------------
+
+ All times in graprof are taken directly from the hardware clock. This 
+ eliminates the statistical error created by sampling times, for example with
+ the `profil' system call, but instead introduces a conceptional error by 
+ overestimating times. The instrumented function layout can be understood as 
+ follows:
+
+  <enter>
+   <setup stackframe>
+   <call __cyg_profile_func_enter> 
+    <actual function body>
+   <call __cyg_profile_func_exit>
+   <tear down stackframe>
+  <return>
+
+ The entry and exit times of the function are measured somewhere in the entry
+ and exit calls, wich nanosecond precision. This introduces two problems. 
+ Firstly, the function takes longer to execute than it would without the 
+ instrumentation, as the calls to enter and exit take time. Secondly, the 
+ measurements for entry and exit times are taken in the enter and exit
+ routines, so that the time spent for setting up and tearing down the stack 
+ frame, as well as a necessary part of the __cyg_profile routines is accounted
+ to the runtime of the parent function. This results in the time accounted to
+ functions that call lots and lots of children and do nothing else to be highly
+ overestimated, hence the resulting times should be taken with a grain of salt.
+
+ Additionally, graprof is as of yet not good in handling the time aggregation
+ of recursive function calls, meaning that the self and children time values 
+ for recursive methods might be unintuitive, or just plain wrong.
+
+
+5.2. Memory Footprint
+---------------------
+
+ As stated before, during the runtime of the profilee all tracing information
+ is stored in an in-memory buffer that unfortunately grows very quickly, and
+ thus increases the memory footprint of the profilee. Because of that, it is
+ not recommended to profile RAM-bound applications with graprof, unless you 
+ know what you are doing and realize that profiling with graprof decreases your
+ upper memory limit for your application.
+
+ To clarify this, here are a few numbers. A function entry and exit pair has 
+ a memory footprint of 34 bytes on an amd64 linux system. This means with a 
+ million function calls and upwards, the memory footprint of the profiling 
+ reaches up into a couple of megabytes, and a million function calls is 
+ gathered surprisingly fast. Memory events take even more space, but usually
+ the call numbers of these are orders of magnitude smaller.
+
+ You will probably run into memory problems when profiling applications built
+ on extensive GUI frameworks, because these usually perform loads of 
+ allocations and deallocations, all of which are recorded by the tracer.
+
+
+5.3. Profilee Termination
+-------------------------
+
+ The in-memory buffer generated during profilee execution is written to disk
+ upon clean profilee termination, clean termination meaning either return from
+ main, or a call to exit. This means that if the profilee is terminated any 
+ other way, the trace data is very likely lost.
+
+ The reason for this is, that the method to write the trace is implemented as
+ a function with __attribute__((destructor)), which is not executed when the
+ program terminates for example on SIGKILL.
+
+ This probably makes it difficult to profile deamons with graprof, unless you
+ add a hook to explicitly exit cleanly.
+
+
+5.4. Multithreaded Applications
+-------------------------------
+
+ I don't dare to think about this. Try it if you're feeling lucky, but expect 
+ things to break.
+
+
+6. Tricks and Hints
+-------------------
+
+ Using graprof is relatively straightforward. However, there are a couple of 
+ tricks to try if things go downhill. Some of these tricks of the trade  are
+ listed in this section.
+
+
+6.1. Profiling Libraries
+---------------------
+
+ The process of profiling a library is a little different than profiling an
+ application. The library should be compiled with 
+ 
+  -finstrument-functions -g
+
+ appended to CFLAGS, and
+
+  -lgraprof
+
+ appended to LDFLAGS. This is very similar to profiling an application. 
+
+ Now, depending on if the application should be profiled as well, the same
+ additions could or could not be made to CFLAGS and LDFLAGS of the application.
+
+ The main problem is, that the analysis tool will not find debug symbols for
+ addresses of instrumented functions gathered from a shared library. To remedy
+ this, the profilee library should be linked statically to the host application
+ so that the debug symbols are included in the resulting binary.
+
+ For this to work, make sure that your build system installs a statically 
+ linkable version of your instrumented library, and add the following to the 
+ LDFLAGS of the host application:
+
+  -Wl,-Bstatic -lyour-library -Wl,-Bdynamic
+
+ This instructs the linker to statically link your library to the host 
+ application, while leaving the rest of the linkage untouched. To profile, 
+ you have to invoke your host application with the environment variable 
+ GRAPROF_OUT set to your trace file, and the rest of the process works just 
+ like normal.
+
