@@ -19,6 +19,7 @@ AM_PROG_LEX
 
 AC_DEFINE([DEBUG], [1], [This causes error messages to usually print their origins])
 AC_DEFINE([FREE_ALL_MEMORY_EXPLICITLY], [1], [Useful for debugging memory leaks.])
+AC_DEFINE([USE_DEPRECATED_MALLOC_HOOKS], [1], [Do not redefine malloc and friends, but use deprecated malloc_hooks instead])
 
 LT_INIT
 

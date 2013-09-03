@@ -15,8 +15,7 @@ tasks (marked with * are necessary for next release)
  [ 3 ] function traversation is too slow.
  [ 4 ] tracing lib is proably too slow as well
  [*2 ] include grapes in graprof - does not make sense yet to separate these
- [*3 ] add configure switch for deprecated malloc hooks
- [*2 ] change #ifdefs to ifs in libgraprof
+ [*3 ] add configure switch global config stuff (see configure.ac)
 
 questions
  [ 5 ] Why does addr2line do some black magic on elf addresses

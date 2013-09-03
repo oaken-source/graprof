@@ -1,4 +1,10 @@
 
+2013-09-03  Andreas Grapentin  <andreas@grapentin.org>
+
+	* libgraprof/mallhooks.c: restored deprecated malloc_hook
+	functionality, enabled/disabled by defining
+	USE_DEPRECATED_MALLOC_HOOKS to 1 or 0
+
 2013-08-30  Andreas Grapentin  <andreas@grapentin.org>
 
 	* libgraprof/libgraprof.c: minor change to const char* errors
