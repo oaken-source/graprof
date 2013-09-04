@@ -1,5 +1,5 @@
 
-graprof - profiling and trace analysis tool
+graprof - a profiling and trace analysis tool
 -------------------------------------------
 
 Please send graprof bug reports via <http://bugs.grapentin.org/>
@@ -32,6 +32,8 @@ Or mail me at <andreas@grapentin.org>!
 
 1. Introduction
 ---------------
+
+ Graprof is a profiling and trace analysis tool for C projects.
 
  The development of graprof has been inspired by the profiling tools gprof and
  mtrace, and their inability to work together. Based on the most basic 

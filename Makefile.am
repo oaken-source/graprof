@@ -3,4 +3,4 @@
 
 ACLOCAL_AMFLAGS = -I scripts/m4
 
-SUBDIRS = libgraprof graprof
+SUBDIRS = libgraprof graprof docs

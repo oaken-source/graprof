@@ -28,9 +28,9 @@
 const char *argp_program_version = PACKAGE_STRING;
 const char *argp_program_bug_adress = PACKAGE_BUGREPORT;
 
-const char doc[] = PACKAGE_NAME " - a free system trace analysis and visualization tool";
+const char doc[] = PACKAGE_NAME " - a profiling and trace analysis tool";
 
-const char args_doc[] = "[binary] trace";
+const char args_doc[] = "<binary file> <trace file>";
 
 static struct argp_option options[] = 
 {

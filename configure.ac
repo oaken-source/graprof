@@ -26,6 +26,7 @@ LT_INIT
 AC_CONFIG_FILES([
   Makefile
   libgraprof/Makefile
-  graprof/Makefile])
+  graprof/Makefile
+  docs/Makefile])
 
 AC_OUTPUT
