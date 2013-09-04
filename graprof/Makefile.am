@@ -3,9 +3,9 @@
 
 bin_PROGRAMS = graprof
 
-graprof_SOURCES = graprof.c graprof.h trace.c trace.h addr.c addr.h function.c function.h memory.c memory.h flatprofile.c flatprofile.h callgraph.c callgraph.h strtime.c strtime.h memprofile.c memprofile.h
+graprof_SOURCES = graprof.c graprof.h trace.c trace.h addr.c addr.h function.c function.h memory.c memory.h flatprofile.c flatprofile.h callgraph.c callgraph.h strtime.c strtime.h memprofile.c memprofile.h grapes/feedback.c grapes/feedback.h grapes/util.h
 
-graprof_LDADD = -lgrapes -lbfd
+graprof_LDADD = -lbfd
 
 if TESTBUILD
 
