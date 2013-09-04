@@ -1,4 +1,8 @@
 
+2013-09-04  Andreas Grapentin  <andreas@grapentin.org>
+
+	* graprof/callgraph.c: added value description to call graph
+
 2013-09-03  Andreas Grapentin  <andreas@grapentin.org>
 
 	* libgraprof/mallhooks.c: restored deprecated malloc_hook
