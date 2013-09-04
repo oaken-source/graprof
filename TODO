@@ -8,13 +8,10 @@ tasks (marked with * are necessary for next release)
  [*6 ] finish website
  [ 1 ] make highrestimer clock configurable
  [ 4 ] profile different methods of hook activation / deactivation
- [*1 ] test binary should not be part of dist
- [*1 ] config parameter for explicit memory free-ing
  [ 2 ] sort inner output in call graph
  [ 3 ] function traversation is too slow.
  [ 4 ] tracing lib is proably too slow as well
  [*2 ] include grapes in graprof - does not make sense yet to separate these
- [*3 ] add configure switch global config stuff (see configure.ac)
 
 questions
  [ 5 ] Why does addr2line do some black magic on elf addresses

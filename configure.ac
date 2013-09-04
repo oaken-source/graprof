@@ -17,9 +17,57 @@ AM_PROG_CC_C_O
 AM_PROG_AR
 AM_PROG_LEX
 
-AC_DEFINE([DEBUG], [1], [This causes error messages to usually print their origins])
-AC_DEFINE([FREE_ALL_MEMORY_EXPLICITLY], [1], [Useful for debugging memory leaks.])
-AC_DEFINE([USE_DEPRECATED_MALLOC_HOOKS], [1], [Do not redefine malloc and friends, but use deprecated malloc_hooks instead])
+# Allow for a self-profiling test build to be enabled at configure time
+AC_ARG_ENABLE(testbuild,
+AS_HELP_STRING([--enable-testbuild],
+               [Build and install instrumented versions of graprof used for self-profiling. This is mainly useful for developers working on graprof itself. Default: no]),
+[case "${enableval}" in
+	yes) testbuild=true ;;
+	no)  testbuild=false ;;
+	*)   AC_MSG_ERROR([bad value ${enableval} for --enable-testbuild]) ;;
+esac],
+[testbuild=false])
+
+AM_CONDITIONAL(TESTBUILD, test x"$testbuild" = x"true")
+
+# Allow for deeper error messaging to be enabled at configure time
+AC_ARG_ENABLE(debug,
+AS_HELP_STRING([--enable-debug],
+               [Enable output of failed assertions that may or may not lead to errors that surface on stderr. Useful for debugging, and for submitting bug reports. Default: no]),
+[case "${enableval}" in
+	yes) debug=1 ;;
+	no)  debug=0 ;;
+	*)   AC_MSG_ERROR([bad value ${enableval} for --enable-debug]) ;;
+esac],
+[debug=0])
+
+AC_DEFINE_UNQUOTED([DEBUG], [$debug], [increased debug output])
+
+# Allow for explicit memory free mode to be enabled at configure time
+AC_ARG_ENABLE(explicit-free,
+AS_HELP_STRING([--enable-explicit-free],
+               [Enable routines that explictly free all known memory locations. This is only useful to debug memory leaks in graprof itself. Default: no]),
+[case "${enableval}" in
+	yes) explicitfree=1 ;;
+	no)  explicitfree=0 ;;
+	*)   AC_MSG_ERROR([bad value ${enableval} for --enable-explicit-free]) ;;
+esac],
+[explicitfree=0])
+
+AC_DEFINE_UNQUOTED([FREE_ALL_MEMORY_EXPLICITLY], [$explicitfree], [explicitly free known memory on exit])
+ 
+# Allow for deprecated malloc hooks to be enabled at configure time
+AC_ARG_ENABLE(deprecated-malloc-hooks,
+AS_HELP_STRING([--enable-deprecated-malloc-hooks],
+               [Enable the deprecated malloc hooks instead of overriding the weak symbols. Use this when the default malloc interception does not work for you. Default: no]),
+[case "${enableval}" in
+	yes) deprecatedmallochooks=1 ;;
+	no)  deprecatedmallochooks=0 ;;
+	*)   AC_MSG_ERROR([bad value ${enableval} for --enable-deprecated-malloc-hooks]) ;;
+esac],
+[deprecatedmallochooks=0])
+
+AC_DEFINE_UNQUOTED([USE_DEPRECATED_MALLOC_HOOKS], [$deprecatedmallochooks], [enable deprecated malloc_hooks])
 
 LT_INIT
 
