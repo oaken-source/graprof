@@ -4,13 +4,14 @@ planned features
 
 tasks (marked with * are necessary for next release)
  [ 1 ] configure flag to turn off gui and/or instrumentation and/or memory hooks
- [*6 ] finish website
  [ 1 ] make highrestimer clock configurable
  [ 4 ] profile different methods of hook activation / deactivation
  [ 2 ] sort inner output in call graph
  [ 3 ] function traversation is too slow.
  [ 4 ] tracing lib is proably too slow as well
  [ 1 ] remove fprintf cascades in favour of constant string macros
+ [ 8 ] public repository
+ [ 99] read guide!
 
 questions
  [ 5 ] Why does addr2line do some black magic on elf addresses
