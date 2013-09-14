@@ -2,10 +2,10 @@
 graprof - a profiling and trace analysis tool
 -------------------------------------------
 
-Please send graprof bug reports via <http://bugs.grapentin.org/>
-using `graprof' in the "category" field.
+Please send graprof bug reports via 
+<http://github.com/andy-graprof/graprof/issues/>.
 
-Or mail me at <andreas@grapentin.org>!
+Or mail us at <graprof@grapentin.org>!
 
  Table of Contents:
    1. Introduction
@@ -46,12 +46,11 @@ Or mail me at <andreas@grapentin.org>!
  be found on <http://graprof.grapentin.org>.
 
  If you have found a bug, please do not hesitate to report it at graprof's 
- bug tracker found on <http://bugs.grapentin.org>, using graprof in the 
- `category' field.
+ bug tracker found on <http://github.com/andy-graprof/graprof/issues>.
 
  If you have any suggestions, on how graprof can be improved, or want to 
  submit a bug but loathe to create an account at the bug tracking system, just
- send an email to <andreas@grapentin.org> and I will see what I can do.
+ send an email to <graprof@grapentin.org> and I will see what I can do.
 
  If you want to support graprof, or its developers (me), have a look at
  <http://graprof.grapentin.org?page=support>, there are numerous ways to 
@@ -318,9 +317,9 @@ Or mail me at <andreas@grapentin.org>!
  Graprof is still mainly untested. There is only so much testing a single 
  person can do, so this is mainly where graprof needs support from YOU!
  If you find any suspicious, reproducable behaviour, please file a bug on
- <http://bugs.grapentin.org> with `graprof' in the category field.
+ <http://github.com/andy-graprof/graprof/issues>.
  If you want to send suggestions, regarding graprof itself, the website, or
- just want to chat with me a little, you can also mail <andreas@grapentin.org>
+ just want to chat with me a little, you can also mail <graprof@grapentin.org>
  and I will answer as soon as I can.
 
  Apart from the lack of testing, graprof also has a couple of conceptual
