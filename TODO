@@ -22,3 +22,4 @@ open issues
  [ 5 ] profiling multithreaded applications
  [ 6 ] I know the parent function of orphaned functions. sometimes these are real parents with "missing links" sometimes they are not. can I do something here?
  [ 4 ] sometimes, (why?) inlined functions can not be translated to their corresponding debug symbols. addr2line is unable to do that as well
+ [ 5 ] currently, I have no means of checking if a given trace was generated with the given binary. graprof may segfault on mismatch - is this bad?
