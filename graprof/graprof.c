@@ -36,7 +36,7 @@ extern int yylex(const char *filename);
 
 FILE *graprof_out;
 
-int 
+int
 main (int argc, char *argv[])
 {
   struct arguments args = { 0, 0, 0, 0 };
@@ -58,7 +58,7 @@ main (int argc, char *argv[])
             }
         }
     }
-  
+
   int res = trace_read(args.trace_filename);
   if (res)
     {
@@ -81,10 +81,10 @@ main (int argc, char *argv[])
     }
 
   if (args.tasks & GRAPROF_FLAT_PROFILE)
-    flatprofile_print(args.tasks & GRAPROF_CALL_GRAPH);
+    flatprofile_print(args.tasks & GRAPROF_CALL_GRAPH, args.verbose);
 
   if (args.tasks & GRAPROF_CALL_GRAPH)
-    callgraph_print();  
+    callgraph_print(args.verbose);
 
   if (args.tasks & GRAPROF_MEMORY_PROFILE)
     memprofile_print();
