@@ -1,3 +1,3 @@
 #!/bin/bash
-
-autoreconf --install || exit 1
+mkdir -p scripts/m4
+autoreconf --install || echo "autoreconf failed." && exit 1

@@ -3,5 +3,19 @@
 *.lo
 *.la
 
-Makefile
 
+# autotool related stuff
+Makefile
+scripts/
+configure
+**/Makefile.in
+aclocal.m4
+autom4te.cache/
+config.h.in
+
+# created by configure
+config.h
+config.log
+config.status
+libtool
+stamp-h1
