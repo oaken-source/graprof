@@ -76,7 +76,7 @@ free_hook (void *ptr, const void *caller)
   mallhooks_uninstall_hooks();
 
   free(ptr);
- 
+
   if (ptr)
     {
       buffer_enlarge(sizeof(char) + 2 * sizeof(uintptr_t) + sizeof(unsigned long long));
@@ -98,7 +98,7 @@ static void *(*old_realloc_hook)(void*, size_t, const void*);
 static void (*old_free_hook)(void *, const void*);
 
 void
-mallhooks_install_hooks ()
+mallhooks_install_hooks (void)
 {
   old_malloc_hook = __malloc_hook;
   __malloc_hook = malloc_hook;
@@ -111,7 +111,7 @@ mallhooks_install_hooks ()
 }
 
 void
-mallhooks_uninstall_hooks ()
+mallhooks_uninstall_hooks (void)
 {
   __malloc_hook = old_malloc_hook;
   __realloc_hook = old_realloc_hook;
@@ -128,13 +128,13 @@ extern void* __libc_realloc(void *ptr, size_t size);
 extern void __libc_free(void *ptr);
 
 void
-mallhooks_install_hooks ()
+mallhooks_install_hooks (void)
 {
   mallhooks_active = 1;
 }
 
-void 
-mallhooks_uninstall_hooks ()
+void
+mallhooks_uninstall_hooks (void)
 {
   mallhooks_active = 0;
 }

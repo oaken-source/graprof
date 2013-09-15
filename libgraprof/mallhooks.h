@@ -25,8 +25,8 @@
 
 /* activate the allocation hooks
  */
-void mallhooks_install_hooks();
+void mallhooks_install_hooks(void);
 
 /* deactivate the allocation hooks
  */
-void mallhooks_uninstall_hooks();
+void mallhooks_uninstall_hooks(void);

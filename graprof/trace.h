@@ -43,4 +43,4 @@ int trace_read(const char *filename);
  * returns:
  *   the time value associated with the end trace symbol
  */
-unsigned long long trace_get_total_runtime();
+unsigned long long trace_get_total_runtime(void);

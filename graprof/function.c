@@ -97,7 +97,7 @@ function_call_data_init (call_data *d)
   d->children_time = 0;
 }
 
-static function* 
+static function*
 function_push (uintptr_t address)
 {
   ++nfunctions;
@@ -115,7 +115,7 @@ function_push (uintptr_t address)
   return f;
 }
 
-static int 
+static int
 function_add_caller (function *f, unsigned int caller_id)
 {
   unsigned int i;
@@ -185,7 +185,7 @@ static void
 function_add_caller_self_time (unsigned int caller_id, unsigned int callee_id, unsigned long long time)
 {
   function *f = functions + caller_id;
-  
+
   unsigned int i;
   for (i = 0; i < f->ncallees; ++i)
     if (f->callees[i].function_id == callee_id)
@@ -202,7 +202,7 @@ static void
 function_add_caller_children_time (unsigned int caller_id, unsigned int callee_id, unsigned long long time)
 {
   function *f = functions + caller_id;
-  
+
   unsigned int i;
   for (i = 0; i < f->ncallees; ++i)
     if (f->callees[i].function_id == callee_id)
@@ -241,7 +241,7 @@ function_aggregate_function_time_for_id (tree_entry *e, unsigned int function_id
 }
 
 static void
-function_aggregate_function_times ()
+function_aggregate_function_times (void)
 {
   unsigned int i;
   for (i = 0; i < nfunctions; ++i)
@@ -319,7 +319,7 @@ function_exit (unsigned long long time)
   return 0;
 }
 
-int 
+int
 function_exit_all (unsigned long long time)
 {
   while (call_tree_current_node->parent != NULL)
@@ -353,7 +353,7 @@ function_get_all (unsigned int *n)
 }
 
 function*
-function_get_current ()
+function_get_current (void)
 {
   if (call_tree_current_node->function_id != (unsigned int)-1)
     return functions + call_tree_current_node->function_id;
@@ -377,7 +377,7 @@ function_compare (function *f, uintptr_t addr)
 }
 
 unsigned long long
-function_get_total_calls ()
+function_get_total_calls (void)
 {
   return total_calls;
 }

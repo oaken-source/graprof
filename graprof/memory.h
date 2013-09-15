@@ -125,7 +125,7 @@ int memory_malloc(size_t size, uintptr_t caller, uintptr_t result, unsigned long
  *
  * errors:
  *   may fail and set errno for the same reasons as realloc and addr_translate
- *   
+ *
  * returns:
  *   -1 on failure, 0 on success
  */
@@ -151,42 +151,42 @@ int memory_free(uintptr_t ptr, uintptr_t caller, unsigned long long time);
  * returns:
  *   the total number of bytes allocated
  */
-unsigned long long memory_get_total_allocated();
+unsigned long long memory_get_total_allocated(void);
 
 /* get the maximum number of bytes allocated during child runtime
  *
  * returns:
  *   the maximum number of bytes allocated
  */
-unsigned long long memory_get_maximum_allocated();
+unsigned long long memory_get_maximum_allocated(void);
 
 /* get the total number of bytes freed
  *
  * returns:
  *   the total number of bytes freed
  */
-unsigned long long memory_get_total_freed();
+unsigned long long memory_get_total_freed(void);
 
 /* get the total number of allocation trace events
  *
  * returns:
  *   the total number of allocations
  */
-unsigned int memory_get_total_allocations();
+unsigned int memory_get_total_allocations(void);
 
 /* get the total number of reallocation trace events
  *
  * returns:
  *   the total number of reallocation events
  */
-unsigned int memory_get_total_reallocations();
+unsigned int memory_get_total_reallocations(void);
 
 /* get the total number of deallocation trace events
  *
  * returns:
  *   the total number of deallocation events
  */
-unsigned int memory_get_total_frees();
+unsigned int memory_get_total_frees(void);
 
 /* get a list of failed allocation events and their meta information
  *
