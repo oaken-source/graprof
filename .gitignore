@@ -1,0 +1,7 @@
+# ignore object files
+*.o
+*.lo
+*.la
+
+Makefile
+
