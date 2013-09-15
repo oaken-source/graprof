@@ -33,10 +33,10 @@
 
 FILE *graprof_out;
 
-int 
+int
 main (int argc, char *argv[])
 {
-  struct arguments args = { 0, 0, 0, 0 };
+  struct arguments args = { 0, 0, 0, 0, 0 };
   argp_parse (&argp, argc, argv, 0, 0, &args);
 
   int res = addr_init(args.binary_filename);
@@ -75,10 +75,10 @@ main (int argc, char *argv[])
     }
 
   if (args.tasks & GRAPROF_FLAT_PROFILE)
-    flatprofile_print(args.tasks & GRAPROF_CALL_GRAPH);
+    flatprofile_print(args.tasks & GRAPROF_CALL_GRAPH, args.verbose);
 
   if (args.tasks & GRAPROF_CALL_GRAPH)
-    callgraph_print();  
+    callgraph_print(args.verbose);
 
   if (args.tasks & GRAPROF_MEMORY_PROFILE)
     memprofile_print();

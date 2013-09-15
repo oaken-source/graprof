@@ -16,6 +16,7 @@ tasks (marked with * are necessary for next 0.6 release)
          - ...
  [*6 ] look into alternative invokation style
  [ 99] read guide!
+ [ 2 ] include stefan in AUTHORS file
 
 questions
  [ 5 ] Why does addr2line do some black magic on elf addresses
