@@ -33,14 +33,14 @@
 extern FILE *graprof_out;
 
 void
-callgraph_print ()
+callgraph_print (void)
 {
   fprintf(graprof_out, "Call graph:\n");
   fprintf(graprof_out, "\n");
 
   const char *prefix;
   unsigned long long time = trace_get_total_runtime();
- 
+
   strtime(&time, &prefix);
 
   fprintf(graprof_out, " total runtime:                  %llu %sseconds\n", time, prefix);
@@ -88,7 +88,7 @@ callgraph_print ()
       // print self
       time = trace_get_total_runtime();
       fprintf(graprof_out, " %6u %6.2f ", i, (100.0 * (f->self_time + f->children_time)) / time);
- 
+
       time = f->self_time;
       strtime(&time, &prefix);
       fprintf(graprof_out, "%6llu %ss ", time, prefix);
@@ -184,5 +184,5 @@ callgraph_print ()
   fprintf(graprof_out, " \n");
   fprintf(graprof_out, "   name       The name of the callee.\n");
   fprintf(graprof_out, " \n");
- 
+
 }

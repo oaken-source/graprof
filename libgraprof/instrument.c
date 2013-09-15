@@ -55,18 +55,18 @@ instrument_exit (void *func __attribute__ ((unused)), void *caller __attribute__
   buffer_append(char, 'x');
 
   mallhooks_install_hooks();
- 
+
   buffer_append(unsigned long long, highrestimer_get());
 }
 
 void
-instrument_install_hooks ()
+instrument_install_hooks (void)
 {
   instrument_active = 1;
 }
 
 void
-instrument_uninstall_hooks ()
+instrument_uninstall_hooks (void)
 {
   instrument_active = 0;
 }

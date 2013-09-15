@@ -42,7 +42,7 @@ highrestimer_init ()
 }
 
 unsigned long long
-highrestimer_get ()
+highrestimer_get (void)
 {
   struct timespec tmp_ts;
 

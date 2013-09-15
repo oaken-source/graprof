@@ -29,10 +29,10 @@
 extern FILE *graprof_out;
 
 void
-memprofile_print ()
+memprofile_print (void)
 {
   fprintf(graprof_out, "Memory profile:\n");
-  fprintf(graprof_out, "\n"); 
+  fprintf(graprof_out, "\n");
 
   fprintf(graprof_out, " total bytes allocated:   %llu\n", memory_get_total_allocated());
   fprintf(graprof_out, " total bytes freed:       %llu\n", memory_get_total_freed());
@@ -67,7 +67,7 @@ memprofile_print ()
       else
         fprintf(graprof_out, " of size %zu to size %zu\n", failed_reallocs[i].start_size, failed_reallocs[i].end_size);
     }
-      
+
   if (nfailed_reallocs)
     fprintf(graprof_out, "\n");
 

@@ -80,11 +80,11 @@ memory_add_failed_malloc (size_t size, uintptr_t caller, unsigned long long time
   function *func = function_get_current();
 
   f->caller = func;
-  
+
   if (!function_compare(func, caller))
     {
       f->direct_call = 1;
-      int res = addr_translate(caller, NULL, &(f->file), &(f->line)); 
+      int res = addr_translate(caller, NULL, &(f->file), &(f->line));
       assert_inner(!res, "addr_translate");
     }
   else
@@ -97,7 +97,7 @@ memory_add_failed_malloc (size_t size, uintptr_t caller, unsigned long long time
   return 0;
 }
 
-static int 
+static int
 memory_add_failed_realloc (uintptr_t ptr, size_t size, uintptr_t caller, unsigned long long time, unsigned int reason)
 {
   ++nfailed_reallocs;
@@ -114,7 +114,7 @@ memory_add_failed_realloc (uintptr_t ptr, size_t size, uintptr_t caller, unsigne
       block *b = memory_get_block_by_address(ptr);
       f->start_size = b->size;
     }
-  
+
   f->end_size = size;
   f->ptr = ptr;
   f->time = time;
@@ -130,7 +130,7 @@ memory_add_failed_realloc (uintptr_t ptr, size_t size, uintptr_t caller, unsigne
       f->direct_call = 1;
       int res = addr_translate(caller, NULL, &(f->file), &(f->line));
       assert_inner(!res, "addr_reanslate");
-    } 
+    }
   else
     {
       f->direct_call = 0;
@@ -211,7 +211,7 @@ memory_malloc (size_t size, uintptr_t caller, uintptr_t result, unsigned long lo
       b->direct_call = 1;
       int res = addr_translate(caller, NULL, &(b->file), &(b->line));
       assert_inner(!res, "addr_reanslate");
-    } 
+    }
   else
     {
       b->direct_call = 0;
@@ -226,8 +226,8 @@ int
 memory_realloc (uintptr_t ptr, size_t size, uintptr_t caller, uintptr_t result, unsigned long long time)
 {
   ++total_reallocations;
-  
-  // edge cases: 
+
+  // edge cases:
   //   if ptr == NULL, behave like malloc but keep correct counters
   if (!ptr)
     {
@@ -281,7 +281,7 @@ memory_realloc (uintptr_t ptr, size_t size, uintptr_t caller, uintptr_t result, 
 int memory_free (uintptr_t ptr, uintptr_t caller, unsigned long long time)
 {
   ++total_frees;
-  
+
   block *b = memory_get_block_by_address(ptr);
   if (!b)
     {
@@ -305,37 +305,37 @@ int memory_free (uintptr_t ptr, uintptr_t caller, unsigned long long time)
 /* simple accessors */
 
 unsigned long long
-memory_get_total_allocated ()
+memory_get_total_allocated (void)
 {
   return total_allocated;
 }
 
 unsigned long long
-memory_get_maximum_allocated ()
+memory_get_maximum_allocated (void)
 {
   return maximum_allocated;
 }
 
 unsigned long long
-memory_get_total_freed ()
+memory_get_total_freed (void)
 {
   return total_freed;
 }
 
 unsigned int
-memory_get_total_allocations ()
+memory_get_total_allocations (void)
 {
   return total_allocations;
 }
 
 unsigned int
-memory_get_total_reallocations ()
+memory_get_total_reallocations (void)
 {
   return total_reallocations;
 }
 
 unsigned int
-memory_get_total_frees ()
+memory_get_total_frees (void)
 {
   return total_frees;
 }
