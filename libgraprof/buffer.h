@@ -39,3 +39,6 @@ extern unsigned long libgraprof_bufsize;
 #define buffer_append(T, V) \
   *((T*)(libgraprof_buf + index)) = (V); \
   index += sizeof(T)
+
+#define buffer_destroy() \
+  free(libgraprof_buf);
