@@ -31,17 +31,23 @@ extern FILE *graprof_out;
 void
 memprofile_print (void)
 {
-  fprintf(graprof_out, "Memory profile:\n");
-  fprintf(graprof_out, "\n");
-
-  fprintf(graprof_out, " total bytes allocated:   %llu\n", memory_get_total_allocated());
-  fprintf(graprof_out, " total bytes freed:       %llu\n", memory_get_total_freed());
-  fprintf(graprof_out, " maximum bytes allocated: %llu\n", memory_get_maximum_allocated());
-  fprintf(graprof_out, "\n");
-  fprintf(graprof_out, " calls to malloc:         %u\n", memory_get_total_allocations());
-  fprintf(graprof_out, " calls to realloc:        %u\n", memory_get_total_reallocations());
-  fprintf(graprof_out, " calls to free:           %u\n", memory_get_total_frees());
-  fprintf(graprof_out, "\n");
+  fprintf(graprof_out,
+        "Memory profile:\n"
+        "\n"
+        " total bytes allocated:   %llu\n"
+        " total bytes freed:       %llu\n"
+        " maximum bytes allocated: %llu\n"
+        "\n"
+        " calls to malloc:         %u\n"
+        " calls to realloc:        %u\n"
+        " calls to free:           %u\n"
+        "\n",
+        memory_get_total_allocated(),
+        memory_get_total_freed(),
+        memory_get_maximum_allocated(),
+        memory_get_total_allocations(),
+        memory_get_total_reallocations(),
+        memory_get_total_frees());
 
   unsigned int nfailed_mallocs = 0;
   failed_malloc *failed_mallocs = memory_get_failed_mallocs(&nfailed_mallocs);
