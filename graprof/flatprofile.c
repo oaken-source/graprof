@@ -31,7 +31,6 @@
 #include <inttypes.h>
 
 extern FILE *graprof_out;
-extern int verbose;
 
 static int
 cmpfunction (const void *p1, const void *p2)
@@ -48,7 +47,7 @@ cmpfunction (const void *p1, const void *p2)
 }
 
 void
-flatprofile_print (int callgraph_enabled)
+flatprofile_print (int callgraph_enabled, int verbose)
 {
   fprintf(graprof_out, "Flat profile:\n");
   fprintf(graprof_out, "\n");

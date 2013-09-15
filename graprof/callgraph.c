@@ -31,10 +31,9 @@
 #include <inttypes.h>
 
 extern FILE *graprof_out;
-extern int verbose;
 
 void
-callgraph_print (void)
+callgraph_print (int verbose)
 {
   fprintf(graprof_out, "Call graph:\n");
   fprintf(graprof_out, "\n");
