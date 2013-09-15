@@ -63,6 +63,8 @@ Or mail us at <graprof@grapentin.org>!
 
  First, you need to install graprof. Refer to INSTALL for detailed installation
  instructions. Usually `./configure && make && sudo make install' does the job.
+ If installing from git, ./configure is not included, please run `autoreconf -fvi`
+ first.
 
  To instruct your application to write program traces, you have to add
   to CFLAGS:   -finstrument-functions -g
