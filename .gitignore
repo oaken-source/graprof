@@ -3,5 +3,13 @@
 *.lo
 *.la
 
+
+# autotool related stuff
 Makefile
+scripts/
+configure
+**/Makefile.in
+aclocal.m4
+autom4te.cache/
+config.h.in
 
