@@ -56,12 +56,31 @@ struct arguments
   int tasks;
   const char *out_filename;
   int verbose;
+  int profilee; // the index in argv when the profilee starts, 0 if no -- is there.
 };
+
+static int next_arg;
 
 static error_t
 parse_opt (int key, char *arg, struct argp_state *state)
 {
   struct arguments *arguments = (struct arguments*)state->input;
+
+  if (state->quoted)
+    {
+      /* one behind the "--" */
+      arguments->profilee = next_arg + 1;
+
+      /* abort parsing completely when encountering '--' */
+      state->next = state->argc;
+      return 0;
+    }
+  else
+    {
+      /* Keep track of the arguments to parse, while being before --, which
+      * changes next to argc*/
+      next_arg = state->next;
+    }
 
   switch(key)
     {
