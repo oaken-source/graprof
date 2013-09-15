@@ -1,0 +1,5 @@
+
+gmon.out
+gp.out.*
+gprof.out.*
+graprof.out.*

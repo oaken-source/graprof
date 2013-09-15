@@ -31,9 +31,6 @@
 
 #include <stdio.h>
 
-extern FILE *yyin;
-extern int yylex(const char *filename);
-
 FILE *graprof_out;
 
 int 
