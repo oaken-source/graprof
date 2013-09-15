@@ -25,8 +25,8 @@
 
 #include <stdint.h>
 
-/* this struct holds the call data information of one side of a caller-callee 
- * pair, as well as some aggregated timing values. 
+/* this struct holds the call data information of one side of a caller-callee
+ * pair, as well as some aggregated timing values.
  */
 struct call_data
 {
@@ -121,13 +121,13 @@ function* function_get_all(unsigned int *nfunctions);
 /* get the function currently on the top of the call stack
  *
  * returns:
- *   a pointer to the function currently on top of the call stack, if not 
+ *   a pointer to the function currently on top of the call stack, if not
  *   empty, NULL otherwise
  */
-function* function_get_current();
+function* function_get_current(void);
 
 /* compare a function and an address, translate the address to file name and
- * function name, and return the result of the string comparison of both, 
+ * function name, and return the result of the string comparison of both,
  * analogous to strcmp.
  *
  * errors:
@@ -146,4 +146,4 @@ int function_compare(function *f, uintptr_t addr);
  * returns:
  *   the total number of functions called during profilee runtime
  */
-unsigned long long function_get_total_calls();
+unsigned long long function_get_total_calls(void);

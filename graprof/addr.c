@@ -31,8 +31,8 @@
 static bfd *addr_bfd = NULL;
 static asymbol **addr_syms = NULL;
 
-static int 
-addr_read_symbol_table ()
+static int
+addr_read_symbol_table (void)
 {
   int res = bfd_get_file_flags(addr_bfd) & HAS_SYMS;
   assert_set_errno(res, ENOTSUP, "bfd_get_file_flags");
@@ -98,7 +98,7 @@ addr_init (const char *filename)
   assert_inner(addr_bfd, "bfd_openr");
 
   addr_bfd->flags |= BFD_DECOMPRESS;
- 
+
   int res = bfd_check_format(addr_bfd, bfd_object);
   assert_set_errno(res, ENOTSUP, "bfd_check_format");
 
@@ -131,7 +131,7 @@ addr_translate (uintptr_t pc, char **function, char **file, unsigned int *line)
 
   if (line)
     *line = (addr_found ? addr_line : 0);
-    
+
   return 0;
 }
 

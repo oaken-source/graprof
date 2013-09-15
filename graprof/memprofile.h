@@ -25,4 +25,4 @@
 
 /* print the memory profile to graprof_out, declared in graprof.c
  */
-void memprofile_print();
+void memprofile_print(void);

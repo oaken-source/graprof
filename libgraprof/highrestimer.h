@@ -23,7 +23,7 @@
 
 #include <config.h>
 
-/* get the number of nanoseconds elapsed since the start of the program 
+/* get the number of nanoseconds elapsed since the start of the program
  *
  * errors:
  *   EINVAL - your system does not support CLOCK_MONOTONIC_RAW
@@ -32,4 +32,4 @@
  *   the number of nanoseconds elapsed since the start of the program on
  *   success, -1 on failure
  */
-unsigned long long highrestimer_get();
+unsigned long long highrestimer_get(void);

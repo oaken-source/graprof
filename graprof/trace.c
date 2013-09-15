@@ -119,7 +119,7 @@ trace_end (void *buf)
   return 0;
 }
 
-int 
+int
 trace_read (const char *filename)
 {
   FILE *trace = fopen(filename, "r");
@@ -144,7 +144,7 @@ trace_read (const char *filename)
   while (trace_index < trace_bufsize)
     {
       char sign = *((char*)(trace_buf + trace_index));
-      trace_index += sizeof(char); 
+      trace_index += sizeof(char);
       switch (sign)
         {
         case 'e':
@@ -189,7 +189,7 @@ trace_read (const char *filename)
 }
 
 unsigned long long
-trace_get_total_runtime ()
+trace_get_total_runtime (void)
 {
   return trace_total_runtime;
 }
