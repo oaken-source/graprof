@@ -32,13 +32,14 @@ const char doc[] = PACKAGE_NAME " - a profiling and trace analysis tool";
 
 const char args_doc[] = "<binary file> <trace file>";
 
-static struct argp_option options[] = 
+static struct argp_option options[] =
 {
     {"flat-profile", 'F', 0, 0, "generate flat profile from trace data", 0},
     {"call-graph", 'C', 0, 0, "generete call graph from trace data", 0},
     {"memory-profile", 'M', 0, 0, "generate flat memory profile from trace data", 0},
     {"no-gui", 'g', 0, 0, "do not open the trace explorer gui", 0},
     {"output", 'o', "<file>", 0, "write profile results to <file> instead of stdout", 0},
+    {"verbose", 'v', 0, 0, "increase verbosity"},
     {0, 0, 0, 0, 0, 0}
 };
 
@@ -56,7 +57,9 @@ struct arguments
   const char *out_filename;
 };
 
-static error_t 
+int verbose = 0;
+
+static error_t
 parse_opt (int key, char *arg, struct argp_state *state)
 {
   struct arguments *arguments = (struct arguments*)state->input;
@@ -77,6 +80,9 @@ parse_opt (int key, char *arg, struct argp_state *state)
       break;
     case 'o':
       arguments->out_filename = arg;
+      break;
+    case 'v':
+      verbose++;
       break;
     case ARGP_KEY_ARG:
       switch (state->arg_num)

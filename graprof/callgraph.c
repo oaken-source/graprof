@@ -31,6 +31,7 @@
 #include <inttypes.h>
 
 extern FILE *graprof_out;
+extern int verbose;
 
 void
 callgraph_print (void)
@@ -129,6 +130,9 @@ callgraph_print (void)
     }
 
   fprintf(graprof_out, "\n");
+
+  if (!verbose)
+    return;
 
   fprintf(graprof_out, " This table describes the call tree of the program, and was\n");
   fprintf(graprof_out, " sorted by the total amount of time spent in and below each\n");

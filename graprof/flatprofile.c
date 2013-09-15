@@ -31,6 +31,7 @@
 #include <inttypes.h>
 
 extern FILE *graprof_out;
+extern int verbose;
 
 static int
 cmpfunction (const void *p1, const void *p2)
@@ -46,7 +47,7 @@ cmpfunction (const void *p1, const void *p2)
   return 1;
 }
 
-void 
+void
 flatprofile_print (int callgraph_enabled)
 {
   fprintf(graprof_out, "Flat profile:\n");
@@ -54,7 +55,7 @@ flatprofile_print (int callgraph_enabled)
 
   const char *prefix;
   unsigned long long time = trace_get_total_runtime();
- 
+
   strtime(&time, &prefix);
 
   fprintf(graprof_out, " total runtime:                  %llu %sseconds\n", time, prefix);
@@ -62,7 +63,7 @@ flatprofile_print (int callgraph_enabled)
   fprintf(graprof_out, "\n");
   fprintf(graprof_out, "  %%       self    children             self    children\n");
   fprintf(graprof_out, " time      time      time     calls    /call     /call  name\n");
- 
+
   unsigned int nfunctions = 0;
   function *functions = function_get_all(&nfunctions);
 
@@ -89,7 +90,7 @@ flatprofile_print (int callgraph_enabled)
       strtime(&time, &prefix);
 
       fprintf(graprof_out, "%6llu %ss ", time, prefix);
-  
+
       fprintf(graprof_out, "%8lu ", f->calls);
 
       time = f->self_time / f->calls;
@@ -115,8 +116,11 @@ flatprofile_print (int callgraph_enabled)
 
   free(sorted_functions);
 
+  if (!verbose)
+    return;
+
   fprintf(graprof_out, "\n");
-  fprintf(graprof_out, " %%          the percentage of the total running time of the\n"); 
+  fprintf(graprof_out, " %%          the percentage of the total running time of the\n");
   fprintf(graprof_out, " time       program spent in this function\n");
   fprintf(graprof_out, "\n");
   fprintf(graprof_out, " self       the absolute total running time spent in this\n");
