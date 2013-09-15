@@ -39,24 +39,21 @@ main (int argc, char *argv[])
   struct arguments args = { 0, 0, 0, 0 };
   argp_parse (&argp, argc, argv, 0, 0, &args);
 
-  if (args.binary_filename)
+  int res = addr_init(args.binary_filename);
+  if (res)
     {
-      int res = addr_init(args.binary_filename);
-      if (res)
+      if (errno == ENOTSUP)
         {
-          if (errno == ENOTSUP)
-            {
-              errno = 0;
-              feedback_warning("%s: file format not supported or no debug symbols found", args.binary_filename);
-            }
-          else
-            {
-              feedback_warning("%s", args.binary_filename);
-            }
+          errno = 0;
+          feedback_warning("%s: file format not supported or no debug symbols found", args.binary_filename);
+        }
+      else
+        {
+          feedback_error(EXIT_FAILURE, "%s", args.binary_filename);
         }
     }
   
-  int res = trace_read(args.trace_filename);
+  res = trace_read(args.trace_filename);
   if (res)
     {
       if (errno == ENOTSUP)
