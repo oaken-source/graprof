@@ -30,14 +30,49 @@
 #include <grapes/feedback.h>
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 FILE *graprof_out;
+
+#define DEFAULT_TRACE_FILE "graprof.out"
 
 int
 main (int argc, char *argv[])
 {
-  struct arguments args = { 0, 0, 0, 0, 0 };
-  argp_parse (&argp, argc, argv, 0, 0, &args);
+  struct arguments args = { 0, 0, 0, 0, 0, 0};
+  argp_parse (&argp, argc, argv, ARGP_IN_ORDER, 0, &args);
+
+  args.binary_filename = argv[args.profilee_index];
+
+  char *has_environ = getenv("GRAPROF_OUT");
+  if (!args.trace_filename)
+    {
+      if (!has_environ)
+        {
+          char *buf = malloc(strlen(getcwd(0, 0)) + 1 + strlen(DEFAULT_TRACE_FILE) + 1);
+          sprintf(buf, "%s/%s", getcwd(0, 0), DEFAULT_TRACE_FILE);
+          args.trace_filename = buf;
+          setenv("GRAPROF_OUT", args.trace_filename, 1);
+        }
+      else
+        args.trace_filename = has_environ;
+    }
+  else
+    setenv("GRAPROF_OUT", args.trace_filename, 1);
+
+  if (!(args.tasks & GRAPROF_NO_ANALYSIS))
+    {
+      int pid = fork();
+      if (!pid)
+          execv(argv[args.profilee_index], &argv[args.profilee_index]);
+      else
+          waitpid(pid, 0, 0);
+    }
+
+  if (!has_environ)
+    unsetenv("GRAPROF_OUT");
 
   int res = addr_init(args.binary_filename);
   if (res)
@@ -52,7 +87,6 @@ main (int argc, char *argv[])
           feedback_error(EXIT_FAILURE, "%s", args.binary_filename);
         }
     }
-  
   res = trace_read(args.trace_filename);
   if (res)
     {

@@ -38,7 +38,9 @@ static struct argp_option options[] =
     {"call-graph", 'C', 0, 0, "generete call graph from trace data", 0},
     {"memory-profile", 'M', 0, 0, "generate flat memory profile from trace data", 0},
     {"no-gui", 'g', 0, 0, "do not open the trace explorer gui", 0},
-    {"output", 'o', "<file>", 0, "write profile results to <file> instead of stdout", 0},
+    {"output-trace", 'O', "<file>", 0, "write tracefile to <file> instead of defaulting to graprof.out. This has higher priority than the GRAPROF_OUT variable", 0},
+    {"output", 'o', "<file>", 0, "write profile results to <file> instead of stdout.", 0},
+    {"analyze-only", 'a', "<file>", 0, "use existing trace file and analyze it", 0},
     {"verbose", 'v', 0, 0, "add descriptions to profiling output", 0},
     {0, 0, 0, 0, 0, 0}
 };
@@ -47,6 +49,7 @@ static struct argp_option options[] =
 #define GRAPROF_CALL_GRAPH        0x02
 #define GRAPROF_MEMORY_PROFILE    0x04
 #define GRAPROF_NO_GUI            0x08
+#define GRAPROF_NO_ANALYSIS       0x10
 
 struct arguments
 {
@@ -56,7 +59,10 @@ struct arguments
   int tasks;
   const char *out_filename;
   int verbose;
+  int profilee_index; // the index in argv when the profilee starts, 0 if no -- is there.
 };
+
+static int next_arg;
 
 static error_t
 parse_opt (int key, char *arg, struct argp_state *state)
@@ -80,22 +86,23 @@ parse_opt (int key, char *arg, struct argp_state *state)
     case 'o':
       arguments->out_filename = arg;
       break;
+    case 'a':
+      arguments->tasks |= GRAPROF_NO_ANALYSIS;
+      /* intentional fall through */
+    case 'O':
+      arguments->trace_filename = arg;
+      break;
     case 'v':
       arguments->verbose++;
       break;
     case ARGP_KEY_ARG:
-      switch (state->arg_num)
-        {
-        case 0:
-          arguments->trace_filename = arg;
-          break;
-        case 1:
-          arguments->binary_filename = arguments->trace_filename;
-          arguments->trace_filename = arg;
-          break;
-        default:
-          argp_usage(state);
-        }
+      arguments->profilee_index = state->next - 1;
+      arguments->binary_filename = arg;
+      /* abort parsing completely when encountering the binary name,
+       * as the following options are for the binary,
+       * we don't understand them
+       */
+      state->next = state->argc;
       break;
     case ARGP_KEY_END:
       if (state->arg_num < 2)
