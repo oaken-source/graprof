@@ -49,16 +49,20 @@ main (int argc, char *argv[])
   char *has_environ = getenv("GRAPROF_OUT");
   if (!args.trace_filename)
     {
-      char *buf = malloc(strlen(getcwd(0, 0)) + 1 + strlen(DEFAULT_TRACE_FILE) + 1);
-      sprintf(buf, "%s/%s", getcwd(0, 0), DEFAULT_TRACE_FILE);
-      args.trace_filename = buf;
       if (!has_environ)
-        setenv("GRAPROF_OUT", args.trace_filename, 1);
+        {
+          char *buf = malloc(strlen(getcwd(0, 0)) + 1 + strlen(DEFAULT_TRACE_FILE) + 1);
+          sprintf(buf, "%s/%s", getcwd(0, 0), DEFAULT_TRACE_FILE);
+          args.trace_filename = buf;
+          setenv("GRAPROF_OUT", args.trace_filename, 1);
+        }
+      else
+        args.trace_filename = has_environ;
     }
   else
     setenv("GRAPROF_OUT", args.trace_filename, 1);
 
-  if (args.tasks & GRAPROF_NO_ANALYSIS)
+  if (!(args.tasks & GRAPROF_NO_ANALYSIS))
     {
       int pid = fork();
       if (!pid)
