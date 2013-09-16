@@ -56,7 +56,7 @@ struct arguments
   int tasks;
   const char *out_filename;
   int verbose;
-  int profilee; // the index in argv when the profilee starts, 0 if no -- is there.
+  int profilee_index; // the index in argv when the profilee starts, 0 if no -- is there.
 };
 
 static int next_arg;
@@ -65,22 +65,6 @@ static error_t
 parse_opt (int key, char *arg, struct argp_state *state)
 {
   struct arguments *arguments = (struct arguments*)state->input;
-
-  if (state->quoted)
-    {
-      /* one behind the "--" */
-      arguments->profilee = next_arg + 1;
-
-      /* abort parsing completely when encountering '--' */
-      state->next = state->argc;
-      return 0;
-    }
-  else
-    {
-      /* Keep track of the arguments to parse, while being before --, which
-      * changes next to argc*/
-      next_arg = state->next;
-    }
 
   switch(key)
     {
@@ -103,18 +87,13 @@ parse_opt (int key, char *arg, struct argp_state *state)
       arguments->verbose++;
       break;
     case ARGP_KEY_ARG:
-      switch (state->arg_num)
-        {
-        case 0:
-          arguments->trace_filename = arg;
-          break;
-        case 1:
-          arguments->binary_filename = arguments->trace_filename;
-          arguments->trace_filename = arg;
-          break;
-        default:
-          argp_usage(state);
-        }
+      arguments->profilee_index = state->next - 1;
+      arguments->binary_filename = arg;
+      /* abort parsing completely when encountering the binary name,
+       * as the following options are for the binary,
+       * we don't understand them
+       */
+      state->next = state->argc;
       break;
     case ARGP_KEY_END:
       if (state->arg_num < 2)
