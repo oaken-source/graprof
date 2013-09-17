@@ -50,19 +50,23 @@ cmpfunction (const void *p1, const void *p2)
 void
 flatprofile_print (int callgraph_enabled)
 {
-  fprintf(graprof_out, "Flat profile:\n");
-  fprintf(graprof_out, "\n");
+  fprintf(graprof_out,
+        "Flat profile:\n"
+        "\n");
 
   const char *prefix;
   unsigned long long time = trace_get_total_runtime();
 
   strtime(&time, &prefix);
 
-  fprintf(graprof_out, " total runtime:                  %llu %sseconds\n", time, prefix);
-  fprintf(graprof_out, " total number of function calls: %llu\n", function_get_total_calls());
-  fprintf(graprof_out, "\n");
-  fprintf(graprof_out, "  %%       self    children             self    children\n");
-  fprintf(graprof_out, " time      time      time     calls    /call     /call  name\n");
+  fprintf(graprof_out,
+        " total runtime:                  %llu %sseconds\n"
+        " total number of function calls: %llu\n"
+        "\n"
+        "  %%       self    children             self    children\n"
+        " time      time      time     calls    /call     /call  name\n",
+        time, prefix,
+        function_get_total_calls());
 
   unsigned int nfunctions = 0;
   function *functions = function_get_all(&nfunctions);
@@ -118,28 +122,29 @@ flatprofile_print (int callgraph_enabled)
 
   if (graprof_verbosity >= 1)
     {
-      fprintf(graprof_out, "\n");
-      fprintf(graprof_out, " %%          the percentage of the total running time of the\n");
-      fprintf(graprof_out, " time       program spent in this function\n");
-      fprintf(graprof_out, "\n");
-      fprintf(graprof_out, " self       the absolute total running time spent in this\n");
-      fprintf(graprof_out, " time       function alone - this is the major sort of this\n");
-      fprintf(graprof_out, "            listing\n");
-      fprintf(graprof_out, "\n");
-      fprintf(graprof_out, " children   the absolute total running time of the program\n");
-      fprintf(graprof_out, " time       spent in the descendants of this function in the\n");
-      fprintf(graprof_out, "            call tree\n");
-      fprintf(graprof_out, "\n");
-      fprintf(graprof_out, " calls      the number of times this function was invoked\n");
-      fprintf(graprof_out, "\n");
-      fprintf(graprof_out, " self       the average running time spent in this function\n");
-      fprintf(graprof_out, " /call      per call\n");
-      fprintf(graprof_out, "\n");
-      fprintf(graprof_out, " chlidren   the average running time spent in the descendants\n");
-      fprintf(graprof_out, " /call      of this function in the call tree per call\n");
-      fprintf(graprof_out, "\n");
-      fprintf(graprof_out, " name       the name of the function, if available, else its\n");
-      fprintf(graprof_out, "            address - this is the minor sort of this listing\n");
-      fprintf(graprof_out, "\n");
+      fprintf(graprof_out,
+        "\n"
+        " %%          the percentage of the total running time of the\n"
+        " time       program spent in this function\n"
+        "\n"
+        " self       the absolute total running time spent in this\n"
+        " time       function alone - this is the major sort of this\n"
+        "            listing\n"
+        "\n"
+        " children   the absolute total running time of the program\n"
+        " time       spent in the descendants of this function in the\n"
+        "            call tree\n"
+        "\n"
+        " calls      the number of times this function was invoked\n"
+        "\n"
+        " self       the average running time spent in this function\n"
+        " /call      per call\n"
+        "\n"
+        " chlidren   the average running time spent in the descendants\n"
+        " /call      of this function in the call tree per call\n"
+        "\n"
+        " name       the name of the function, if available, else its\n"
+        "            address - this is the minor sort of this listing\n"
+        "\n");
     }
 }

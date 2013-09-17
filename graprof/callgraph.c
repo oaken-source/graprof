@@ -44,11 +44,14 @@ callgraph_print (void)
 
   strtime(&time, &prefix);
 
-  fprintf(graprof_out, " total runtime:                  %llu %sseconds\n", time, prefix);
-  fprintf(graprof_out, " total number of function calls: %llu\n", function_get_total_calls());
-  fprintf(graprof_out, "\n");
-  fprintf(graprof_out, "          %%       self     children\n");
-  fprintf(graprof_out, "  index  time      time      time       called       name\n");
+  fprintf(graprof_out,
+        " total runtime:                  %llu %sseconds\n"
+        " total number of function calls: %llu\n"
+        "\n"
+        "          %%       self     children\n"
+        "  index  time      time      time       called       name\n",
+        time, prefix,
+        function_get_total_calls());
 
   unsigned int nfunctions = 0;
   function *functions = function_get_all(&nfunctions);
@@ -133,59 +136,60 @@ callgraph_print (void)
 
   if (graprof_verbosity >= 1)
     {
-      fprintf(graprof_out, " This table describes the call tree of the program, and was\n");
-      fprintf(graprof_out, " sorted by the total amount of time spent in and below each\n");
-      fprintf(graprof_out, " function in the call graph.\n");
-      fprintf(graprof_out, " \n");
-      fprintf(graprof_out, " Each entry in this table consists of several lines. The line\n");
-      fprintf(graprof_out, " with the index number at the left hand margin lists the current\n");
-      fprintf(graprof_out, " function, and the lines above it lists the functions callers, and\n");
-      fprintf(graprof_out, " the functions below it list the functions callees.\n");
-      fprintf(graprof_out, " \n");
-      fprintf(graprof_out, " The current function line lists:\n");
-      fprintf(graprof_out, "   index      A unique function identifier that is also referenced\n");
-      fprintf(graprof_out, "              in the name field of this listing.\n");
-      fprintf(graprof_out, " \n");
-      fprintf(graprof_out, "   %%          This is the percantage of the total time spent in and\n");
-      fprintf(graprof_out, "   time       below this function in the call tree.\n");
-      fprintf(graprof_out, " \n");
-      fprintf(graprof_out, "   self       This is the total amount of time spent in this function.\n");
-      fprintf(graprof_out, "   time       \n");
-      fprintf(graprof_out, " \n");
-      fprintf(graprof_out, "   children   This is the total amount of time spent in the descendants\n");
-      fprintf(graprof_out, "   time       of this function.\n");
-      fprintf(graprof_out, " \n");
-      fprintf(graprof_out, "   calls      This is the number of times this function was invoked.\n");
-      fprintf(graprof_out, " \n");
-      fprintf(graprof_out, "   name       The name of the function.\n");
-      fprintf(graprof_out, " \n");
-      fprintf(graprof_out, " For the functions callers, the fields have the following meaning:\n");
-      fprintf(graprof_out, "   self       This is the amount of time that was propagated directly\n");
-      fprintf(graprof_out, "   time       from the function into this caller.\n");
-      fprintf(graprof_out, " \n");
-      fprintf(graprof_out, "   children   This is the amount of time that was propagated from the\n");
-      fprintf(graprof_out, "   time       functions children into this caller.\n");
-      fprintf(graprof_out, " \n");
-      fprintf(graprof_out, "   calls      This is the number of times this caller called the function,\n");
-      fprintf(graprof_out, "              out of the total number this function was called.\n");
-      fprintf(graprof_out, " \n");
-      fprintf(graprof_out, "   name       The name of the caller.\n");
-      fprintf(graprof_out, " \n");
-      fprintf(graprof_out, " If the caller of a function can not be determined, it will be registered\n");
-      fprintf(graprof_out, " as <spontaneous> in the name field.\n");
-      fprintf(graprof_out, " \n");
-      fprintf(graprof_out, " For the functions callees, the fields have the following meaning:\n");
-      fprintf(graprof_out, "   self       This is the amount of time that was propagated directly from\n");
-      fprintf(graprof_out, "   time       this callee into the function.\n");
-      fprintf(graprof_out, " \n");
-      fprintf(graprof_out, "   children   This is the amount of time that was propagated from the\n");
-      fprintf(graprof_out, "   time       callees children into the function.\n");
-      fprintf(graprof_out, " \n");
-      fprintf(graprof_out, "   calls      This is the total number of times the callee function was\n");
-      fprintf(graprof_out, "              called from the function, of the total times the callee was\n");
-      fprintf(graprof_out, "              called.\n");
-      fprintf(graprof_out, " \n");
-      fprintf(graprof_out, "   name       The name of the callee.\n");
-      fprintf(graprof_out, " \n");
+      fprintf(graprof_out,
+        " This table describes the call tree of the program, and was\n"
+        " sorted by the total amount of time spent in and below each\n"
+        " function in the call graph.\n"
+        "\n"
+        " Each entry in this table consists of several lines. The line\n"
+        " with the index number at the left hand margin lists the current\n"
+        " function, and the lines above it lists the functions callers, and\n"
+        " the functions below it list the functions callees.\n"
+        "\n"
+        " The current function line lists:\n"
+        "   index      A unique function identifier that is also referenced\n"
+        "              in the name field of this listing.\n"
+        "\n"
+        "   %%          This is the percantage of the total time spent in and\n"
+        "   time       below this function in the call tree.\n"
+        "\n"
+        "   self       This is the total amount of time spent in this function.\n"
+        "   time       \n"
+        "\n"
+        "   children   This is the total amount of time spent in the descendants\n"
+        "   time       of this function.\n"
+        "\n"
+        "   calls      This is the number of times this function was invoked.\n"
+        "\n"
+        "   name       The name of the function.\n"
+        "\n"
+        " For the functions callers, the fields have the following meaning:\n"
+        "   self       This is the amount of time that was propagated directly\n"
+        "   time       from the function into this caller.\n"
+        "\n"
+        "   children   This is the amount of time that was propagated from the\n"
+        "   time       functions children into this caller.\n"
+        "\n"
+        "   calls      This is the number of times this caller called the function,\n"
+        "              out of the total number this function was called.\n"
+        "\n"
+        "   name       The name of the caller.\n"
+        "\n"
+        " If the caller of a function can not be determined, it will be registered\n"
+        " as <spontaneous> in the name field.\n"
+        "\n"
+        " For the functions callees, the fields have the following meaning:\n"
+        "   self       This is the amount of time that was propagated directly from\n"
+        "   time       this callee into the function.\n"
+        "\n"
+        "   children   This is the amount of time that was propagated from the\n"
+        "   time       callees children into the function.\n"
+        "\n"
+        "   calls      This is the total number of times the callee function was\n"
+        "              called from the function, of the total times the callee was\n"
+        "              called.\n"
+        "\n"
+        "   name       The name of the callee.\n"
+        "\n");
     }
 }
