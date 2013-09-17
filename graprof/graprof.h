@@ -22,15 +22,20 @@
 #pragma once
 
 #include <config.h>
+#include <grapes/util.h>
 
 #include <argp.h>
+
+#include <stdlib.h>
 
 const char *argp_program_version = PACKAGE_STRING;
 const char *argp_program_bug_adress = PACKAGE_BUGREPORT;
 
 const char doc[] = PACKAGE_NAME " - a profiling and trace analysis tool";
 
-const char args_doc[] = "<binary file> <trace file>";
+const char args_doc[] = "<binary call>";
+
+extern int graprof_verbosity;
 
 static struct argp_option options[] =
 {
@@ -40,6 +45,7 @@ static struct argp_option options[] =
     {"no-gui", 'g', 0, 0, "do not open the trace explorer gui", 0},
     {"output", 'o', "<file>", 0, "write profile results to <file> instead of stdout", 0},
     {"verbose", 'v', 0, 0, "add descriptions to profiling output", 0},
+    {"trace", 't', "<file>", 0, "use a given tracefile instead of running the given binary to generate a trace", 0},
     {0, 0, 0, 0, 0, 0}
 };
 
@@ -50,56 +56,61 @@ static struct argp_option options[] =
 
 struct arguments
 {
-  const char *binary_filename;
+  const char **binary_invocation;
   const char *trace_filename;
 
   int tasks;
   const char *out_filename;
-  int verbose;
 };
 
 static error_t
 parse_opt (int key, char *arg, struct argp_state *state)
 {
-  struct arguments *arguments = (struct arguments*)state->input;
+  struct arguments *args = (struct arguments*)state->input;
 
   switch(key)
     {
     case 'F':
-      arguments->tasks |= GRAPROF_FLAT_PROFILE;
+      args->tasks |= GRAPROF_FLAT_PROFILE;
       break;
     case 'C':
-      arguments->tasks |= GRAPROF_CALL_GRAPH;
+      args->tasks |= GRAPROF_CALL_GRAPH;
       break;
     case 'M':
-      arguments->tasks |= GRAPROF_MEMORY_PROFILE;
+      args->tasks |= GRAPROF_MEMORY_PROFILE;
       break;
     case 'g':
-      arguments->tasks |= GRAPROF_NO_GUI;
+      args->tasks |= GRAPROF_NO_GUI;
       break;
     case 'o':
-      arguments->out_filename = arg;
+      args->out_filename = arg;
       break;
     case 'v':
-      arguments->verbose++;
+      ++graprof_verbosity;
+      break;
+    case 't':
+      args->trace_filename = arg;
       break;
     case ARGP_KEY_ARG:
-      switch (state->arg_num)
+      if (!state->arg_num)
         {
-        case 0:
-          arguments->trace_filename = arg;
-          break;
-        case 1:
-          arguments->binary_filename = arguments->trace_filename;
-          arguments->trace_filename = arg;
-          break;
-        default:
-          argp_usage(state);
+          args->binary_invocation = malloc(sizeof(const char*) * 2);
+          assert_inner(args->binary_invocation, "malloc");
+          args->binary_invocation[0] = arg;
+          args->binary_invocation[1] = NULL;
+        }
+      else
+        {
+          args->binary_invocation[state->arg_num] = arg;
+          args->binary_invocation = realloc(args->binary_invocation, sizeof(const char*) * (state->arg_num + 2));
+          assert_inner(args->binary_invocation);
+          args->binary_invocation[state->arg_num + 1] = NULL;
         }
       break;
     case ARGP_KEY_END:
-      if (state->arg_num < 2)
+      if (!state->arg_num)
         argp_usage(state);
+      break;
     default:
       return ARGP_ERR_UNKNOWN;
     }

@@ -28,4 +28,4 @@
  * params:
  *   callgraph_enabled - flag to turn on function ids in flat profile
  */
-void flatprofile_print(int callgraph_enabled, int verbose);
+void flatprofile_print(int callgraph_enabled);

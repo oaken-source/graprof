@@ -27,8 +27,8 @@
 #include <stdlib.h>
 #include "util.h"
 
-#define feedback_assert(COND, ...) if(!COND) feedback_error(EXIT_FAILURE, __VA_ARGS__)
-#define feedback_assert_wrn(COND, ...) if(!COND) feedback_warning(__VA_ARGS__)
+#define feedback_assert(COND, ...) if(!(COND)) feedback_error(EXIT_FAILURE, __VA_ARGS__)
+#define feedback_assert_wrn(COND, ...) if(!(COND)) feedback_warning(__VA_ARGS__)
 
 /* prints a formatted error string to stderr, prepends the program name and if
  * errno != 0 appends the appropriate string representation. terminates the 

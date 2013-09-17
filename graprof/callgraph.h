@@ -25,4 +25,4 @@
 
 /* print the call graph to graprof_out, declared in graprof.c
  */
-void callgraph_print(int verbose);
+void callgraph_print(void);
