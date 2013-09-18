@@ -54,7 +54,7 @@ main (int argc, char *argv[])
 
       if (!pid)
         {
-          execvp(args.binary_invocation[0], (char * const*)args.binary_invocation);
+          execv(args.binary_invocation[0], (char * const*)args.binary_invocation);
           feedback_error(EXIT_FAILURE, "failed to execute `%s'", args.binary_invocation[0]);
           exit(1);
         }
