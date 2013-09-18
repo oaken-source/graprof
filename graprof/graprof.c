@@ -80,7 +80,9 @@ main (int argc, char *argv[])
           feedback_error(EXIT_FAILURE, "%s", args.binary_invocation[0]);
         }
     }
- 
+
+  free(args.binary_invocation);
+
   // figure out the proper tracefile
   const char *tracefile = getenv("GRAPROF_OUT");
   if (args.trace_filename)
