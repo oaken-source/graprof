@@ -1,4 +1,9 @@
 
+2013-09-18  Andreas Grapentin  <andreas@grapentin.org>
+
+	* graprof/graprof.c: changed invokation style to allow one-line
+	profiling
+
 2013-09-15  Andreas Grapentin  <andreas@grapentin.org>
 
 	* graprof/graprof.c: tweaked top level workflow in main

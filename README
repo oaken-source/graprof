@@ -74,16 +74,24 @@ Or mail us at <graprof@grapentin.org>!
  This instrumented binary should now be invoked with GRAPROF_OUT set to the
  filename you want the trace data to be written to, for example
 
-  GRAPROF_OUT=gp.out ./your_application
+  GRAPROF_OUT=gp.out ./your_app [OPTIONS ...]
 
  To analyze the trace, invoke the graprof application, and pass the path to
  your binary, and the path to the trace file as arguments, for example:
 
-  graprof your_application gp.out -FCMg -o your_application.profile
+  graprof your_app gp.out -FCMg -o your_app.profile
  
  The -FCMg switch tells graprof to print the full analysis result to the 
- specified file. For more information on the command line parameters of 
- graprof, run:
+ specified file. 
+ 
+ Alternatively, you can merge these two steps together and run:
+
+  graprof -FCMg -o your_app.profile [--] your_app [OPTIONS ...]
+
+ This will by default persist the trace information for reuse in a file called
+ graprof.out, which can be changed by setting GRAPROF_OUT in the environment.
+
+ For more information on the command line parameters of graprof, run:
 
   graprof --help
 
