@@ -23,6 +23,7 @@
 
 #include <config.h>
 #include <grapes/util.h>
+#include <grapes/feedback.h>
 
 #include <argp.h>
 
@@ -33,7 +34,7 @@ const char *argp_program_bug_adress = PACKAGE_BUGREPORT;
 
 const char doc[] = PACKAGE_NAME " - a profiling and trace analysis tool";
 
-const char args_doc[] = "<binary call>";
+const char args_doc[] = "[--] <binary call>";
 
 extern int graprof_verbosity;
 
@@ -71,24 +72,59 @@ parse_opt (int key, char *arg, struct argp_state *state)
   switch(key)
     {
     case 'F':
+      if (state->arg_num)
+        {
+          feedback_error(EXIT_SUCCESS, "bad parameter `%s' after binary name", state->argv[state->next - 1]);
+          argp_usage(state);
+        }
       args->tasks |= GRAPROF_FLAT_PROFILE;
       break;
     case 'C':
+      if (state->arg_num)
+        {
+          feedback_error(EXIT_SUCCESS, "bad parameter `%s' after binary name", state->argv[state->next - 1]);
+          argp_usage(state);
+        }
       args->tasks |= GRAPROF_CALL_GRAPH;
       break;
     case 'M':
+      if (state->arg_num)
+        {
+          feedback_error(EXIT_SUCCESS, "bad parameter `%s' after binary name", state->argv[state->next - 1]);
+          argp_usage(state);
+        }
       args->tasks |= GRAPROF_MEMORY_PROFILE;
       break;
     case 'g':
+      if (state->arg_num)
+        {
+          feedback_error(EXIT_SUCCESS, "bad parameter `%s' after binary name", state->argv[state->next - 1]);
+          argp_usage(state);
+        }
       args->tasks |= GRAPROF_NO_GUI;
       break;
     case 'o':
+      if (state->arg_num)
+        {
+          feedback_error(EXIT_SUCCESS, "bad parameter `%s' after binary name", state->argv[state->next - 1]);
+          argp_usage(state);
+        }
       args->out_filename = arg;
       break;
     case 'v':
+      if (state->arg_num)
+        {
+          feedback_error(EXIT_SUCCESS, "bad parameter `%s' after binary name", state->argv[state->next - 1]);
+          argp_usage(state);
+        }
       ++graprof_verbosity;
       break;
     case 't':
+      if (state->arg_num)
+        {
+          feedback_error(EXIT_SUCCESS, "bad parameter `%s' after binary name", state->argv[state->next - 1]);
+          argp_usage(state);
+        }
       args->trace_filename = arg;
       break;
     case ARGP_KEY_ARG:
@@ -103,7 +139,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
         {
           args->binary_invocation[state->arg_num] = arg;
           args->binary_invocation = realloc(args->binary_invocation, sizeof(const char*) * (state->arg_num + 2));
-          assert_inner(args->binary_invocation);
+          assert_inner(args->binary_invocation, "realloc");
           args->binary_invocation[state->arg_num + 1] = NULL;
         }
       break;

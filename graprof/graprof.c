@@ -41,7 +41,7 @@ int
 main (int argc, char *argv[])
 {
   struct arguments args = { NULL, NULL, 0, NULL };
-  argp_parse (&argp, argc, argv, 0, 0, &args);
+  argp_parse (&argp, argc, argv, ARGP_IN_ORDER, 0, &args);
 
   // set default trace file in environment, if not specified
   setenv("GRAPROF_OUT", "graprof.out", 0);
