@@ -36,6 +36,12 @@ To analyze the trace, invoke the graprof application, and pass the path to your 
  graprof your_application gp.out -FCMg -o your_application.profile
  
 The -FCMg switch tells graprof to print the full analysis result to the specified profile file. 
+
+Alternatively, you can merge these two steps together and run:
+
+ graprof -FCMg -o your_app.profile [--] your_app [OPTIONS ...]
+
+This will by default persist the trace information for reuse in a file called graprof.out, which can be changed by setting GRAPROF_OUT in the environment.
 .SH OPTIONS
 Graprof takes a couple of arguments to control the amount of profiling output generated.
 .TP
