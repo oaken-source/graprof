@@ -79,7 +79,7 @@ Or mail us at <graprof@grapentin.org>!
  To analyze the trace, invoke the graprof application, and pass the path to
  your binary, and the path to the trace file as arguments, for example:
 
-  graprof your_app gp.out -FCMg -o your_app.profile
+  graprof -t gp.out -FCMg -o your_app.profile your_app
  
  The -FCMg switch tells graprof to print the full analysis result to the 
  specified file. 

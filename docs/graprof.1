@@ -33,7 +33,7 @@ This instrumented binary should now be invoked with GRAPROF_OUT set to the filen
 
 To analyze the trace, invoke the graprof application, and pass the path to your binary, and the path to the trace file as arguments, for example:
 
- graprof your_application gp.out -FCMg -o your_application.profile
+ graprof -t gp.out -FCMg -o your_app.profile your_app
  
 The -FCMg switch tells graprof to print the full analysis result to the specified profile file. 
 
@@ -63,7 +63,14 @@ If the \fB \-g \fR option is given, graprof will not launch the trace visualizat
 .TP
 .B \-o \fIfilename\fR", "\fB\-\-output=\fIfilename\fR
 This option allows specifying an output file, that the profiling results will be written out. Default is \fBstdout\fR
-.
+.PP
+.TP
+.B \-t \fIfilename\fR", "\fB\-\-trace=\fIfilename\fR
+This option allows specifying a file as input that is used as trace instead of directly tracing the given binary. Set this option if you want to reuse older tracefiles generated from your application.
+.PP
+.TP
+.BR \-v ", " \-\-verbose
+Specify this option to increase the verbosity level of graprof. Specifying this flag multiple times will increase the verbosity even further. At verbosity level 1, the printed profile includes field descriptions.
 .PP
 .SH BUGS
 Graprof is still mainly untested. There is only so much testing a single person can do, so this is mainly where graprof needs support from YOU! If you find any suspicious, reproducable behaviour, please file a bug on <http://github.com/andy-graprof/graprof/issues>. If you want to send suggestions, regarding graprof itself, the website, or just want to chat with me a little, you can also mail <graprof@grapentin.org> and I will answer as soon as I can.
