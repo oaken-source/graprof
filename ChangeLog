@@ -1,4 +1,11 @@
 
+2013-09-23  Andreas Grapentin  <andreas@grapentin.org>
+
+	* graprof/memory.h: added function name to allocation notification
+	structures
+	* graprof/memory.c: implemented accessors
+	* graprof/memprofile.c: implemented printing
+
 2013-09-18  Andreas Grapentin  <andreas@grapentin.org>
 
 	* graprof/graprof.c: changed invokation style to allow one-line

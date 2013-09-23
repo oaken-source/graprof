@@ -54,7 +54,7 @@ memprofile_print (void)
 
   unsigned int i;
   for (i = 0; i < nfailed_mallocs; ++i)
-    fprintf(graprof_out, " %s:%u: %sfailed to allocate a block of %zu bytes\n", failed_mallocs[i].file, failed_mallocs[i].line, (failed_mallocs[i].direct_call ? "" : "library call "), failed_mallocs[i].size);
+    fprintf(graprof_out, " %s:%u:%s: %sfailed to allocate a block of %zu bytes\n", failed_mallocs[i].file, failed_mallocs[i].line, failed_mallocs[i].func, (failed_mallocs[i].direct_call ? "" : "library call "), failed_mallocs[i].size);
 
   if (nfailed_mallocs)
     fprintf(graprof_out, "\n");
@@ -64,7 +64,7 @@ memprofile_print (void)
 
   for (i = 0; i < nfailed_reallocs; ++i)
     {
-      fprintf(graprof_out, " %s:%u: ", failed_reallocs[i].file, failed_reallocs[i].line);
+      fprintf(graprof_out, " %s:%u:%s: ", failed_reallocs[i].file, failed_reallocs[i].line, failed_reallocs[i].func);
       if (!failed_reallocs[i].direct_call)
         fprintf(graprof_out, "library call ");
       fprintf(graprof_out, "failed to reallocate a block at 0x%" PRIxPTR, failed_reallocs[i].ptr);
@@ -82,7 +82,7 @@ memprofile_print (void)
 
   for (i = 0; i < nfailed_frees; ++i)
     {
-      fprintf(graprof_out, " %s:%u: ", failed_frees[i].file, failed_frees[i].line);
+      fprintf(graprof_out, " %s:%u:%s: ", failed_frees[i].file, failed_frees[i].line, failed_frees[i].func);
       if (!failed_frees[i].direct_call)
         fprintf(graprof_out, "library call ");
       fprintf(graprof_out, "failed to free a block at 0x%" PRIxPTR, failed_frees[i].ptr);
@@ -97,7 +97,7 @@ memprofile_print (void)
 
   for (i = 0; i < nblocks; ++i)
     {
-      fprintf(graprof_out, " %s:%u: ", blocks[i].file, blocks[i].line);
+      fprintf(graprof_out, " %s:%u:%s: ", blocks[i].file, blocks[i].line, blocks[i].func);
       if (!blocks[i].direct_call)
         fprintf(graprof_out, "library call ");
       fprintf(graprof_out, "allocated block at 0x%" PRIxPTR " of size %zu that was never freed\n", blocks[i].address, blocks[i].size);

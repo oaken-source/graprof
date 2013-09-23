@@ -43,6 +43,7 @@ struct block
   unsigned int direct_call;
   char *file;
   unsigned int line;
+  char *func;
 };
 
 typedef struct block block;
@@ -58,6 +59,7 @@ struct failed_malloc
 
   char *file;
   unsigned int line;
+  char *func;
 };
 
 typedef struct failed_malloc failed_malloc;
@@ -76,6 +78,7 @@ struct failed_realloc
 
   char *file;
   unsigned int line;
+  char *func;
 };
 
 typedef struct failed_realloc failed_realloc;
@@ -92,6 +95,7 @@ struct failed_free
 
   char *file;
   unsigned int line;
+  char *func;
 };
 
 typedef struct failed_free failed_free;

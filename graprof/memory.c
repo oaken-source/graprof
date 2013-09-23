@@ -76,6 +76,7 @@ memory_add_failed_malloc (size_t size, uintptr_t caller, unsigned long long time
   f->time = time;
   f->file = NULL;
   f->line = 0;
+  f->func = NULL;
 
   function *func = function_get_current();
 
@@ -84,7 +85,7 @@ memory_add_failed_malloc (size_t size, uintptr_t caller, unsigned long long time
   if (!function_compare(func, caller))
     {
       f->direct_call = 1;
-      int res = addr_translate(caller, NULL, &(f->file), &(f->line));
+      int res = addr_translate(caller, &(f->func), &(f->file), &(f->line));
       assert_inner(!res, "addr_translate");
     }
   else
@@ -92,6 +93,7 @@ memory_add_failed_malloc (size_t size, uintptr_t caller, unsigned long long time
       f->direct_call = 0;
       f->file = func->file;
       f->line = func->line;
+      f->func = func->name;
     }
 
   return 0;
@@ -120,6 +122,7 @@ memory_add_failed_realloc (uintptr_t ptr, size_t size, uintptr_t caller, unsigne
   f->time = time;
   f->file = NULL;
   f->line = 0;
+  f->func = NULL;
 
   function *func = function_get_current();
 
@@ -128,7 +131,7 @@ memory_add_failed_realloc (uintptr_t ptr, size_t size, uintptr_t caller, unsigne
   if (!function_compare(func, caller))
     {
       f->direct_call = 1;
-      int res = addr_translate(caller, NULL, &(f->file), &(f->line));
+      int res = addr_translate(caller, &(f->func), &(f->file), &(f->line));
       assert_inner(!res, "addr_reanslate");
     }
   else
@@ -136,6 +139,7 @@ memory_add_failed_realloc (uintptr_t ptr, size_t size, uintptr_t caller, unsigne
       f->direct_call = 0;
       f->file = func->file;
       f->line = func->line;
+      f->func = func->name;
     }
 
   return 0;
@@ -156,6 +160,7 @@ memory_add_failed_free (uintptr_t ptr, uintptr_t caller, unsigned long long time
   f->time = time;
   f->file = NULL;
   f->line = 0;
+  f->func = NULL;
 
   function *func = function_get_current();
 
@@ -164,7 +169,7 @@ memory_add_failed_free (uintptr_t ptr, uintptr_t caller, unsigned long long time
   if (!function_compare(func, caller))
     {
       f->direct_call = 1;
-      int res = addr_translate(caller, NULL, &(f->file), &(f->line));
+      int res = addr_translate(caller, &(f->func), &(f->file), &(f->line));
       assert_inner(!res, "addr_translate");
     }
   else
@@ -172,6 +177,7 @@ memory_add_failed_free (uintptr_t ptr, uintptr_t caller, unsigned long long time
       f->direct_call = 0;
       f->file = func->file;
       f->line = func->line;
+      f->func = func->name;
     }
 
   return 0;
@@ -209,7 +215,7 @@ memory_malloc (size_t size, uintptr_t caller, uintptr_t result, unsigned long lo
   if (!function_compare(func, caller))
     {
       b->direct_call = 1;
-      int res = addr_translate(caller, NULL, &(b->file), &(b->line));
+      int res = addr_translate(caller, &(b->func), &(b->file), &(b->line));
       assert_inner(!res, "addr_reanslate");
     }
   else
@@ -217,6 +223,7 @@ memory_malloc (size_t size, uintptr_t caller, uintptr_t result, unsigned long lo
       b->direct_call = 0;
       b->file = func->file;
       b->line = func->line;
+      b->func = func->name;
     }
 
   return 0;
@@ -377,22 +384,34 @@ memory_fini ()
   unsigned int i;
   for (i = 0; i < nblocks; ++i)
     if (blocks[i].direct_call)
-      free(blocks[i].file);
+      {
+        free(blocks[i].file);
+        free(blocks[i].func);
+      }
   free(blocks);
 
   for (i = 0; i < nfailed_mallocs; ++i)
     if (failed_mallocs[i].direct_call)
-      free(failed_mallocs[i].file);
+      {
+        free(failed_mallocs[i].file);
+        free(failed_mallocs[i].func);
+      }
   free(failed_mallocs);
 
   for (i = 0; i < nfailed_reallocs; ++i)
     if (failed_reallocs[i].direct_call)
-      free(failed_reallocs[i].file);
+      {
+        free(failed_reallocs[i].file);
+        free(failed_reallocs[i].func);
+      }
   free(failed_reallocs);
 
   for (i = 0; i < nfailed_frees; ++i)
     if (failed_frees[i].direct_call)
-      free(failed_frees[i].file);
+      {
+        free(failed_frees[i].file);
+        free(failed_frees[i].func);
+      }
   free(failed_frees);
 }
 
