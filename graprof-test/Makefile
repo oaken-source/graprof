@@ -1,6 +1,6 @@
 
 ## the default number of self profiling passes
-all: pass2
+all: pass3
 
 ## delete all trace and profile files
 clean:
@@ -21,3 +21,5 @@ pass2: pass1
 pass3: pass2
 	GRAPROF_OUT=gp.out.3 graprof -FCMg -o graprof.out.pass3 -- /usr/local/bin/graprof-gp -FCMg -t gp.out.2 -o /dev/null /usr/local/bin/graprof-gp
 
+pass4: pass3
+	GRAPROF_OUT=gp.out.4 graprof -FCMg -o graprof.out.pass4 -- /usr/local/bin/graprof-gp -FCMg -t gp.out.3 -o /dev/null /usr/local/bin/graprof-gp
