@@ -31,6 +31,17 @@
 static bfd *addr_bfd = NULL;
 static asymbol **addr_syms = NULL;
 
+struct addr_section
+{
+  asection *section;
+  bfd_vma lower;
+  bfd_vma upper;
+};
+typedef struct addr_section addr_section;
+
+addr_section *addr_sections = NULL;
+unsigned int addr_nsections = 0;
+
 static int
 addr_read_symbol_table (void)
 {
@@ -60,34 +71,27 @@ addr_read_symbol_table (void)
   return 0;
 }
 
-static uintptr_t addr_pc;
-static const char *addr_filename;
-static const char *addr_functionname;
-static unsigned int addr_line;
-static unsigned int addr_discriminator;
-static int addr_found;
-
-static void
-addr_find_in_section (bfd *abfd, asection *section, void *data __attribute__ ((unused)))
+static int 
+addr_init_sections (void)
 {
-  bfd_vma vma;
-  bfd_size_type size;
+  asection *s;
+  for (s = addr_bfd->sections; s != NULL; s = s->next)
+    {
+      if (!(bfd_get_section_flags(addr_bfd, s) & SEC_ALLOC))
+        continue;
 
-  if (addr_found)
-    return;
+      ++addr_nsections;
+      addr_sections = realloc(addr_sections, sizeof(*addr_sections) * addr_nsections);
+      assert_inner(addr_sections, "realloc");
 
-  if (!(bfd_get_section_flags(abfd, section) & SEC_ALLOC))
-    return;
+      addr_section *as = addr_sections + addr_nsections - 1;
+      
+      as->section = s;
+      as->lower = bfd_get_section_vma(addr_bfd, s);
+      as->upper = as->lower + bfd_get_section_size(s);
+    }
 
-  vma = bfd_get_section_vma(abfd, section);
-  if (addr_pc < vma)
-    return;
-
-  size = bfd_get_section_size(section);
-  if (addr_pc >= vma + size)
-    return;
-
-  addr_found = bfd_find_nearest_line_discriminator(abfd, section, addr_syms, addr_pc - vma, &addr_filename, &addr_functionname, &addr_line, &addr_discriminator);
+  return 0;
 }
 
 int
@@ -105,32 +109,40 @@ addr_init (const char *filename)
   res = addr_read_symbol_table();
   assert_inner(!res, "addr_read_symbol_table");
 
+  res = addr_init_sections();
+  assert_inner(!res, "addr_init_sections");
+
   return 0;
 }
 
 int
 addr_translate (uintptr_t pc, char **function, char **file, unsigned int *line)
 {
-  addr_pc = pc;
-  addr_found = 0;
+  const char *_function = NULL;
+  const char *_file = NULL;
+  unsigned int _line = 0;
+  unsigned int _discriminator = 0;
 
-  if (addr_bfd)
-    bfd_map_over_sections(addr_bfd, addr_find_in_section, NULL);
+  int found = 0;
+  unsigned int i;
+  for (i = 0; i < addr_nsections && !found; ++i)
+    if (pc >= addr_sections[i].lower && pc <= addr_sections[i].upper)
+      found = bfd_find_nearest_line_discriminator(addr_bfd, addr_sections[i].section, addr_syms, pc - addr_sections[i].lower, &_file, &_function, &_line, &_discriminator);
 
   if (function)
     {
-      *function = strdup(addr_found ? addr_functionname : "??");
+      *function = strdup(found ? _function : "??");
       assert_inner(*function, "strdup");
     }
 
   if (file)
     {
-      *file = strdup(addr_found ? addr_filename : "??");
+      *file = strdup(found ? _file : "??");
       assert_inner(*file, "strdup");
     }
 
   if (line)
-    *line = (addr_found ? addr_line : 0);
+    *line = (found ? _line : 0);
 
   return 0;
 }
@@ -141,6 +153,7 @@ addr_fini ()
 {
   if (addr_bfd)
     bfd_close(addr_bfd);
-  if (addr_syms)
-    free(addr_syms);
+  free(addr_syms);
+  free(addr_sections);
 }
+
