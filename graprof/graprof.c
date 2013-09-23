@@ -84,7 +84,15 @@ main (int argc, char *argv[])
   // get md5 hash from child binary
   unsigned char md5_binary[16] = { 0 };
 
-  // TODO: get md5 from file
+  FILE *binary = fopen(args.binary_invocation[0], "r");
+  if (!binary)
+    {
+      feedback_warning("%s: unable to open for digest verification", args.binary_invocation[0]);
+    }
+  else
+    {
+      // TODO: get md5 from file
+    }
 
   free(args.binary_invocation);
 

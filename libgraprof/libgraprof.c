@@ -74,8 +74,7 @@ libgraprof_fini ()
     FILE *binary = fopen("/proc/self/exe", "r");
     if (!binary) 
       {
-        perror("libgraprof: warning: /proc/self/exe");
-        fprintf(stderr, "libgraprof: warning: binary identification disabled.\n");
+        perror("libgraprof: warning: binary identification impossible: /proc/self/exe");
       }
     else
       {
