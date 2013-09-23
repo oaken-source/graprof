@@ -68,7 +68,8 @@ static unsigned int addr_discriminator;
 static int addr_found;
 
 static void
-addr_find_in_section (bfd *abfd, asection *section, void *data __attribute__ ((unused)))
+//addr_find_in_section (bfd *abfd, asection *section, void *data __attribute__ ((unused)))
+addr_find_in_section (asection *section)
 {
   bfd_vma vma;
   bfd_size_type size;
@@ -76,10 +77,12 @@ addr_find_in_section (bfd *abfd, asection *section, void *data __attribute__ ((u
   if (addr_found)
     return;
 
-  if (!(bfd_get_section_flags(abfd, section) & SEC_ALLOC))
+  //if (!(bfd_get_section_flags(abfd, section) & SEC_ALLOC))
+  if (!(bfd_get_section_flags(addr_bfd, section) & SEC_ALLOC))
     return;
 
-  vma = bfd_get_section_vma(abfd, section);
+  //vma = bfd_get_section_vma(abfd, section);
+  vma = bfd_get_section_vma(addr_bfd, section);
   if (addr_pc < vma)
     return;
 
@@ -87,7 +90,8 @@ addr_find_in_section (bfd *abfd, asection *section, void *data __attribute__ ((u
   if (addr_pc >= vma + size)
     return;
 
-  addr_found = bfd_find_nearest_line_discriminator(abfd, section, addr_syms, addr_pc - vma, &addr_filename, &addr_functionname, &addr_line, &addr_discriminator);
+  //addr_found = bfd_find_nearest_line_discriminator(abfd, section, addr_syms, addr_pc - vma, &addr_filename, &addr_functionname, &addr_line, &addr_discriminator);
+  addr_found = bfd_find_nearest_line_discriminator(addr_bfd, section, addr_syms, addr_pc - vma, &addr_filename, &addr_functionname, &addr_line, &addr_discriminator);
 }
 
 int
@@ -114,8 +118,11 @@ addr_translate (uintptr_t pc, char **function, char **file, unsigned int *line)
   addr_pc = pc;
   addr_found = 0;
 
-  if (addr_bfd)
-    bfd_map_over_sections(addr_bfd, addr_find_in_section, NULL);
+  //if (addr_bfd)
+  //  bfd_map_over_sections(addr_bfd, addr_find_in_section, NULL);
+  asection *p;
+  for (p = addr_bfd->sections; p != NULL && !addr_found; p = p->next)
+    addr_find_in_section(p);
 
   if (function)
     {
