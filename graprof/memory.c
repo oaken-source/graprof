@@ -301,7 +301,10 @@ int memory_free (uintptr_t ptr, uintptr_t caller, unsigned long long time)
   current_allocated -= b->size;
 
   if (b->direct_call)
-    free(b->file);
+    {
+      free(b->file);
+      free(b->func);
+    }
 
   --nblocks;
   memmove(b, b + 1, (nblocks - (b - blocks)) * sizeof(*blocks));
