@@ -6,6 +6,12 @@
 	* graprof/memory.c: implemented accessors
 	* graprof/memprofile.c: implemented printing
 
+	* graprof/libgraprof.c: reserverd section of the tracefile for md5
+	hash of the binary, accessed via /proc/self/exe, added warning in case
+	of unavailability
+	* graprof/trace.c: added check against the passed binarys md5
+	* graprof/graprof.c: passing binarys md5 to trace_read
+
 2013-09-18  Andreas Grapentin  <andreas@grapentin.org>
 
 	* graprof/graprof.c: changed invokation style to allow one-line

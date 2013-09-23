@@ -81,6 +81,11 @@ main (int argc, char *argv[])
         }
     }
 
+  // get md5 hash from child binary
+  unsigned char md5_binary[16] = { 0 };
+
+  // TODO: get md5 from file
+
   free(args.binary_invocation);
 
   // figure out the proper tracefile
@@ -89,7 +94,7 @@ main (int argc, char *argv[])
     tracefile = args.trace_filename;
 
   // read the tracefile
-  res = trace_read(tracefile);
+  res = trace_read(tracefile, md5_binary);
   if (res)
     {
       if (errno == ENOTSUP)

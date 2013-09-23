@@ -26,6 +26,7 @@
 #include "addr.h"
 
 #include <stdio.h>
+#include <string.h>
 
 #include <grapes/feedback.h>
 
@@ -120,15 +121,22 @@ trace_end (void *buf)
 }
 
 int
-trace_read (const char *filename)
+trace_read (const char *filename, unsigned char md5_binary[16])
 {
   FILE *trace = fopen(filename, "r");
   assert_inner(trace, "fopen");
 
+  unsigned char md5[16] = { 0 };
   void *trace_buf = NULL;
   unsigned long trace_bufsize = 0;
 
-  size_t n = fread(&trace_bufsize, sizeof(unsigned long), 1, trace);
+  size_t n = fread(md5, 1, 16, trace);
+  assert_set_errno(ENOTSUP, n == 16, "fread");
+
+  unsigned char md5_zero[16] = { 0 };
+  feedback_assert_wrn(!memcmp(md5, md5_zero, 16) || !memcmp(md5, md5_binary, 16), "digest verification failed. This trace was not generated with this executable!"); 
+
+  n = fread(&trace_bufsize, sizeof(unsigned long), 1, trace);
   assert_set_errno(ENOTSUP, n == 1, "fread");
 
   trace_buf = malloc(trace_bufsize);

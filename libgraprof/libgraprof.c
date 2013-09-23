@@ -70,14 +70,30 @@ libgraprof_fini ()
     buffer_append(char, 'E');
     buffer_append(unsigned long long, highrestimer_get());
 
+    unsigned char md5[16] = { 0 };
+    FILE *binary = fopen("/proc/self/exe", "r");
+    if (!binary) 
+      {
+        perror("libgraprof: warning: /proc/self/exe");
+        fprintf(stderr, "libgraprof: warning: binary identification disabled.\n");
+      }
+    else
+      {
+        // TODO: get md5 from file
+      }
+
     size_t res;
+    res = fwrite(md5, 1, 16, libgraprof_out);
+    if (res != 16)
+      perror("libgraprof: error: writing trace file");
+
     res = fwrite(&libgraprof_bufsize, sizeof(unsigned long), 1, libgraprof_out);
     if (res != 1)
-      perror("libgraprof: error writing trace file.");
+      perror("libgraprof: error: writing trace file");
 
     res = fwrite(libgraprof_buf, 1, libgraprof_bufsize, libgraprof_out);
     if (res != libgraprof_bufsize)
-      perror("libgraprof: error writing trace file.");
+      perror("libgraprof: error: writing trace file");
 
     fclose(libgraprof_out);
   }
