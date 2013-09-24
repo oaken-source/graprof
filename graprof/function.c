@@ -382,8 +382,6 @@ function_get_total_calls (void)
   return total_calls;
 }
 
-#if FREE_ALL_MEMORY_EXPLICITLY
-
 static void
 free_call_tree (tree_entry *e)
 {
@@ -420,4 +418,3 @@ function_fini ()
   free_call_tree(&call_tree_root);
 }
 
-#endif // FREE_ALL_MEMORY_EXPLICITLY
