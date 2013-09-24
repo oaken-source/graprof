@@ -43,19 +43,6 @@ esac],
 
 AC_DEFINE_UNQUOTED([DEBUG], [$debug], [increased debug output])
 
-# Allow for explicit memory free mode to be enabled at configure time
-AC_ARG_ENABLE(explicit-free,
-AS_HELP_STRING([--enable-explicit-free],
-               [Enable routines that explictly free all known memory locations. This is only useful to debug memory leaks in graprof itself. Default: no]),
-[case "${enableval}" in
-	yes) explicitfree=1 ;;
-	no)  explicitfree=0 ;;
-	*)   AC_MSG_ERROR([bad value ${enableval} for --enable-explicit-free]) ;;
-esac],
-[explicitfree=0])
-
-AC_DEFINE_UNQUOTED([FREE_ALL_MEMORY_EXPLICITLY], [$explicitfree], [explicitly free known memory on exit])
- 
 # Allow for deprecated malloc hooks to be enabled at configure time
 AC_ARG_ENABLE(deprecated-malloc-hooks,
 AS_HELP_STRING([--enable-deprecated-malloc-hooks],

@@ -378,8 +378,6 @@ memory_get_blocks (unsigned int *n)
   return blocks;
 }
 
-#if FREE_ALL_MEMORY_EXPLICITLY
-
 static void
 __attribute__((destructor))
 memory_fini ()
@@ -418,4 +416,3 @@ memory_fini ()
   free(failed_frees);
 }
 
-#endif // FREE_ALL_MEMORY_EXPLICITLY
