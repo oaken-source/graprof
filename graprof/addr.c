@@ -131,18 +131,18 @@ addr_translate (uintptr_t pc, char **function, char **file, unsigned int *line)
 
   if (function)
     {
-      *function = strdup(found ? _function : "??");
+      *function = strdup(_function ? _function : "??");
       assert_inner(*function, "strdup");
     }
 
   if (file)
     {
-      *file = strdup(found ? _file : "??");
+      *file = strdup(_file ? _file : "??");
       assert_inner(*file, "strdup");
     }
 
   if (line)
-    *line = (found ? _line : 0);
+    *line = _line;
 
   return 0;
 }
