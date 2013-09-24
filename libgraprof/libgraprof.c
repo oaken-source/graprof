@@ -25,6 +25,8 @@
 #include <errno.h>
 #include <stdlib.h>
 
+#include <openssl/md5.h>
+
 #include "highrestimer.h"
 #include "mallhooks.h"
 #include "instrument.h"
@@ -70,7 +72,7 @@ libgraprof_fini ()
     buffer_append(char, 'E');
     buffer_append(unsigned long long, highrestimer_get());
 
-    unsigned char md5[16] = { 0 };
+    unsigned char md5[MD5_DIGEST_LENGTH] = { 0 };
     FILE *binary = fopen("/proc/self/exe", "r");
     if (!binary) 
       {
@@ -78,12 +80,22 @@ libgraprof_fini ()
       }
     else
       {
-        // TODO: get md5 from file
+        MD5_CTX c;
+        MD5_Init(&c);
+    
+        unsigned char buf[64 * 1024];
+        
+        size_t n;
+        while ((n = fread(buf, 1, 64 * 1024, binary)))
+          MD5_Update(&c, buf, n);
+        MD5_Final(md5, &c);
+       
+        fclose(binary);
       }
 
     size_t res;
-    res = fwrite(md5, 1, 16, libgraprof_out);
-    if (res != 16)
+    res = fwrite(md5, 1, MD5_DIGEST_LENGTH, libgraprof_out);
+    if (res != MD5_DIGEST_LENGTH)
       perror("libgraprof: error: writing trace file");
 
     res = fwrite(&libgraprof_bufsize, sizeof(unsigned long), 1, libgraprof_out);

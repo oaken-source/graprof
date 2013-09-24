@@ -34,6 +34,8 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
+#include <openssl/md5.h>
+
 FILE *graprof_out = NULL;
 int graprof_verbosity = 0;
 
@@ -82,7 +84,7 @@ main (int argc, char *argv[])
     }
 
   // get md5 hash from child binary
-  unsigned char md5_binary[16] = { 0 };
+  unsigned char md5_binary[MD5_DIGEST_LENGTH] = { 0 };
 
   FILE *binary = fopen(args.binary_invocation[0], "r");
   if (!binary)
@@ -91,7 +93,17 @@ main (int argc, char *argv[])
     }
   else
     {
-      // TODO: get md5 from file
+      MD5_CTX c;
+      MD5_Init(&c);
+
+      unsigned char buf[64 * 1024];
+  
+      size_t n;
+      while ((n = fread(buf, 1, 64 * 1024, binary)))
+        MD5_Update(&c, buf, n);
+      MD5_Final(md5_binary, &c);
+       
+      fclose(binary);
     }
 
   free(args.binary_invocation);
