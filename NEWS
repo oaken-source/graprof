@@ -7,6 +7,8 @@ Please send graprof bug reports via
 
 Version 0.6
 
+* Changed invocation style to allow in-place execution of profiling child
+
 * Notable performance increase in address translation and function comparison, 
   which is done A LOT.
 
