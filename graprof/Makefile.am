@@ -9,7 +9,7 @@ graprof_LDADD = -lbfd -lcrypto
 
 if TESTBUILD
 
-bin_PROGRAMS += graprof-gp
+noinst_PROGRAMS = graprof-gp
 
 graprof_gp_SOURCES = ${graprof_SOURCES}
 graprof_gp_LDADD = ${graprof_LDADD} ../libgraprof/libgraprof.la
