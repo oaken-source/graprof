@@ -1,21 +1,19 @@
 # ignore object files
-*.o
-*.lo
 *.la
-
+*.lo
+*.o
 
 # autotool related stuff
 Makefile
-scripts/
-configure
-**/Makefile.in
+Makefile.in
 aclocal.m4
 autom4te.cache/
-config.h.in
-
-# created by configure
-config.h
-config.log
-config.status
+config.*
+configure
 libtool
+scripts/
 stamp-h1
+
+**/Makefile
+**/Makefile.in
+

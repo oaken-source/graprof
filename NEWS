@@ -5,6 +5,21 @@ See the end for copying conditions
 Please send graprof bug reports via 
 <http://github.com/andy-graprof/graprof/issues/>.
 
+Version 0.6
+
+* Notable performance increase in address translation and function comparison, 
+  which is done A LOT.
+
+* added trace file verification by comparing md5 sums of generating binary and
+  binary passed to the analysis
+
+* Fixed a bug where the analysis would crash if an address could be resolved
+  to a function name but not a file or vice versa
+
+* lots of minor tweaks and fixes
+
+
+----------------------------------------------------------------------
 Version 0.5
 
 * This is the first beta release intended for public use. It requires the
