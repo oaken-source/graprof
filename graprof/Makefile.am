@@ -9,14 +9,10 @@ graprof_LDADD = -lbfd -lcrypto
 
 if TESTBUILD
 
-bin_PROGRAMS += graprof-gp graprof-pg
+bin_PROGRAMS += graprof-gp
 
 graprof_gp_SOURCES = ${graprof_SOURCES}
-graprof_gp_LDADD = ${graprof_LDADD} -lgraprof
+graprof_gp_LDADD = ${graprof_LDADD} ../libgraprof/libgraprof.la
 graprof_gp_CFLAGS = -finstrument-functions -g
-
-graprof_pg_SOURCES = ${graprof_SOURCES}
-graprof_pg_LDADD = ${graprof_LDADD}
-graprof_pg_CFLAGS = -pg -g
 
 endif ## TESTBUILD

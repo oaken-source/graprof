@@ -1,4 +1,9 @@
 
+BIN = ../../graprof/graprof
+BIN_GP = ../../graprof/.libs/graprof-gp
+
+LD = LD_LIBRARY_PATH=../../libgraprof/.libs
+
 ## the default number of self profiling passes
 all: pass3
 
@@ -8,18 +13,18 @@ clean:
 
 ## pass0 - profile the graprof --help call
 pass0:
-	GRAPROF_OUT=gp.out.0 graprof -FCMg -o graprof.out.pass0 -- /usr/local/bin/graprof-gp --help > /dev/null
+	$(LD) GRAPROF_OUT=gp.out.0 $(BIN) -FCMg -o graprof.out.pass0 -- $(BIN_GP) --help > /dev/null
 
 ## additional passes, copy and increment as needed.
 ## TODO: is there a better way for this?
 pass1: pass0
-	GRAPROF_OUT=gp.out.1 graprof -FCMg -o graprof.out.pass1 -- /usr/local/bin/graprof-gp -FCMg -t gp.out.0 -o /dev/null /usr/local/bin/graprof-gp
+	$(LD) GRAPROF_OUT=gp.out.1 $(BIN) -FCMg -o graprof.out.pass1 -- $(BIN_GP) -FCMg -t gp.out.0 -o /dev/null $(BIN_GP)
 
 pass2: pass1
-	GRAPROF_OUT=gp.out.2 graprof -FCMg -o graprof.out.pass2 -- /usr/local/bin/graprof-gp -FCMg -t gp.out.1 -o /dev/null /usr/local/bin/graprof-gp
+	$(LD) GRAPROF_OUT=gp.out.2 $(BIN) -FCMg -o graprof.out.pass2 -- $(BIN_GP) -FCMg -t gp.out.1 -o /dev/null $(BIN_GP)
 
 pass3: pass2
-	GRAPROF_OUT=gp.out.3 graprof -FCMg -o graprof.out.pass3 -- /usr/local/bin/graprof-gp -FCMg -t gp.out.2 -o /dev/null /usr/local/bin/graprof-gp
+	$(LD) GRAPROF_OUT=gp.out.3 $(BIN) -FCMg -o graprof.out.pass3 -- $(BIN_GP) -FCMg -t gp.out.2 -o /dev/null $(BIN_GP)
 
 pass4: pass3
-	GRAPROF_OUT=gp.out.4 graprof -FCMg -o graprof.out.pass4 -- /usr/local/bin/graprof-gp -FCMg -t gp.out.3 -o /dev/null /usr/local/bin/graprof-gp
+	$(LD) GRAPROF_OUT=gp.out.4 $(BIN) -FCMg -o graprof.out.pass4 -- $(BIN_GP) -FCMg -t gp.out.3 -o /dev/null $(BIN_GP)

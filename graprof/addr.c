@@ -104,7 +104,7 @@ addr_init (const char *filename)
   addr_bfd->flags |= BFD_DECOMPRESS;
 
   int res = bfd_check_format(addr_bfd, bfd_object);
-  assert_set_errno(res, ENOTSUP, "bfd_check_format");
+  assert_set_errno(res, ENOTSUP, "bfd_check_format (%i)", res);
 
   res = addr_read_symbol_table();
   assert_inner(!res, "addr_read_symbol_table");
