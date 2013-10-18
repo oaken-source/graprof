@@ -147,3 +147,11 @@ int function_compare(function *f, uintptr_t addr);
  *   the total number of functions called during profilee runtime
  */
 unsigned long long function_get_total_calls(void);
+
+/* get the number of distinct function in the call tree
+ *
+ * returns:
+ *   the total number of distinct functions
+ */
+unsigned int function_get_nfunctions(void);
+

@@ -382,6 +382,12 @@ function_get_total_calls (void)
   return total_calls;
 }
 
+unsigned int
+function_get_nfunctions (void)
+{
+  return nfunctions;
+}
+
 static void
 free_call_tree (tree_entry *e)
 {

@@ -45,13 +45,15 @@ callgraph_print (void)
   strtime(&time, &prefix);
 
   fprintf(graprof_out,
-        " total runtime:                  %llu %sseconds\n"
-        " total number of function calls: %llu\n"
+        " total runtime:                      %llu %sseconds\n"
+        " total number of function calls:     %llu\n"
+        " total number of distinct functions: %u\n"
         "\n"
         "          %%       self     children\n"
         "  index  time      time      time       called       name\n",
         time, prefix,
-        function_get_total_calls());
+        function_get_total_calls(),
+        function_get_nfunctions());
 
   unsigned int nfunctions = 0;
   function *functions = function_get_all(&nfunctions);
