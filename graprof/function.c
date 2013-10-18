@@ -18,6 +18,9 @@
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.   *
  ******************************************************************************/
 
+#ifndef USE_OLD_AGGREGATE
+#  define USE_OLD_AGGREGATE 0
+#endif
 
 #include "function.h"
 #include "addr.h"
@@ -215,7 +218,6 @@ function_add_caller_children_time (unsigned int caller_id, unsigned int callee_i
       f->callers[i].children_time += time;
 }
 
-
 static void
 function_aggregate_function_time_for_id (tree_entry *e, unsigned int function_id, unsigned int found)
 {
@@ -243,9 +245,16 @@ function_aggregate_function_time_for_id (tree_entry *e, unsigned int function_id
 static void
 function_aggregate_function_times (void)
 {
-  unsigned int i;
-  for (i = 0; i < nfunctions; ++i)
-    function_aggregate_function_time_for_id(&call_tree_root, i, 0);
+  if(USE_OLD_AGGREGATE)
+    {
+      unsigned int i;
+      for (i = 0; i < nfunctions; ++i)
+      function_aggregate_function_time_for_id(&call_tree_root, i, 0);
+    }
+  else
+    {
+
+    }
 }
 
 int
