@@ -25,6 +25,28 @@
 
 #include <stdint.h>
 
+/* this struct represents en entry in the call tree of the profiled process.
+ */
+
+struct tree_entry
+{
+  unsigned int function_id;
+  unsigned long long entry_time;
+  unsigned long long exit_time;
+
+  unsigned long long self_time;
+  unsigned long long children_time;
+  unsigned long long orphan_time;
+
+  struct tree_entry *parent;
+  struct tree_entry **children;
+  unsigned int nchildren;
+  struct tree_entry **orphans;
+  unsigned int norphans;
+};
+
+typedef struct tree_entry tree_entry;
+
 /* this struct holds the call data information of one side of a caller-callee
  * pair, as well as some aggregated timing values.
  */
@@ -55,6 +77,8 @@ struct function
   unsigned int ncallers;
   call_data *callees;
   unsigned int ncallees;
+
+  
 };
 
 typedef struct function function;

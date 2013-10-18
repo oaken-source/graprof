@@ -37,25 +37,6 @@ static unsigned int nfunctions = 0;
 
 unsigned long long total_calls = 0;
 
-struct tree_entry
-{
-  unsigned int function_id;
-  unsigned long long entry_time;
-  unsigned long long exit_time;
-
-  unsigned long long self_time;
-  unsigned long long children_time;
-  unsigned long long orphan_time;
-
-  struct tree_entry *parent;
-  struct tree_entry **children;
-  unsigned int nchildren;
-  struct tree_entry **orphans;
-  unsigned int norphans;
-};
-
-typedef struct tree_entry tree_entry;
-
 static tree_entry call_tree_root = { -1, 0, 0, 0, 0, 0, NULL, NULL, 0, NULL, 0 };
 static tree_entry *call_tree_current_node = &call_tree_root;
 
