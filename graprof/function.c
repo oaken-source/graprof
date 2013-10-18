@@ -54,6 +54,10 @@ function_init (function *f)
   f->ncallers = 0;
   f->callees = NULL;
   f->ncallees = 0;
+  f->primaries = NULL;
+  f->nprimaries = 0;
+  f->secondaries = NULL;
+  f->nsecondaries = 0;
 }
 
 static void
@@ -223,7 +227,14 @@ function_aggregate_function_time_for_id (tree_entry *e, unsigned int function_id
     function_aggregate_function_time_for_id (e->orphans[i], function_id, found);
 }
 
-static void
+static int
+function_create_call_vectors (void)
+{
+  
+  return 0;
+}
+
+static int
 function_aggregate_function_times (void)
 {
   if(USE_OLD_AGGREGATE)
@@ -234,8 +245,11 @@ function_aggregate_function_times (void)
     }
   else
     {
-
+      int res = function_create_call_vectors();
+      assert_inner(!res, "function_create_call_tree_vectors");
     }
+
+  return 0;
 }
 
 int
@@ -313,13 +327,14 @@ int
 function_exit_all (unsigned long long time)
 {
   while (call_tree_current_node->parent != NULL)
-      {
+    {
       int res = function_exit(time);
       assert_inner(!res, "function_exit");
     }
 
   function_aggregate_call_tree_node_times(&call_tree_root);
-  function_aggregate_function_times();
+  int res = function_aggregate_function_times();
+  assert_inner(!res, "function_aggregate_function_times");
 
   return 0;
 }

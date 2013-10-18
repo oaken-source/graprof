@@ -78,7 +78,10 @@ struct function
   call_data *callees;
   unsigned int ncallees;
 
-  
+  tree_entry **primaries;
+  unsigned int nprimaries;
+  tree_entry **secondaries;
+  unsigned int nsecondaries;
 };
 
 typedef struct function function;
