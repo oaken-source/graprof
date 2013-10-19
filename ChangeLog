@@ -1,4 +1,13 @@
 
+2913-10-19  Andreas Grapentin  <andreas@grapentin.org>
+
+	* graprof/bitmask.c: created and implemented simple bitmask
+	functionality
+	* graprof/bitmask.h: likewise
+
+	* graprof/function.c: reimplemented function call tree time
+	aggregation for increased performance
+
 2013-09-23  Andreas Grapentin  <andreas@grapentin.org>
 
 	* graprof/memory.h: added function name to allocation notification
