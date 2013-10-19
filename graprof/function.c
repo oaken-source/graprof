@@ -24,6 +24,7 @@
 
 #include "function.h"
 #include "addr.h"
+#include "bitmask.h"
 
 #include <stdlib.h>
 #include <inttypes.h>
@@ -203,51 +204,68 @@ function_add_caller_children_time (unsigned int caller_id, unsigned int callee_i
       f->callers[i].children_time += time;
 }
 
-static void
-function_aggregate_function_time_for_id (tree_entry *e, unsigned int function_id, unsigned int found)
+static int
+function_create_call_vector_from_node(tree_entry *e, bitmask *b)
 {
-  if (e->function_id == function_id)
+  if (e->function_id != (unsigned int)-1)
     {
-      functions[function_id].self_time += e->self_time;
+      function *f = functions + e->function_id;
+
+      f->self_time += e->self_time;
       if (e->parent != NULL && e->parent->function_id != (unsigned int)-1)
-          function_add_caller_self_time(e->parent->function_id, e->function_id, e->self_time);
-      if (!found)
+        function_add_caller_self_time(e->parent->function_id, e->function_id, e->self_time);
+      if (!bitmask_get(b, e->function_id))
         {
-          functions[function_id].children_time += e->children_time;
+          f->children_time += e->children_time;
           if (e->parent != NULL && e->parent->function_id != (unsigned int)-1)
             function_add_caller_children_time(e->parent->function_id, e->function_id, e->children_time);
+          bitmask_set(b, e->function_id);
+
+          ++(f->nprimaries);
+          f->primaries = realloc(f->primaries, sizeof(*f->primaries) * f->nprimaries);
+          assert_inner(f->primaries, "realloc");
+          f->primaries[f->nprimaries - 1] = e;
         }
-      found = 1;
+      else
+        {
+          ++(f->nsecondaries);
+          f->secondaries = realloc(f->secondaries, sizeof(*f->secondaries) * f->nsecondaries);
+          assert_inner(f->secondaries, "realloc");
+          f->secondaries[f->nsecondaries - 1] = e;
+        }
     }
 
   unsigned int i;
   for (i = 0; i < e->nchildren; ++i)
-    function_aggregate_function_time_for_id (e->children[i], function_id, found);
+    {
+      bitmask *b2 = bitmask_copy(b);
+      assert_inner(b2, "bitmask_copy");
+      int res = function_create_call_vector_from_node(e->children[i], b2);
+      assert_inner(!res, "function_call_vector_from_node");
+      bitmask_destroy(&b2);
+    }
   for (i = 0; i < e->norphans; ++i)
-    function_aggregate_function_time_for_id (e->orphans[i], function_id, found);
-}
+    {
+      bitmask *b2 = bitmask_copy(b);
+      assert_inner(b2, "bitmask_copy");
+      int res = function_create_call_vector_from_node(e->orphans[i], b2);
+      assert_inner(!res, "function_call_vector_from_node");
+      bitmask_destroy(&b2);
+    }
 
-static int
-function_create_call_vectors (void)
-{
-  
   return 0;
 }
 
 static int
 function_aggregate_function_times (void)
 {
-  if(USE_OLD_AGGREGATE)
-    {
-      unsigned int i;
-      for (i = 0; i < nfunctions; ++i)
-      function_aggregate_function_time_for_id(&call_tree_root, i, 0);
-    }
-  else
-    {
-      int res = function_create_call_vectors();
-      assert_inner(!res, "function_create_call_tree_vectors");
-    }
+  bitmask *b = bitmask_create(nfunctions); 
+  assert_inner(b, "bitmask_create");
+
+  int res = function_create_call_vector_from_node(&call_tree_root, b); 
+  assert_inner(!res, "function_create_call_vector_from_node");
+
+  bitmask_destroy(&b);
 
   return 0;
 }
@@ -423,6 +441,8 @@ function_fini ()
       free(functions[i].file);
       free(functions[i].callers);
       free(functions[i].callees);
+      free(functions[i].primaries);
+      free(functions[i].secondaries);
     }
   free(functions);
 
