@@ -20,10 +20,10 @@
 
 
 #include "memory.h"
+#include "blocklist.h"
 #include "addr.h"
 
 #include <stdio.h>
-#include <string.h>
 #include <inttypes.h>
 
 #include <grapes/util.h>
@@ -37,9 +37,6 @@ unsigned int total_allocations = 0;
 unsigned int total_reallocations = 0;
 unsigned int total_frees = 0;
 
-block *blocks = NULL;
-unsigned int nblocks = 0;
-
 failed_malloc *failed_mallocs = NULL;
 unsigned int nfailed_mallocs = 0;
 
@@ -52,16 +49,6 @@ unsigned int nfailed_frees = 0;
 uintptr_t *freed_addresses = NULL;
 unsigned int nfreed_addresses = 0;
 
-static block*
-memory_get_block_by_address (uintptr_t address)
-{
-  unsigned int i;
-  for (i = 0; i < nblocks; ++i)
-    if (blocks[i].address == address)
-      return blocks + i;
-
-  return NULL;
-}
 
 static int
 memory_add_failed_malloc (size_t size, uintptr_t caller, unsigned long long time)
@@ -113,7 +100,7 @@ memory_add_failed_realloc (uintptr_t ptr, size_t size, uintptr_t caller, unsigne
   f->start_size = 0;
   if (f->reason != FAILED_INVALID_PTR)
     {
-      block *b = memory_get_block_by_address(ptr);
+      block *b = blocklist_get_by_address(ptr);
       f->start_size = b->size;
     }
 
@@ -201,13 +188,8 @@ memory_malloc (size_t size, uintptr_t caller, uintptr_t result, unsigned long lo
   if (current_allocated > maximum_allocated)
     maximum_allocated = current_allocated;
 
-  ++nblocks;
-  blocks = realloc(blocks, sizeof(*blocks) * nblocks);
-  assert_inner(blocks, "realloc");
-
-  block *b = blocks + nblocks - 1;
-
-  b->address = result;
+  block *b = blocklist_add(result);
+  assert_inner(b, "blocklist_add");
   b->size = size;
 
   function *func = function_get_current();
@@ -253,7 +235,7 @@ memory_realloc (uintptr_t ptr, size_t size, uintptr_t caller, uintptr_t result, 
       return 0;
     }
 
-  block *b = memory_get_block_by_address(ptr);
+  block *b = blocklist_get_by_address(ptr);
   if (!b)
     {
       int res = memory_add_failed_realloc(ptr, size, caller, time, FAILED_INVALID_PTR);
@@ -279,9 +261,10 @@ memory_realloc (uintptr_t ptr, size_t size, uintptr_t caller, uintptr_t result, 
   if (current_allocated > maximum_allocated)
     maximum_allocated = current_allocated;
 
-  b->address = result;
   b->size = size;
-
+  if (b->address != result)
+    blocklist_relocate(b, result);
+    
   return 0;
 }
 
@@ -289,7 +272,7 @@ int memory_free (uintptr_t ptr, uintptr_t caller, unsigned long long time)
 {
   ++total_frees;
 
-  block *b = memory_get_block_by_address(ptr);
+  block *b = blocklist_get_by_address(ptr);
   if (!b)
     {
       int res = memory_add_failed_free(ptr, caller, time, FAILED_INVALID_PTR);
@@ -300,14 +283,7 @@ int memory_free (uintptr_t ptr, uintptr_t caller, unsigned long long time)
   total_freed += b->size;
   current_allocated -= b->size;
 
-  if (b->direct_call)
-    {
-      free(b->file);
-      free(b->func);
-    }
-
-  --nblocks;
-  memmove(b, b + 1, (nblocks - (b - blocks)) * sizeof(*blocks));
+  blocklist_remove(b);
 
   return 0;
 }
@@ -371,26 +347,11 @@ memory_get_failed_frees (unsigned int *n)
   return failed_frees;
 };
 
-block*
-memory_get_blocks (unsigned int *n)
-{
-  *n = nblocks;
-  return blocks;
-}
-
 static void
 __attribute__((destructor))
-memory_fini ()
+memory_fini (void)
 {
   unsigned int i;
-  for (i = 0; i < nblocks; ++i)
-    if (blocks[i].direct_call)
-      {
-        free(blocks[i].file);
-        free(blocks[i].func);
-      }
-  free(blocks);
-
   for (i = 0; i < nfailed_mallocs; ++i)
     if (failed_mallocs[i].direct_call)
       {

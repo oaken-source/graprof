@@ -19,61 +19,41 @@
  ******************************************************************************/
 
 
-#include "bitmask.h"
+#pragma once
 
-#include <string.h>
+#include <stdint.h>
 #include <stdlib.h>
 
-#include <grapes/util.h>
-
-#define FIELDWIDTH (8 * sizeof(unsigned int))
-
-bitmask*
-bitmask_create (unsigned int width)
+/* this struct holds all information related to an allocated block of memory
+ */
+struct block
 {
-  bitmask *b = malloc(sizeof(bitmask));
-  assert_inner_ptr(b, "malloc");
+  uintptr_t address;
+  size_t size;
 
-  b->nfields = width / FIELDWIDTH;
-  if (width % FIELDWIDTH)
-    ++(b->nfields);
+  unsigned int direct_call;
+  char *file;
+  unsigned int line;
+  char *func;
+};
 
-  b->fields = calloc(b->nfields, sizeof(unsigned int));
-  assert_inner_ptr(b->fields, "calloc");
+typedef struct block block;
 
-  return b;
-}
 
-bitmask*
-bitmask_copy (bitmask *b)
-{
-  bitmask *c = malloc(sizeof(bitmask));
-  assert_inner_ptr(c);
+/* get the list of allocated blocks
+ *
+ * params:
+ *   nblocks - pointer where the size of the returned array is stored
+ *
+ * returns:
+ *   a pointer to the first element in an array of known memory blocks
+ */
+block *blocklist_get(unsigned int *nblocks);
 
-  c->nfields = b->nfields;
-  c->fields = malloc(sizeof(unsigned int) * c->nfields);
-  assert_inner_ptr(c->fields, "malloc");
+block *blocklist_get_by_address(uintptr_t address);
 
-  memcpy(c->fields, b->fields, c->nfields * sizeof(unsigned int));
+block *blocklist_add(uintptr_t address);
 
-  return c;
-}
+void blocklist_relocate(block *b, uintptr_t address);
 
-void 
-bitmask_destroy (bitmask **b)
-{
-  free((*b)->fields);
-  free(*b);
-}
-
-void
-bitmask_set (bitmask *b, unsigned int i)
-{
-  b->fields[i / FIELDWIDTH] |= ((unsigned int)1 << (i % FIELDWIDTH));
-}
-
-int
-bitmask_get (bitmask *b, unsigned int i)
-{
-  return b->fields[i / FIELDWIDTH] & ((unsigned int)1 << (i % FIELDWIDTH));
-}
+void blocklist_remove(block *b);

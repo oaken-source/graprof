@@ -22,6 +22,7 @@
 #include "memprofile.h"
 
 #include "memory.h"
+#include "blocklist.h"
 
 #include <stdio.h>
 #include <inttypes.h>
@@ -93,7 +94,7 @@ memprofile_print (void)
     fprintf(graprof_out, "\n");
 
   unsigned int nblocks = 0;
-  block *blocks = memory_get_blocks(&nblocks);
+  block *blocks = blocklist_get(&nblocks);
 
   for (i = 0; i < nblocks; ++i)
     {

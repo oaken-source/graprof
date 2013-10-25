@@ -123,11 +123,10 @@ addr_translate (uintptr_t pc, char **function, char **file, unsigned int *line)
   unsigned int _line = 0;
   unsigned int _discriminator = 0;
 
-  int found = 0;
   unsigned int i;
-  for (i = 0; i < addr_nsections && !found; ++i)
+  for (i = 0; i < addr_nsections; ++i)
     if (pc >= addr_sections[i].lower && pc <= addr_sections[i].upper)
-      found = bfd_find_nearest_line_discriminator(addr_bfd, addr_sections[i].section, addr_syms, pc - addr_sections[i].lower, &_file, &_function, &_line, &_discriminator);
+      bfd_find_nearest_line_discriminator(addr_bfd, addr_sections[i].section, addr_syms, pc - addr_sections[i].lower, &_file, &_function, &_line, &_discriminator);
 
   if (function)
     {

@@ -27,3 +27,6 @@ pass3: pass2
 
 pass4: pass3
 	$(ENV)4 $(BIN) -FCMg -o graprof.out.pass4 -- $(BIN_GP) -FCMg -t gp.out.3 -o /dev/null $(BIN_GP)
+
+pass5: pass4
+	$(ENV)5 $(BIN) -FCMg -o graprof.out.pass5 -- $(BIN_GP) -FCMg -t gp.out.4 -o /dev/null $(BIN_GP)

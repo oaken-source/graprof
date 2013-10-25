@@ -18,10 +18,6 @@
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.   *
  ******************************************************************************/
 
-#ifndef USE_OLD_AGGREGATE
-#  define USE_OLD_AGGREGATE 0
-#endif
-
 #include "function.h"
 #include "addr.h"
 #include "bitmask.h"

@@ -19,61 +19,77 @@
  ******************************************************************************/
 
 
-#include "bitmask.h"
+#include "blocklist.h"
 
 #include <string.h>
-#include <stdlib.h>
 
 #include <grapes/util.h>
 
-#define FIELDWIDTH (8 * sizeof(unsigned int))
+block *blocks = NULL;
+unsigned int nblocks = 0;
 
-bitmask*
-bitmask_create (unsigned int width)
+
+block*
+blocklist_get (unsigned int *n)
 {
-  bitmask *b = malloc(sizeof(bitmask));
-  assert_inner_ptr(b, "malloc");
+  *n = nblocks;
+  return blocks;
+}
 
-  b->nfields = width / FIELDWIDTH;
-  if (width % FIELDWIDTH)
-    ++(b->nfields);
+block*
+blocklist_get_by_address (uintptr_t address)
+{
+  unsigned int i;
+  for (i = 0; i < nblocks; ++i)
+    if (blocks[i].address == address)
+      return blocks + i;
 
-  b->fields = calloc(b->nfields, sizeof(unsigned int));
-  assert_inner_ptr(b->fields, "calloc");
+  return NULL;
+}
+
+block*
+blocklist_add (uintptr_t address)
+{
+  ++nblocks;
+  blocks = realloc(blocks, sizeof(*blocks) * nblocks);
+  assert_inner_ptr(blocks, "realloc");
+
+  block *b = blocks + nblocks - 1;
+
+  b->address = address;
 
   return b;
 }
 
-bitmask*
-bitmask_copy (bitmask *b)
+void
+blocklist_relocate (block *b, uintptr_t address)
 {
-  bitmask *c = malloc(sizeof(bitmask));
-  assert_inner_ptr(c);
-
-  c->nfields = b->nfields;
-  c->fields = malloc(sizeof(unsigned int) * c->nfields);
-  assert_inner_ptr(c->fields, "malloc");
-
-  memcpy(c->fields, b->fields, c->nfields * sizeof(unsigned int));
-
-  return c;
-}
-
-void 
-bitmask_destroy (bitmask **b)
-{
-  free((*b)->fields);
-  free(*b);
+  b->address = address;
 }
 
 void
-bitmask_set (bitmask *b, unsigned int i)
+blocklist_remove (block *b)
 {
-  b->fields[i / FIELDWIDTH] |= ((unsigned int)1 << (i % FIELDWIDTH));
+  if (b->direct_call)
+  {
+    free(b->file);
+    free(b->func);
+  }
+
+  --nblocks;
+  memmove(b, b + 1, (nblocks - (b - blocks)) * sizeof(*blocks));
 }
 
-int
-bitmask_get (bitmask *b, unsigned int i)
+static void
+__attribute__((destructor))
+blocklist_fini (void)
 {
-  return b->fields[i / FIELDWIDTH] & ((unsigned int)1 << (i % FIELDWIDTH));
+  unsigned int i;
+  for (i = 0; i < nblocks; ++i)
+    if (blocks[i].direct_call)
+      {
+        free(blocks[i].file);
+        free(blocks[i].func);
+      }
+  free(blocks);
 }

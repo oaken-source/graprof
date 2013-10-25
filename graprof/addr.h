@@ -55,7 +55,7 @@ int addr_init(const char *filename);
  *
  * errors:
  *   Again, there is black magic involved. If something feels weird to you,
- *   file a bug.
+ *   file a bug. May also fail and set errno for the same reasons as strdup.
  *
  * returns:
  *   -1 on failure, 0 on success
