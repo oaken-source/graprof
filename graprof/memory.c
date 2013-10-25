@@ -80,7 +80,8 @@ memory_add_failed_malloc (size_t size, uintptr_t caller, unsigned long long time
 
   function *func = function_get_current();
 
-  f->caller = func;
+  f->caller = caller;
+  f->f = func;
 
   if (!function_compare(func, caller))
     {
@@ -126,7 +127,8 @@ memory_add_failed_realloc (uintptr_t ptr, size_t size, uintptr_t caller, unsigne
 
   function *func = function_get_current();
 
-  f->caller = func;
+  f->caller = caller;
+  f->f = func;
 
   if (!function_compare(func, caller))
     {
@@ -164,7 +166,8 @@ memory_add_failed_free (uintptr_t ptr, uintptr_t caller, unsigned long long time
 
   function *func = function_get_current();
 
-  f->caller = func;
+  f->caller = caller;
+  f->f = func;
 
   if (!function_compare(func, caller))
     {
@@ -209,6 +212,7 @@ memory_malloc (size_t size, uintptr_t caller, uintptr_t result, unsigned long lo
 
   b->address = result;
   b->size = size;
+  b->caller = caller;
 
   function *func = function_get_current();
 
@@ -218,12 +222,19 @@ memory_malloc (size_t size, uintptr_t caller, uintptr_t result, unsigned long lo
       int res = addr_translate(caller, &(b->func), &(b->file), &(b->line));
       assert_inner(!res, "addr_reanslate");
     }
-  else
+  else if (func)
     {
       b->direct_call = 0;
       b->file = func->file;
       b->line = func->line;
       b->func = func->name;
+    }
+  else
+    {
+      b->direct_call = 0;
+      b->file = NULL;
+      b->line = 0;
+      b->func = NULL;
     }
 
   return 0;
