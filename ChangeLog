@@ -1,4 +1,17 @@
 
+2013-10-25  Andreas Grapentin  <andreas@grapentin.org>
+
+	* graprof/function.c: fixed function_compare for NULL pointer function
+	arguments
+	* graprof/memory.c: storing caller addresses for failed_* structs
+	* graprof/memprofile.c: tweaked printing procedures to properly
+	accomodate where failed allocations come from
+
+	* libgraprof/mallhooks.c: calling __libc* malloc family functions instead of
+	pure {m,c,re}alloc, free - fixes problems where the active switch is
+	set asynchronously. Additionally, the hooks now distinguish malloc and
+	calloc, which is not visible in the resulting traces yet.
+
 2013-09-23  Andreas Grapentin  <andreas@grapentin.org>
 
 	* graprof/memory.h: added function name to allocation notification
