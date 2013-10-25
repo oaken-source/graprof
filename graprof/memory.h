@@ -38,8 +38,9 @@
 struct failed_malloc
 {
   size_t size;
-  function *caller;
+  function *f;
   unsigned int direct_call;
+  uintptr_t caller;
   unsigned long long time;
 
   char *file;
@@ -57,8 +58,9 @@ struct failed_realloc
   size_t start_size;
   size_t end_size;
   uintptr_t ptr;
-  function *caller;
+  function *f;
   unsigned int direct_call;
+  uintptr_t caller;
   unsigned long long time;
 
   char *file;
@@ -74,8 +76,9 @@ struct failed_free
 {
   unsigned int reason;
   uintptr_t ptr;
-  function *caller;
+  function *f;
   unsigned int direct_call;
+  uintptr_t caller;
   unsigned long long time;
 
   char *file;

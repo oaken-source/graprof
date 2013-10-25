@@ -3,3 +3,5 @@ gmon.out
 gp.out.*
 gprof.out.*
 graprof.out.*
+
+git-local

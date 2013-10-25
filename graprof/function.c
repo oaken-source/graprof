@@ -382,17 +382,20 @@ function_get_current (void)
 int
 function_compare (function *f, uintptr_t addr)
 {
+  if (!f)
+    return -1;
+
   char *name;
   char *file;
   int res = addr_translate(addr, &name, &file, NULL);
   assert_inner(!res, "addr_translate");
 
-  res = (strcmp(f->name, name) || strcmp(f->file, file));
+  int x = (strcmp(f->name, name) || strcmp(f->file, file));
 
   free(name);
   free(file);
 
-  return res;
+  return x;
 }
 
 unsigned long long

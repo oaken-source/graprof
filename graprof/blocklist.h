@@ -32,6 +32,7 @@ struct block
   size_t size;
 
   unsigned int direct_call;
+  uintptr_t caller;
   char *file;
   unsigned int line;
   char *func;

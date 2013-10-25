@@ -55,7 +55,22 @@ memprofile_print (void)
 
   unsigned int i;
   for (i = 0; i < nfailed_mallocs; ++i)
-    fprintf(graprof_out, " %s:%u:%s: %sfailed to allocate a block of %zu bytes\n", failed_mallocs[i].file, failed_mallocs[i].line, failed_mallocs[i].func, (failed_mallocs[i].direct_call ? "" : "library call "), failed_mallocs[i].size);
+    {
+      if (failed_mallocs[i].direct_call)
+        {
+          fprintf(graprof_out, " %s:%u:%s: ", failed_mallocs[i].file, failed_mallocs[i].line, failed_mallocs[i].func);
+        }
+      else
+        {
+          fprintf(graprof_out, " 0x%" PRIxPTR ": ", failed_mallocs[i].caller);
+          if (failed_mallocs[i].func)
+            fprintf(graprof_out, "last parent %s:%u:%s: ", failed_mallocs[i].file, failed_mallocs[i].line, failed_mallocs[i].func);
+          else
+            fprintf(graprof_out, "last parent unknown: ");
+        }
+
+      fprintf(graprof_out, "failed to allocate a block of %zu bytes\n", failed_mallocs[i].size);
+    }
 
   if (nfailed_mallocs)
     fprintf(graprof_out, "\n");
@@ -65,9 +80,19 @@ memprofile_print (void)
 
   for (i = 0; i < nfailed_reallocs; ++i)
     {
-      fprintf(graprof_out, " %s:%u:%s: ", failed_reallocs[i].file, failed_reallocs[i].line, failed_reallocs[i].func);
-      if (!failed_reallocs[i].direct_call)
-        fprintf(graprof_out, "library call ");
+      if (failed_reallocs[i].direct_call)
+        {
+          fprintf(graprof_out, " %s:%u:%s: ", failed_reallocs[i].file, failed_reallocs[i].line, failed_reallocs[i].func);
+        }
+      else
+        {
+          fprintf(graprof_out, " 0x%" PRIxPTR ": ", failed_reallocs[i].caller);
+          if (failed_reallocs[i].func)
+            fprintf(graprof_out, "last parent %s:%u:%s: ", failed_reallocs[i].file, failed_reallocs[i].line, failed_reallocs[i].func);
+          else
+            fprintf(graprof_out, "last parent unknown: ");
+        }
+
       fprintf(graprof_out, "failed to reallocate a block at 0x%" PRIxPTR, failed_reallocs[i].ptr);
       if (failed_reallocs[i].reason == FAILED_INVALID_PTR)
         fprintf(graprof_out, ", already free'd or invalid ptr\n");
@@ -83,11 +108,20 @@ memprofile_print (void)
 
   for (i = 0; i < nfailed_frees; ++i)
     {
-      fprintf(graprof_out, " %s:%u:%s: ", failed_frees[i].file, failed_frees[i].line, failed_frees[i].func);
-      if (!failed_frees[i].direct_call)
-        fprintf(graprof_out, "library call ");
-      fprintf(graprof_out, "failed to free a block at 0x%" PRIxPTR, failed_frees[i].ptr);
-      fprintf(graprof_out, ", double free or invalid ptr\n");
+      if (failed_frees[i].direct_call)
+        {
+          fprintf(graprof_out, " %s:%u:%s: ", failed_frees[i].file, failed_frees[i].line, failed_frees[i].func);
+        }
+      else
+        {
+          fprintf(graprof_out, " 0x%" PRIxPTR ": ", failed_frees[i].caller);
+          if (failed_frees[i].func)
+            fprintf(graprof_out, "last parent %s:%u:%s: ", failed_frees[i].file, failed_frees[i].line, failed_frees[i].func);
+          else
+            fprintf(graprof_out, "last parent unknown: ");
+        }
+
+      fprintf(graprof_out, "failed to free a block at 0x%" PRIxPTR ", double free or invalid ptr\n", failed_frees[i].ptr);
     }
 
   if (nfailed_frees)
@@ -98,9 +132,19 @@ memprofile_print (void)
 
   for (i = 0; i < nblocks; ++i)
     {
-      fprintf(graprof_out, " %s:%u:%s: ", blocks[i].file, blocks[i].line, blocks[i].func);
-      if (!blocks[i].direct_call)
-        fprintf(graprof_out, "library call ");
+      if (blocks[i].direct_call)
+        {
+          fprintf(graprof_out, " %s:%u:%s: ", blocks[i].file, blocks[i].line, blocks[i].func);
+        }
+      else
+        {
+          fprintf(graprof_out, " 0x%" PRIxPTR ": ", blocks[i].caller);
+          if (blocks[i].func)
+            fprintf(graprof_out, "last parent %s:%u:%s: ", blocks[i].file, blocks[i].line, blocks[i].func);
+          else
+            fprintf(graprof_out, "last parent unknown: ");
+        }
+
       fprintf(graprof_out, "allocated block at 0x%" PRIxPTR " of size %zu that was never freed\n", blocks[i].address, blocks[i].size);
     }
 

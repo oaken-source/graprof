@@ -27,6 +27,11 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+extern void* __libc_malloc(size_t size);
+extern void* __libc_calloc(size_t nmemb, size_t size);
+extern void* __libc_realloc(void *ptr, size_t size);
+extern void __libc_free(void *ptr);
+
 static void*
 malloc_hook (size_t size, const void *caller)
 {
@@ -34,7 +39,7 @@ malloc_hook (size_t size, const void *caller)
 
   mallhooks_uninstall_hooks();
 
-  result = malloc(size);
+  result = __libc_malloc(size);
 
   buffer_enlarge(sizeof(char) + sizeof(size_t) + 2 * sizeof(uintptr_t) + sizeof(unsigned long long));
   buffer_append(char, '+');
@@ -49,13 +54,35 @@ malloc_hook (size_t size, const void *caller)
 }
 
 static void*
+calloc_hook (size_t nmemb, size_t size, const void *caller)
+{
+  void *result;
+
+  mallhooks_uninstall_hooks();
+
+  result = __libc_calloc(nmemb, size);
+
+  buffer_enlarge(sizeof(char) + sizeof(size_t) + 2 * sizeof(uintptr_t) + sizeof(unsigned long long));
+  buffer_append(char, '+');
+  buffer_append(size_t, nmemb * size);
+  buffer_append(uintptr_t, (uintptr_t)(caller - 4));
+  buffer_append(uintptr_t, (uintptr_t)result);
+  buffer_append(unsigned long long, highrestimer_get());
+
+  mallhooks_install_hooks();
+
+  return result;
+}
+
+
+static void*
 realloc_hook (void *ptr, size_t size, const void *caller)
 {
   void *result;
 
   mallhooks_uninstall_hooks();
 
-  result = realloc(ptr, size);
+  result = __libc_realloc(ptr, size);
 
   buffer_enlarge(sizeof(char) + sizeof(size_t) + 3 * sizeof(uintptr_t) + sizeof(unsigned long long));
   buffer_append(char, '*');
@@ -75,7 +102,7 @@ free_hook (void *ptr, const void *caller)
 {
   mallhooks_uninstall_hooks();
 
-  free(ptr);
+  __libc_free(ptr);
 
   if (ptr)
     {
@@ -122,11 +149,6 @@ mallhooks_uninstall_hooks (void)
 
 static unsigned int mallhooks_active = 0;
 
-extern void* __libc_malloc(size_t size);
-extern void* __libc_calloc(size_t nmemb, size_t size);
-extern void* __libc_realloc(void *ptr, size_t size);
-extern void __libc_free(void *ptr);
-
 void
 mallhooks_install_hooks (void)
 {
@@ -148,7 +170,7 @@ malloc (size_t size)
 void*
 calloc (size_t nmemb, size_t size)
 {
-  return (mallhooks_active ? malloc_hook(nmemb * size, __builtin_return_address(0)) : __libc_calloc(nmemb, size));
+  return (mallhooks_active ? calloc_hook(nmemb, size, __builtin_return_address(0)) : __libc_calloc(nmemb, size));
 }
 
 void*
