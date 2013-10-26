@@ -26,6 +26,7 @@
 
 struct bitmask
 {
+  unsigned int width;
   unsigned int *fields;
   unsigned int nfields;
 };

@@ -49,8 +49,8 @@ callgraph_print (void)
         " total number of function calls:     %llu\n"
         " total number of distinct functions: %u\n"
         "\n"
-        "          %%       self     children\n"
-        "  index  time      time      time       called       name\n",
+        "          %%           self     children\n"
+        "  index  time          time      time       called       name\n",
         time, prefix,
         function_get_total_calls(),
         function_get_nfunctions());
@@ -69,13 +69,13 @@ callgraph_print (void)
         {
           if (f->callers[j].function_id == (unsigned int)-1)
             {
-              fprintf(graprof_out, "                                   %8lu/%-8lu      <spontaneous>\n", f->callers[j].calls, f->calls);
+              fprintf(graprof_out, "                                       %8lu/%-8lu      <spontaneous>\n", f->callers[j].calls, f->calls);
             }
           else
             {
               time = f->callers[j].self_time;
               strtime(&time, &prefix);
-              fprintf(graprof_out, "               %6llu %ss ", time, prefix);
+              fprintf(graprof_out, "                   %6llu %ss ", time, prefix);
 
               time = f->callers[j].children_time;
               strtime(&time, &prefix);
@@ -93,7 +93,7 @@ callgraph_print (void)
 
       // print self
       time = trace_get_total_runtime();
-      fprintf(graprof_out, " %6u %6.2f ", i, (100.0 * (f->self_time + f->children_time)) / time);
+      fprintf(graprof_out, " %6u %6.2f     ", i, (100.0 * (f->self_time + f->children_time)) / time);
 
       time = f->self_time;
       strtime(&time, &prefix);
@@ -116,7 +116,7 @@ callgraph_print (void)
         {
           time = f->callees[j].self_time;
           strtime(&time, &prefix);
-          fprintf(graprof_out, "               %6llu %ss ", time, prefix);
+          fprintf(graprof_out, "            %6.2f %6llu %ss ", (100.0 * (f->callees[j].self_time + f->callees[j].children_time)) / f->children_time, time, prefix);
 
           time = f->callees[j].children_time;
           strtime(&time, &prefix);

@@ -1,4 +1,14 @@
 
+2013-10-26  Andreas Grapentin  <andreas@grapentin.org>
+
+	* graprof/bitmask.h: adding width field in bitmask structure
+	* graprof/bitmask.c: setting width in bitmask_create and bitmask_copy;
+	using calloc instead of malloc for bitmask field to avoid errors in
+	bitmask_get
+
+	* graprof/callgraph.c: added percentage of children time to callee
+	prints in callgraph_print
+
 2013-10-25  Andreas Grapentin  <andreas@grapentin.org>
 
 	* graprof/function.c: fixed function_compare for NULL pointer function
