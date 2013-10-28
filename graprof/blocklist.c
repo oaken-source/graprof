@@ -25,6 +25,8 @@
 
 #include <grapes/util.h>
 
+#include <stdio.h>
+
 block *blocks = NULL;
 unsigned int nblocks = 0;
 
@@ -54,9 +56,39 @@ blocklist_add (uintptr_t address)
   blocks = realloc(blocks, sizeof(*blocks) * nblocks);
   assert_inner_ptr(blocks, "realloc");
 
-  block *b = blocks + nblocks - 1;
+  int left = 0;
+  int right = nblocks - 2;
+  int i = 0;
+
+  while (left <= right)
+    {
+      i = (left + right) / 2;
+      fprintf(stderr, " [%i, %i, %i]\n", left, i, right);
+      if (blocks[i].address == address)
+        break;
+      else if (blocks[i].address > address)
+        right = i - 1;
+      else
+        left = i + 1;
+    }
+
+  i = left;
+  
+  if (i < (int)nblocks - 1)
+    memmove(blocks + i + 1, blocks + i, sizeof(*blocks) * nblocks - i - 1);
+
+  block *b = blocks + i;
+  memset(b, 0, sizeof(*b));
 
   b->address = address;
+
+  fprintf(stderr, "%i, %i, %i => [ ", left, i, right);
+  if (nblocks > 1)
+    fprintf(stderr, "0x%lx", blocks[0].address);
+  unsigned int j;
+  for (j = 1; j < nblocks - 1; ++j)
+    fprintf(stderr, ", 0x%lx", blocks[j].address);
+  fprintf(stderr, " ]\n");
 
   return b;
 }
@@ -70,6 +102,7 @@ blocklist_relocate (block *b, uintptr_t address)
 void
 blocklist_remove (block *b)
 {
+  fprintf(stderr, "free\n");
   if (b->direct_call)
   {
     free(b->file);
