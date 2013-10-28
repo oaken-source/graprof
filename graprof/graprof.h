@@ -30,7 +30,7 @@
 #include <stdlib.h>
 
 const char *argp_program_version = PACKAGE_STRING;
-const char *argp_program_bug_adress = PACKAGE_BUGREPORT;
+const char *argp_program_bug_address = PACKAGE_BUGREPORT;
 
 const char doc[] = PACKAGE_NAME " - a profiling and trace analysis tool";
 
@@ -128,20 +128,10 @@ parse_opt (int key, char *arg, struct argp_state *state)
       args->trace_filename = arg;
       break;
     case ARGP_KEY_ARG:
-      if (!state->arg_num)
-        {
-          args->binary_invocation = malloc(sizeof(const char*) * 2);
-          assert_inner(args->binary_invocation, "malloc");
-          args->binary_invocation[0] = arg;
-          args->binary_invocation[1] = NULL;
-        }
-      else
-        {
-          args->binary_invocation[state->arg_num] = arg;
-          args->binary_invocation = realloc(args->binary_invocation, sizeof(const char*) * (state->arg_num + 2));
-          assert_inner(args->binary_invocation, "realloc");
-          args->binary_invocation[state->arg_num + 1] = NULL;
-        }
+      args->binary_invocation = realloc(args->binary_invocation, sizeof(const char*) * (state->arg_num + 2));
+      assert_inner(args->binary_invocation, "realloc");
+      args->binary_invocation[state->arg_num] = arg;
+      args->binary_invocation[state->arg_num + 1] = NULL;
       break;
     case ARGP_KEY_END:
       if (!state->arg_num)
