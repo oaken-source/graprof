@@ -1,0 +1,382 @@
+Flat profile:
+
+ total runtime:                      5015 mseconds
+ total number of function calls:     8874334
+ total number of distinct functions: 66
+
+  %       self    children             self    children
+ time      time      time     calls    /call     /call  name
+ 16.67    836 ms      0 ns   579573   1442 ns      0 ns  addr_translate [11]
+ 11.62    583 ms   1426 ms   404294   1442 ns   3528 ns  function_create_call_vector_from_node [35]
+ 11.01    552 ms   1355 ms   404293   1366 ns   3353 ns  function_enter [7]
+  7.76    389 ms    769 ms   517369    752 ns   1487 ns  function_compare [19]
+  5.27    264 ms    264 ms   404294    653 ns    653 ns  free_call_tree [64]
+  5.19    260 ms      0 ns   404293    644 ns      0 ns  bitmask_copy [36]
+  4.72    236 ms      0 ns   404294    586 ns      0 ns  bitmask_destroy [41]
+  3.39    170 ms   4555 ms        1    170 ms   4555 ms  trace_read [5]
+  3.00    150 ms    150 ms   404294    371 ns    371 ns  function_aggregate_call_tree_node_times [32]
+  2.77    139 ms   1908 ms   404293    344 ns   4719 ns  trace_enter [6]
+  2.70    135 ms  80416 µs   404293    334 ns    198 ns  trace_exit [20]
+  2.65    132 ms      0 ns   404293    328 ns      0 ns  function_get_by_address [8]
+  2.04    102 ms      0 ns   404288    253 ns      0 ns  function_add_caller_self_time [39]
+  1.88  94085 µs  15332 ns   403995    232 ns      0 ns  function_add_callee [28]
+  1.77  88866 µs      0 ns   349439    254 ns      0 ns  function_add_caller_children_time [40]
+  1.70  85102 µs      0 ns   404293    210 ns      0 ns  function_call_tree_entry_init [14]
+  1.69  84757 µs  16353 ns   404293    209 ns      0 ns  function_add_caller [12]
+  1.63  81761 µs      0 ns   404293    202 ns      0 ns  bitmask_get [37]
+  1.60  80416 µs      0 ns   404293    198 ns      0 ns  function_exit [21]
+  1.60  80302 µs      0 ns   116593    688 ns      0 ns  blocklist_add [17]
+  1.53  76691 µs    366 ms   113081    678 ns   3242 ns  memory_malloc [16]
+  1.46  73277 µs      0 ns   349444    209 ns      0 ns  bitmask_set [38]
+  1.16  58033 µs      0 ns   144417    401 ns      0 ns  blocklist_get_by_address [26]
+  1.06  53342 µs  97096 µs   113081    471 ns    858 ns  memory_free [25]
+  1.03  51846 µs      0 ns   113081    458 ns      0 ns  blocklist_remove [27]
+  0.77  38799 µs    150 ms   113081    343 ns   1330 ns  trace_free [24]
+  0.74  36896 µs    408 ms   105797    348 ns   3857 ns  trace_malloc [15]
+  0.48  23958 µs      0 ns        1  23958 µs      0 ns  addr_fini [65]
+  0.46  23022 µs      0 ns   113081    203 ns      0 ns  function_get_current [18]
+  0.29  14333 µs  52384 µs    38620    371 ns   1356 ns  memory_realloc [23]
+  0.28  14187 µs  66718 µs    38620    367 ns   1727 ns  trace_realloc [22]
+  0.02   1238 µs   3138 µs     3512    352 ns    893 ns  blocklist_relocate [29]
+  0.01    572 µs   4726 ms        1    572 µs   4726 ms  main [0]
+  0.01    441 µs    109 µs        1    441 µs    109 µs  callgraph_print [49]
+  0.01    286 µs  70339 ns        1    286 µs  70339 ns  flatprofile_print [42]
+  0.00    217 µs      0 ns        1    217 µs      0 ns  blocklist_fini [61]
+  0.00    166 µs  46722 ns        1    166 µs  46722 ns  addr_init [2]
+  0.00    161 µs   2038 ns        1    161 µs   2038 ns  memprofile_print [50]
+  0.00    146 µs      0 ns      698    210 ns      0 ns  strtime [44]
+  0.00    134 µs    264 ms        1    134 µs    264 ms  function_fini [63]
+  0.00    121 µs   1272 µs       66   1838 ns  19285 ns  function_push [9]
+  0.00  66202 ns      0 ns      285    232 ns      0 ns  cmpfunction [48]
+  0.00  38166 ns      0 ns        1  38166 ns      0 ns  addr_read_symbol_table [3]
+  0.00  31685 ns      0 ns      157    201 ns      0 ns  function_call_data_init [13]
+  0.00  31489 ns      0 ns      134    234 ns      0 ns  trace_get_total_runtime [43]
+  0.00  18730 ns      0 ns       66    283 ns      0 ns  function_init [10]
+  0.00   9638 ns      0 ns        1   9638 ns      0 ns  bitmask_create [34]
+  0.00   8556 ns      0 ns        1   8556 ns      0 ns  addr_init_sections [4]
+  0.00   6078 ns      0 ns       11    552 ns      0 ns  parse_opt [1]
+  0.00   1038 ns   1426 ms        1   1038 ns   1426 ms  function_aggregate_function_times [33]
+  0.00    855 ns   1577 ms        1    855 ns   1577 ms  function_exit_all [31]
+  0.00    563 ns   1577 ms        1    563 ns   1577 ms  trace_end [30]
+  0.00    454 ns      0 ns        1    454 ns      0 ns  memory_fini [62]
+  0.00    410 ns      0 ns        2    205 ns      0 ns  function_get_all [47]
+  0.00    383 ns      0 ns        2    191 ns      0 ns  function_get_nfunctions [45]
+  0.00    375 ns      0 ns        2    187 ns      0 ns  function_get_total_calls [46]
+  0.00    234 ns      0 ns        1    234 ns      0 ns  memory_get_total_frees [51]
+  0.00    219 ns      0 ns        1    219 ns      0 ns  memory_get_maximum_allocated [54]
+  0.00    210 ns      0 ns        1    210 ns      0 ns  memory_get_failed_mallocs [57]
+  0.00    204 ns      0 ns        1    204 ns      0 ns  blocklist_get [60]
+  0.00    200 ns      0 ns        1    200 ns      0 ns  memory_get_failed_frees [59]
+  0.00    199 ns      0 ns        1    199 ns      0 ns  memory_get_failed_reallocs [58]
+  0.00    198 ns      0 ns        1    198 ns      0 ns  memory_get_total_allocated [56]
+  0.00    197 ns      0 ns        1    197 ns      0 ns  memory_get_total_freed [55]
+  0.00    189 ns      0 ns        1    189 ns      0 ns  memory_get_total_allocations [53]
+  0.00    188 ns      0 ns        1    188 ns      0 ns  memory_get_total_reallocations [52]
+Call graph:
+
+ total runtime:                      5015 mseconds
+ total number of function calls:     8874334
+ total number of distinct functions: 66
+
+          %           self     children
+  index  time          time      time       called       name
+                                              1/1             <spontaneous>
+      0  94.25        572 µs   4726 ms        1           main [0]
+              0.00    166 µs  46722 ns        1/1             addr_init [2]
+             99.97    170 ms   4555 ms        1/1             trace_read [5]
+              0.01    286 µs  70339 ns        1/1             flatprofile_print [42]
+              0.01    441 µs    109 µs        1/1             callgraph_print [49]
+              0.00    161 µs   2038 ns        1/1             memprofile_print [50]
+ -------------------------------------------------------
+                                             11/11            <spontaneous>
+      1   0.00       6078 ns      0 ns       11           parse_opt [1]
+ -------------------------------------------------------
+                      166 µs  46722 ns        1/1             main [0]
+      2   0.00        166 µs  46722 ns        1           addr_init [2]
+             81.69  38166 ns      0 ns        1/1             addr_read_symbol_table [3]
+             18.31   8556 ns      0 ns        1/1             addr_init_sections [4]
+ -------------------------------------------------------
+                    38166 ns      0 ns        1/1             addr_init [2]
+      3   0.00      38166 ns      0 ns        1           addr_read_symbol_table [3]
+ -------------------------------------------------------
+                     8556 ns      0 ns        1/1             addr_init [2]
+      4   0.00       8556 ns      0 ns        1           addr_init_sections [4]
+ -------------------------------------------------------
+                      170 ms   4555 ms        1/1             main [0]
+      5  94.21        170 ms   4555 ms        1           trace_read [5]
+             44.94    139 ms   1908 ms   404293/404293        trace_enter [6]
+              9.77  36896 µs    408 ms   105797/105797        trace_malloc [15]
+              4.74    135 ms  80416 µs   404293/404293        trace_exit [20]
+              1.78  14187 µs  66718 µs    38620/38620         trace_realloc [22]
+              4.15  38799 µs    150 ms   113081/113081        trace_free [24]
+             34.62    563 ns   1577 ms        1/1             trace_end [30]
+ -------------------------------------------------------
+                      139 ms   1908 ms   404293/404293        trace_read [5]
+      6  40.81        139 ms   1908 ms   404293           trace_enter [6]
+            100.00    552 ms   1355 ms   404293/404293        function_enter [7]
+ -------------------------------------------------------
+                      552 ms   1355 ms   404293/404293        trace_enter [6]
+      7  38.04        552 ms   1355 ms   404293           function_enter [7]
+              9.79    132 ms      0 ns   404293/404293        function_get_by_address [8]
+              0.10    121 µs   1272 µs       66/66            function_push [9]
+              6.25  84757 µs  16353 ns   404293/404293        function_add_caller [12]
+              6.28  85102 µs      0 ns   404293/404293        function_call_tree_entry_init [14]
+             70.63    305 ms    651 ms   404288/517369        function_compare [19]
+              6.94  94085 µs  15332 ns   403995/403995        function_add_callee [28]
+ -------------------------------------------------------
+                      132 ms      0 ns   404293/404293        function_enter [7]
+      8   2.65        132 ms      0 ns   404293           function_get_by_address [8]
+ -------------------------------------------------------
+                      121 µs   1272 µs       66/66            function_enter [7]
+      9   0.03        121 µs   1272 µs       66           function_push [9]
+              1.47  18730 ns      0 ns       66/66            function_init [10]
+             98.53   1254 µs      0 ns       66/579573        addr_translate [11]
+ -------------------------------------------------------
+                    18730 ns      0 ns       66/66            function_push [9]
+     10   0.00      18730 ns      0 ns       66           function_init [10]
+ -------------------------------------------------------
+                     1254 µs      0 ns       66/579573        function_push [9]
+                      769 ms      0 ns   517369/579573        function_compare [19]
+                    65274 µs      0 ns    62138/579573        memory_malloc [16]
+     11  16.67        836 ms      0 ns   579573           addr_translate [11]
+ -------------------------------------------------------
+                    84757 µs  16353 ns   404293/404293        function_enter [7]
+     12   1.69      84757 µs  16353 ns   404293           function_add_caller [12]
+            100.00  16353 ns      0 ns       82/157           function_call_data_init [13]
+ -------------------------------------------------------
+                    16353 ns      0 ns       82/157           function_add_caller [12]
+                    15332 ns      0 ns       75/157           function_add_callee [28]
+     13   0.00      31685 ns      0 ns      157           function_call_data_init [13]
+ -------------------------------------------------------
+                    85102 µs      0 ns   404293/404293        function_enter [7]
+     14   1.70      85102 µs      0 ns   404293           function_call_tree_entry_init [14]
+ -------------------------------------------------------
+                    36896 µs    408 ms   105797/105797        trace_read [5]
+     15   8.87      36896 µs    408 ms   105797           trace_malloc [15]
+            100.00  71366 µs    336 ms   105797/113081        memory_malloc [16]
+ -------------------------------------------------------
+                    71366 µs    336 ms   105797/113081        trace_malloc [15]
+                     5324 µs  29899 µs     7284/113081        memory_realloc [23]
+     16   8.84      76691 µs    366 ms   113081           memory_malloc [16]
+             21.05  77164 µs      0 ns   113081/116593        blocklist_add [17]
+              6.28  23022 µs      0 ns   113081/113081        function_get_current [18]
+             54.87  83421 µs    117 ms   113081/517369        function_compare [19]
+             17.80  65274 µs      0 ns    62138/579573        addr_translate [11]
+ -------------------------------------------------------
+                    77164 µs      0 ns   113081/116593        memory_malloc [16]
+                     3138 µs      0 ns     3512/116593        blocklist_relocate [29]
+     17   1.60      80302 µs      0 ns   116593           blocklist_add [17]
+ -------------------------------------------------------
+                    23022 µs      0 ns   113081/113081        memory_malloc [16]
+     18   0.46      23022 µs      0 ns   113081           function_get_current [18]
+ -------------------------------------------------------
+                    83421 µs    117 ms   113081/517369        memory_malloc [16]
+                      305 ms    651 ms   404288/517369        function_enter [7]
+     19  23.10        389 ms    769 ms   517369           function_compare [19]
+            100.00    769 ms      0 ns   517369/579573        addr_translate [11]
+ -------------------------------------------------------
+                      135 ms  80416 µs   404293/404293        trace_read [5]
+     20   4.30        135 ms  80416 µs   404293           trace_exit [20]
+            100.00  80416 µs      0 ns   404293/404293        function_exit [21]
+ -------------------------------------------------------
+                    80416 µs      0 ns   404293/404293        trace_exit [20]
+     21   1.60      80416 µs      0 ns   404293           function_exit [21]
+ -------------------------------------------------------
+                    14187 µs  66718 µs    38620/38620         trace_read [5]
+     22   1.61      14187 µs  66718 µs    38620           trace_realloc [22]
+            100.00  14333 µs  52384 µs    38620/38620         memory_realloc [23]
+ -------------------------------------------------------
+                    14333 µs  52384 µs    38620/38620         trace_realloc [22]
+     23   1.33      14333 µs  52384 µs    38620           memory_realloc [23]
+             67.24   5324 µs  29899 µs     7284/113081        memory_malloc [16]
+             24.40  12783 µs      0 ns    31336/144417        blocklist_get_by_address [26]
+              8.36   1238 µs   3138 µs     3512/3512          blocklist_relocate [29]
+ -------------------------------------------------------
+                    38799 µs    150 ms   113081/113081        trace_read [5]
+     24   3.77      38799 µs    150 ms   113081           trace_free [24]
+            100.00  53342 µs  97096 µs   113081/113081        memory_free [25]
+ -------------------------------------------------------
+                    53342 µs  97096 µs   113081/113081        trace_free [24]
+     25   3.00      53342 µs  97096 µs   113081           memory_free [25]
+             46.60  45250 µs      0 ns   113081/144417        blocklist_get_by_address [26]
+             53.40  51846 µs      0 ns   113081/113081        blocklist_remove [27]
+ -------------------------------------------------------
+                    45250 µs      0 ns   113081/144417        memory_free [25]
+                    12783 µs      0 ns    31336/144417        memory_realloc [23]
+     26   1.16      58033 µs      0 ns   144417           blocklist_get_by_address [26]
+ -------------------------------------------------------
+                    51846 µs      0 ns   113081/113081        memory_free [25]
+     27   1.03      51846 µs      0 ns   113081           blocklist_remove [27]
+ -------------------------------------------------------
+                    94085 µs  15332 ns   403995/403995        function_enter [7]
+     28   1.88      94085 µs  15332 ns   403995           function_add_callee [28]
+            100.00  15332 ns      0 ns       75/157           function_call_data_init [13]
+ -------------------------------------------------------
+                     1238 µs   3138 µs     3512/3512          memory_realloc [23]
+     29   0.09       1238 µs   3138 µs     3512           blocklist_relocate [29]
+            100.00   3138 µs      0 ns     3512/116593        blocklist_add [17]
+ -------------------------------------------------------
+                      563 ns   1577 ms        1/1             trace_read [5]
+     30  31.44        563 ns   1577 ms        1           trace_end [30]
+            100.00    855 ns   1577 ms        1/1             function_exit_all [31]
+ -------------------------------------------------------
+                      855 ns   1577 ms        1/1             trace_end [30]
+     31  31.44        855 ns   1577 ms        1           function_exit_all [31]
+              9.53   1085 ns    150 ms        1/404294        function_aggregate_call_tree_node_times [32]
+             90.47   1038 ns   1426 ms        1/1             function_aggregate_function_times [33]
+ -------------------------------------------------------
+                     1085 ns    150 ms        1/404294        function_exit_all [31]
+                      150 ms      0 ns   404293/404294        function_aggregate_call_tree_node_times [32]
+     32   5.99        150 ms    150 ms   404294           function_aggregate_call_tree_node_times [32]
+            100.00    150 ms      0 ns   404293/404294        function_aggregate_call_tree_node_times [32]
+ -------------------------------------------------------
+                     1038 ns   1426 ms        1/1             function_exit_all [31]
+     33  28.45       1038 ns   1426 ms        1           function_aggregate_function_times [33]
+              0.00   9638 ns      0 ns        1/1             bitmask_create [34]
+            100.00   2792 ns   1426 ms        1/404294        function_create_call_vector_from_node [35]
+              0.00    647 ns      0 ns        1/404294        bitmask_destroy [41]
+ -------------------------------------------------------
+                     9638 ns      0 ns        1/1             function_aggregate_function_times [33]
+     34   0.00       9638 ns      0 ns        1           bitmask_create [34]
+ -------------------------------------------------------
+                     2792 ns   1426 ms        1/404294        function_aggregate_function_times [33]
+                      583 ms      0 ns   404293/404294        function_create_call_vector_from_node [35]
+     35  40.07        583 ms   1426 ms   404294           function_create_call_vector_from_node [35]
+             18.25    260 ms      0 ns   404293/404293        bitmask_copy [36]
+             40.86    583 ms      0 ns   404293/404294        function_create_call_vector_from_node [35]
+              5.73  81761 µs      0 ns   404293/404293        bitmask_get [37]
+              5.14  73277 µs      0 ns   349444/349444        bitmask_set [38]
+              7.18    102 ms      0 ns   404288/404288        function_add_caller_self_time [39]
+              6.23  88866 µs      0 ns   349439/349439        function_add_caller_children_time [40]
+             16.61    236 ms      0 ns   404293/404294        bitmask_destroy [41]
+ -------------------------------------------------------
+                      260 ms      0 ns   404293/404293        function_create_call_vector_from_node [35]
+     36   5.19        260 ms      0 ns   404293           bitmask_copy [36]
+ -------------------------------------------------------
+                    81761 µs      0 ns   404293/404293        function_create_call_vector_from_node [35]
+     37   1.63      81761 µs      0 ns   404293           bitmask_get [37]
+ -------------------------------------------------------
+                    73277 µs      0 ns   349444/349444        function_create_call_vector_from_node [35]
+     38   1.46      73277 µs      0 ns   349444           bitmask_set [38]
+ -------------------------------------------------------
+                      102 ms      0 ns   404288/404288        function_create_call_vector_from_node [35]
+     39   2.04        102 ms      0 ns   404288           function_add_caller_self_time [39]
+ -------------------------------------------------------
+                    88866 µs      0 ns   349439/349439        function_create_call_vector_from_node [35]
+     40   1.77      88866 µs      0 ns   349439           function_add_caller_children_time [40]
+ -------------------------------------------------------
+                      236 ms      0 ns   404293/404294        function_create_call_vector_from_node [35]
+                      647 ns      0 ns        1/404294        function_aggregate_function_times [33]
+     41   4.72        236 ms      0 ns   404294           bitmask_destroy [41]
+ -------------------------------------------------------
+                      286 µs  70339 ns        1/1             main [0]
+     42   0.01        286 µs  70339 ns        1           flatprofile_print [42]
+             21.62  15209 ns      0 ns       67/134           trace_get_total_runtime [43]
+             77.51  54518 ns      0 ns      265/698           strtime [44]
+              0.28    197 ns      0 ns        1/2             function_get_nfunctions [45]
+              0.28    195 ns      0 ns        1/2             function_get_total_calls [46]
+              0.31    220 ns      0 ns        1/2             function_get_all [47]
+ -------------------------------------------------------
+                    15209 ns      0 ns       67/134           flatprofile_print [42]
+                    16280 ns      0 ns       67/134           callgraph_print [49]
+     43   0.00      31489 ns      0 ns      134           trace_get_total_runtime [43]
+ -------------------------------------------------------
+                    54518 ns      0 ns      265/698           flatprofile_print [42]
+                    92365 ns      0 ns      433/698           callgraph_print [49]
+     44   0.00        146 µs      0 ns      698           strtime [44]
+ -------------------------------------------------------
+                      197 ns      0 ns        1/2             flatprofile_print [42]
+                      186 ns      0 ns        1/2             callgraph_print [49]
+     45   0.00        383 ns      0 ns        2           function_get_nfunctions [45]
+ -------------------------------------------------------
+                      195 ns      0 ns        1/2             flatprofile_print [42]
+                      180 ns      0 ns        1/2             callgraph_print [49]
+     46   0.00        375 ns      0 ns        2           function_get_total_calls [46]
+ -------------------------------------------------------
+                      220 ns      0 ns        1/2             flatprofile_print [42]
+                      190 ns      0 ns        1/2             callgraph_print [49]
+     47   0.00        410 ns      0 ns        2           function_get_all [47]
+ -------------------------------------------------------
+                                            285/285           <spontaneous>
+     48   0.00      66202 ns      0 ns      285           cmpfunction [48]
+ -------------------------------------------------------
+                      441 µs    109 µs        1/1             main [0]
+     49   0.01        441 µs    109 µs        1           callgraph_print [49]
+             14.91  16280 ns      0 ns       67/134           trace_get_total_runtime [43]
+             84.58  92365 ns      0 ns      433/698           strtime [44]
+              0.17    186 ns      0 ns        1/2             function_get_nfunctions [45]
+              0.16    180 ns      0 ns        1/2             function_get_total_calls [46]
+              0.17    190 ns      0 ns        1/2             function_get_all [47]
+ -------------------------------------------------------
+                      161 µs   2038 ns        1/1             main [0]
+     50   0.00        161 µs   2038 ns        1           memprofile_print [50]
+             11.48    234 ns      0 ns        1/1             memory_get_total_frees [51]
+              9.22    188 ns      0 ns        1/1             memory_get_total_reallocations [52]
+              9.27    189 ns      0 ns        1/1             memory_get_total_allocations [53]
+             10.75    219 ns      0 ns        1/1             memory_get_maximum_allocated [54]
+              9.67    197 ns      0 ns        1/1             memory_get_total_freed [55]
+              9.72    198 ns      0 ns        1/1             memory_get_total_allocated [56]
+             10.30    210 ns      0 ns        1/1             memory_get_failed_mallocs [57]
+              9.76    199 ns      0 ns        1/1             memory_get_failed_reallocs [58]
+              9.81    200 ns      0 ns        1/1             memory_get_failed_frees [59]
+             10.01    204 ns      0 ns        1/1             blocklist_get [60]
+ -------------------------------------------------------
+                      234 ns      0 ns        1/1             memprofile_print [50]
+     51   0.00        234 ns      0 ns        1           memory_get_total_frees [51]
+ -------------------------------------------------------
+                      188 ns      0 ns        1/1             memprofile_print [50]
+     52   0.00        188 ns      0 ns        1           memory_get_total_reallocations [52]
+ -------------------------------------------------------
+                      189 ns      0 ns        1/1             memprofile_print [50]
+     53   0.00        189 ns      0 ns        1           memory_get_total_allocations [53]
+ -------------------------------------------------------
+                      219 ns      0 ns        1/1             memprofile_print [50]
+     54   0.00        219 ns      0 ns        1           memory_get_maximum_allocated [54]
+ -------------------------------------------------------
+                      197 ns      0 ns        1/1             memprofile_print [50]
+     55   0.00        197 ns      0 ns        1           memory_get_total_freed [55]
+ -------------------------------------------------------
+                      198 ns      0 ns        1/1             memprofile_print [50]
+     56   0.00        198 ns      0 ns        1           memory_get_total_allocated [56]
+ -------------------------------------------------------
+                      210 ns      0 ns        1/1             memprofile_print [50]
+     57   0.00        210 ns      0 ns        1           memory_get_failed_mallocs [57]
+ -------------------------------------------------------
+                      199 ns      0 ns        1/1             memprofile_print [50]
+     58   0.00        199 ns      0 ns        1           memory_get_failed_reallocs [58]
+ -------------------------------------------------------
+                      200 ns      0 ns        1/1             memprofile_print [50]
+     59   0.00        200 ns      0 ns        1           memory_get_failed_frees [59]
+ -------------------------------------------------------
+                      204 ns      0 ns        1/1             memprofile_print [50]
+     60   0.00        204 ns      0 ns        1           blocklist_get [60]
+ -------------------------------------------------------
+                                              1/1             <spontaneous>
+     61   0.00        217 µs      0 ns        1           blocklist_fini [61]
+ -------------------------------------------------------
+                                              1/1             <spontaneous>
+     62   0.00        454 ns      0 ns        1           memory_fini [62]
+ -------------------------------------------------------
+                                              1/1             <spontaneous>
+     63   5.27        134 µs    264 ms        1           function_fini [63]
+            100.00   2617 ns    264 ms        1/404294        free_call_tree [64]
+ -------------------------------------------------------
+                     2617 ns    264 ms        1/404294        function_fini [63]
+                      264 ms      0 ns   404293/404294        free_call_tree [64]
+     64  10.53        264 ms    264 ms   404294           free_call_tree [64]
+            100.00    264 ms      0 ns   404293/404294        free_call_tree [64]
+ -------------------------------------------------------
+                                              1/1             <spontaneous>
+     65   0.48      23958 µs      0 ns        1           addr_fini [65]
+ -------------------------------------------------------
+
+Memory profile:
+
+ total bytes allocated:   113678415
+ total bytes freed:       113678415
+ maximum bytes allocated: 65723072
+
+ calls to malloc:         2372851
+ calls to realloc:        837657
+ calls to free:           2508206
+

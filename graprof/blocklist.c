@@ -25,8 +25,6 @@
 
 #include <grapes/util.h>
 
-#include <stdio.h>
-
 block *blocks = NULL;
 unsigned int nblocks = 0;
 

@@ -1,4 +1,23 @@
 
+2013-10-29  Andreas Grapentin  <andreas@grapentin.org>
+
+	* graprof/addr.c: removed obsolete found parameter in addr_translate
+	* graprof/addr.h: updated inline documentation for addr_translate
+
+	* graprof/blocklist.c: implemented a more efficient method of storing
+	and accessing information to profiled memory blocks
+	* graprof/blocklist.h: likewise
+	* graprof/memory.c: removed block handling functionality (now in
+	blocklist.{c,h})
+	* graprof/memory.h: likewise
+	* graprof/memprofile.c: using new blocklist interface; tweaked output
+	strings for better readability
+
+	* graprof/function.c: removed unused macro USE_OLD_AGGREGATE
+
+	* graprof/graprof.h: fixed bug address variable name; removed obsolete
+	switch in argument handler
+
 2013-10-26  Andreas Grapentin  <andreas@grapentin.org>
 
 	* graprof/bitmask.h: adding width field in bitmask structure
