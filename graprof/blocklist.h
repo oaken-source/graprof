@@ -55,6 +55,6 @@ block *blocklist_get_by_address(uintptr_t address);
 
 block *blocklist_add(uintptr_t address);
 
-void blocklist_relocate(block *b, uintptr_t address);
+int blocklist_relocate(block *b, uintptr_t address);
 
 void blocklist_remove(block *b);

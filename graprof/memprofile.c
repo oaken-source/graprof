@@ -130,24 +130,29 @@ memprofile_print (void)
   unsigned int nblocks = 0;
   block *blocks = blocklist_get(&nblocks);
 
+  unsigned int nblocks_left = 0;
   for (i = 0; i < nblocks; ++i)
     {
-      if (blocks[i].direct_call)
+      if (blocks[i].size)
         {
-          fprintf(graprof_out, " %s:%u:%s: ", blocks[i].file, blocks[i].line, blocks[i].func);
-        }
-      else
-        {
-          fprintf(graprof_out, " 0x%" PRIxPTR ": ", blocks[i].caller);
-          if (blocks[i].func)
-            fprintf(graprof_out, "last parent %s:%u:%s: ", blocks[i].file, blocks[i].line, blocks[i].func);
+          ++nblocks_left;
+          if (blocks[i].direct_call)
+            {
+              fprintf(graprof_out, " %s:%u:%s: ", blocks[i].file, blocks[i].line, blocks[i].func);
+            }
           else
-            fprintf(graprof_out, "last parent unknown: ");
-        }
+            {
+              fprintf(graprof_out, " 0x%" PRIxPTR ": ", blocks[i].caller);
+              if (blocks[i].func)
+                fprintf(graprof_out, "last parent %s:%u:%s: ", blocks[i].file, blocks[i].line, blocks[i].func);
+              else
+                fprintf(graprof_out, "last parent unknown: ");
+            }
 
-      fprintf(graprof_out, "allocated block at 0x%" PRIxPTR " of size %zu that was never freed\n", blocks[i].address, blocks[i].size);
+          fprintf(graprof_out, "allocated block at 0x%" PRIxPTR " of size %zu that was never freed\n", blocks[i].address, blocks[i].size);
+        }
     }
 
-  if (nblocks)
+  if (nblocks_left)
     fprintf(graprof_out, "\n");
 }
