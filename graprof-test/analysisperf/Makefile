@@ -4,7 +4,7 @@ BIN_GP = ../../graprof/.libs/graprof-gp
 ENV = LD_LIBRARY_PATH=../../libgraprof/.libs GRAPROF_OUT=gp.out.
 
 ## the default number of self profiling passes
-all: pass3
+all: pass4
 
 ## delete all trace and profile files
 clean:
