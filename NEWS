@@ -5,6 +5,16 @@ See the end for copying conditions
 Please send graprof bug reports via 
 <http://github.com/andy-graprof/graprof/issues/>.
 
+Version 0.7
+
+* Fixed crashes on concurrent access to allocation tracing functions; fixes #7
+
+* altered profiling output for improved readability
+
+* Notable performance boost in analysis 
+
+
+----------------------------------------------------------------------
 Version 0.6
 
 * Changed invocation style to allow in-place execution of profiling child
