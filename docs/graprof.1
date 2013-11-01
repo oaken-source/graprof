@@ -1,7 +1,7 @@
 .\" Manpage for graprof.
 .\" Contact <andreas@grapentin.org> to suggest improvements or report errors.
 
-.TH man 1 "04 September 2013" "0.5" "graprof man page"
+.TH man 1 "01 November 2013" "0.7" "graprof man page"
 .SH NAME
 graprof \- a profilng and trace analysis tool
 .SH SYNOPSIS
@@ -11,15 +11,15 @@ graprof [-CFgM?V] [-o <file>] [--call-graph] [--flat-profile] [--no-gui]
 .SH DESCRIPTION
 Graprof is a profiling and trace analysis tool for C projects.
 
-The development of graprof has been inspired by the profiling tools gprof and mtrace, and their inability to work together. Based on the most basic profiling methods the GNU toolchain has to offer, graprof aims to provide a low-impact easy to use, high-precision profiling method, as well as a sophisticated trace analysis tool which, sadly, is not yet implemented as of the current 0.5 release.
+The development of graprof has been inspired by the profiling tools gprof and mtrace, and their inability to work together. Based on the most basic profiling methods the GNU toolchain has to offer, graprof aims to provide a low-impact easy to use, high-precision profiling method, as well as a sophisticated trace analysis tool which, sadly, is not yet implemented as of the current 0.7 release.
 
 The information in this file, as well as some additional documentation, can be found on <http://graprof.grapentin.org>.
 
 If you have found a bug, please do not hesitate to report it at graprof's bug tracker found on <http://github.com/andy-graprof/graprof/issues>.
 
-If you have any suggestions, on how graprof can be improved, or want to submit a bug but loathe to create an account at the bug tracking system, just send an email to <andreas@grapentin.org> and I will see what I can do.
+If you have any suggestions, on how graprof can be improved, there are various ways to get in touch with us. Either send an email to <graprof@grapentin.org>, or visit us in #graprof on freenode irc, and we will see to answering your requests.
 
-If you want to support graprof, or its developers (me), have a look at <http://graprof.grapentin.org?page=support>, there are numerous ways to support graprof, from donating to just using it and spreading the word! I would appreciate it :)
+If you want to support graprof, or its developers, have a look at <http://graprof.grapentin.org?page=support>, there are numerous ways to support graprof, from donating to just using it and spreading the word! we would appreciate it :)
 .SH QUICK-START GUIDE
 To instruct your application to write program traces, you have to add
  to CFLAGS:   -finstrument-functions -g
@@ -73,7 +73,7 @@ This option allows specifying a file as input that is used as trace instead of d
 Specify this option to increase the verbosity level of graprof. Specifying this flag multiple times will increase the verbosity even further. At verbosity level 1, the printed profile includes field descriptions.
 .PP
 .SH BUGS
-Graprof is still mainly untested. There is only so much testing a single person can do, so this is mainly where graprof needs support from YOU! If you find any suspicious, reproducable behaviour, please file a bug on <http://github.com/andy-graprof/graprof/issues>. If you want to send suggestions, regarding graprof itself, the website, or just want to chat with me a little, you can also mail <graprof@grapentin.org> and I will answer as soon as I can.
+Graprof is still mainly untested. There is only so much testing we can do, so this is mainly where graprof needs support from YOU! If you find any suspicious, reproducable behaviour, please file a bug on <http://github.com/andy-graprof/graprof/issues>. If you want to send suggestions, regarding graprof itself, the website, or just want to chat with us a little, you can also mail <graprof@grapentin.org> or visit us in #graprof on freenode irc, and we will answer any queries you might have.
 
 Apart from the lack of testing, graprof also has a couple of conceptual limitations, all of which are decribed in detail in the \fBREADME\fR included in the source distribution, and on the website <http://graprof.grapentin.org>
 .SH SEE ALSO
