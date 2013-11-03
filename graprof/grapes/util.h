@@ -62,9 +62,17 @@
 #define RED	"\033[1;31m"
 #define NORMAL	"\033[0m"
 
-/* use warn_unused_result if avilable */
+/* use attribute warn_unused_result if avilable */
 #ifdef __GNUC__
-#  define WR __attribute__((warn_unused_result))
+#  define __WR__ __attribute__((warn_unused_result))
 #else
-#  define WR
+#  define __WR__
 #endif
+
+/* use attribute unused if available */
+#ifdef __GNUC__
+#  define __UU__ __attribute__((unused))
+#else
+#  define __UU__
+#endif
+
