@@ -116,7 +116,7 @@ callgraph_print (void)
         {
           time = f->callees[j].self_time;
           strtime(&time, &prefix);
-          fprintf(graprof_out, "            %6.2f %6llu %ss ", (100.0 * (f->callees[j].self_time + f->callees[j].children_time)) / f->children_time, time, prefix);
+          fprintf(graprof_out, "            %6.2f %6llu %ss ", (100.0 * (f->callees[j].self_time + f->callees[j].children_time)) / (f->self_time + f->children_time), time, prefix);
 
           time = f->callees[j].children_time;
           strtime(&time, &prefix);

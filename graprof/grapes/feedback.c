@@ -18,6 +18,7 @@
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.   *
  ******************************************************************************/
 
+
 #include "feedback.h"
 
 #include <stdarg.h>
@@ -30,7 +31,7 @@
 #include "util.h"
 
 #ifndef _GNU_SOURCE
-extern const char *program_invocation_name;
+  extern const char *program_invocation_name;
 #endif
 
 void 
@@ -38,7 +39,7 @@ feedback_error (int status, const char *format, ...)
 {
   int errnum = errno;
   fprintf(stderr, " [ " RED "*" NORMAL " ] %s: error: ", program_invocation_name);
-
+  
   va_list args;
   va_start(args, format);
   vfprintf(stderr, format, args);
@@ -53,6 +54,25 @@ feedback_error (int status, const char *format, ...)
     exit(status);
 
   errno = 0;
+}
+
+void
+feedback_error_at_line (const char *filename, unsigned int linenum, const char *format, ...)
+{
+  int errnum = errno;
+  fprintf(stderr, "%s:%s:%u: ", program_invocation_name, filename, linenum);
+  
+  va_list args;
+  va_start(args, format);
+  vfprintf(stderr, format, args);
+  va_end(args);
+
+  if(errnum)
+    fprintf(stderr, ": %s", strerror(errnum));
+
+  fprintf(stderr, "\n");
+
+  errno = errnum;
 }
 
 void 
@@ -148,7 +168,8 @@ feedback_progress_finish ()
 
 #define CHUNK 20
 
-char *feedback_readline(const char *prompt)
+char*
+feedback_readline (const char *prompt)
 {
   if(prompt)
     {
@@ -181,4 +202,5 @@ char *feedback_readline(const char *prompt)
 
   return buf;
 }
+
 

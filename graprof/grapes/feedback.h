@@ -18,6 +18,7 @@
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.   *
  ******************************************************************************/
 
+
 #pragma once
 
 /* This is the user feedback module. It contains output control mechanisms and 
@@ -27,8 +28,8 @@
 #include <stdlib.h>
 #include "util.h"
 
-#define feedback_assert(COND, ...) if(!(COND)) feedback_error(EXIT_FAILURE, __VA_ARGS__)
-#define feedback_assert_wrn(COND, ...) if(!(COND)) feedback_warning(__VA_ARGS__)
+#define feedback_assert(COND, ...) do { if(!(COND)) feedback_error(EXIT_FAILURE, __VA_ARGS__); } while (0)
+#define feedback_assert_wrn(COND, ...) do { if(!(COND)) feedback_warning(__VA_ARGS__); } while (0)
 
 /* prints a formatted error string to stderr, prepends the program name and if
  * errno != 0 appends the appropriate string representation. terminates the 
@@ -39,6 +40,17 @@
  *   format, ... - the formatted error string
  */
 void feedback_error(int status, const char *format, ...);
+
+/* prints a formatted error string to stderr similar to the one written by the
+ * GNU extension fuction error_at_line, and is mainly used by the assertion 
+ * macros defined in util.h
+
+ * params:
+ *   filename - the name of the file where the error lies (usually __FILE__)
+ *   linenum - the line index of the error (usually __LINE__)
+ *   format, ... - the formatted error string
+ */
+void feedback_error_at_line(const char *filename, unsigned int linenum, const char *format, ...);
 
 /* prints a formatted warning string to stderr, prepends the program name and
  * if errno != 0 appends the approproate string representation.
@@ -80,3 +92,4 @@ void feedback_progress_finish();
  *   may fail and set errno for the same reasons as malloc and realloc
  */
 char *feedback_readline(const char *prompt);
+
