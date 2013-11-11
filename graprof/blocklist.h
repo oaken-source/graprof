@@ -21,8 +21,12 @@
 
 #pragma once
 
+#include <config.h>
+
 #include <stdint.h>
 #include <stdlib.h>
+
+#include <grapes/util.h>
 
 /* this struct holds all information related to an allocated block of memory
  */
@@ -49,12 +53,51 @@ typedef struct block block;
  * returns:
  *   a pointer to the first element in an array of known memory blocks
  */
-block *blocklist_get(unsigned int *nblocks);
+block *blocklist_get(unsigned int *nblocks) __WR__;
 
-block *blocklist_get_by_address(uintptr_t address);
+/* get a non-invalidated block identified by its unique memory address using 
+ * binary search
+ *
+ * params:
+ *   address - the address of the block to query
+ *
+ * returns:
+ *   a pointer to a block, if found and not invalidated, NULL otherwise
+ */
+block *blocklist_get_by_address(uintptr_t address) __WR__;
 
-block *blocklist_add(uintptr_t address);
+/* add a block to the blocklist, reuse existing memory if appropriate
+ *
+ * params:
+ *   address - the address of the new block
+ *
+ * errors:
+ *   may fail and set errno for the same reasons as realloc
+ *
+ * returns:
+ *   a pointer to the newly inserted, or recycled block structure on success,
+ *   NULL on failure.
+ */
+block *blocklist_add(uintptr_t address) __WR__;
 
-int blocklist_relocate(block *b, uintptr_t address);
+/* update the address of a block of memory, e.g. after realloc, and reflect
+ * this update in the sorted array of blocks
+ *
+ * params:
+ *   b - a pointer to the moved block
+ *   address - the new address
+ *
+ * errors:
+ *   may fail and set errno for the same reasons as realloc
+ *
+ * returns:
+ *   -1 on failure, 0 on success
+ */
+int blocklist_relocate(block *b, uintptr_t address) __WR__;
 
+/* invalidate a block
+ *
+ * params:
+ *   b - the block to invalidate
+ */
 void blocklist_remove(block *b);

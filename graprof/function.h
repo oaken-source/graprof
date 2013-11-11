@@ -25,6 +25,8 @@
 
 #include <stdint.h>
 
+#include <grapes/util.h>
+
 /* this struct represents en entry in the call tree of the profiled process.
  */
 
@@ -100,7 +102,7 @@ typedef struct function function;
  * returns:
  *   -1 on failure, 0 on success
  */
-int function_enter(uintptr_t address, uintptr_t caller, unsigned long long time);
+int function_enter(uintptr_t address, uintptr_t caller, unsigned long long time) __WR__;
 
 /* process an exit event for the last entered function, that has been read
  * from the trace data
@@ -111,7 +113,7 @@ int function_enter(uintptr_t address, uintptr_t caller, unsigned long long time)
  * returns:
  *   0
  */
-int function_exit(unsigned long long time);
+int function_exit(unsigned long long time) __WR__;
 
 /* this function is called at the end of the trace data, representing child
  * termination. The call stack is cleared by exiting all unexited functions,
@@ -123,7 +125,7 @@ int function_exit(unsigned long long time);
  * returns:
  *   0
  */
-int function_exit_all(unsigned long long time);
+int function_exit_all(unsigned long long time) __WR__;
 
 /* get the function represented by a given address
  *
@@ -133,7 +135,7 @@ int function_exit_all(unsigned long long time);
  * returns:
  *   a pointer to the function, if avaiable, NULL otherwise
  */
-function* function_get_by_address(uintptr_t address);
+function* function_get_by_address(uintptr_t address) __WR__;
 
 /* get the list of known functions
  *
@@ -143,7 +145,7 @@ function* function_get_by_address(uintptr_t address);
  * returns:
  *   a pointer to the first of an array of functions
  */
-function* function_get_all(unsigned int *nfunctions);
+function* function_get_all(unsigned int *nfunctions) __WR__;
 
 /* get the function currently on the top of the call stack
  *
@@ -151,8 +153,8 @@ function* function_get_all(unsigned int *nfunctions);
  *   a pointer to the function currently on top of the call stack, if not
  *   empty, NULL otherwise
  */
-function* function_get_current(void);
-
+function* function_get_current(void) __WR__;
+ 
 /* compare a function and an address, translate the address to file name and
  * function name, and return the result of the string comparison of both,
  * analogous to strcmp.
@@ -166,19 +168,19 @@ function* function_get_current(void);
  *   0, if function "=" address
  *   > 0, if function ">" address
  */
-int function_compare(function *f, uintptr_t addr);
+int function_compare(function *f, uintptr_t addr) __WR__;
 
 /* get the total number of function calls
  *
  * returns:
  *   the total number of functions called during profilee runtime
  */
-unsigned long long function_get_total_calls(void);
+unsigned long long function_get_total_calls(void) __WR__;
 
 /* get the number of distinct function in the call tree
  *
  * returns:
  *   the total number of distinct functions
  */
-unsigned int function_get_nfunctions(void);
+unsigned int function_get_nfunctions(void) __WR__;
 

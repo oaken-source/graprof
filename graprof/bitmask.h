@@ -21,6 +21,10 @@
 
 #pragma once
 
+#include <config.h>
+
+#include <grapes/util.h>
+
 /* this struct represents a simple bitmask of variable length
  */
 
@@ -46,7 +50,7 @@ typedef struct bitmask bitmask;
  * returns:
  *   a pointer to a bitmask structure on success, NULL otherwise
  */
-bitmask *bitmask_create(unsigned int width);
+bitmask *bitmask_create(unsigned int width) __WR__;
 
 /* return a pointer to a newly allocated deep copy of a given bitmask. Note
  * that to avoid memory leakage, this structure has to be freed by using
@@ -61,7 +65,7 @@ bitmask *bitmask_create(unsigned int width);
  * returns:
  *   a pointer to a bitmask structure on success, NULL otherwise
  */
-bitmask *bitmask_copy(bitmask *b);
+bitmask *bitmask_copy(bitmask *b) __WR__;
 
 /* destroy a bitmask structure and free all associated memory
  *
@@ -95,4 +99,4 @@ void bitmask_set(bitmask *b, unsigned int i);
  * returns:
  *   a positive integer if the specified bit is set, 0 otherwise
  */
-int bitmask_get(bitmask *b, unsigned int i);
+int bitmask_get(bitmask *b, unsigned int i) __WR__;

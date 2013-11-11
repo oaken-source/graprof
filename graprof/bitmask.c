@@ -49,7 +49,7 @@ bitmask*
 bitmask_copy (bitmask *b)
 {
   bitmask *c = malloc(sizeof(bitmask));
-  assert_inner_ptr(c);
+  assert_inner_ptr(c, "malloc");
 
   c->width = b->width;
   c->nfields = b->nfields;

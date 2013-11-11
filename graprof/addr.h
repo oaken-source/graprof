@@ -25,6 +25,8 @@
 
 #include <stdint.h>
 
+#include <grapes/util.h>
+
 /* initialize the bfd library and read the sybol table from the file specified
  * by <filename>
  *
@@ -60,4 +62,4 @@ int addr_init(const char *filename);
  * returns:
  *   -1 on failure, 0 on success
  */
-int addr_translate(uintptr_t pc, char **function, char **file, unsigned int *line);
+int addr_translate(uintptr_t pc, char **function, char **file, unsigned int *line) __WR__;

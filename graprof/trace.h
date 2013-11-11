@@ -23,6 +23,8 @@
 
 #include <config.h>
 
+#include <grapes/util.h>
+
 /* read trace data from a given file and distribute the contained information
  * to the appropriate submodules.
  *
@@ -36,11 +38,11 @@
  * returns:
  *   -1 on failure, 0 on success
  */
-int trace_read(const char *filename, unsigned char md5_binary[16]);
+int trace_read(const char *filename, unsigned char md5_binary[16]) __WR__;
 
 /* get the total number of ns elapsed from start to end of the program
  *
  * returns:
  *   the time value associated with the end trace symbol
  */
-unsigned long long trace_get_total_runtime(void);
+unsigned long long trace_get_total_runtime(void) __WR__;

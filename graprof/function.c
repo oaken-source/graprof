@@ -93,7 +93,8 @@ function_push (uintptr_t address)
   function_init(f);
 
   f->address = address;
-  addr_translate(f->address, &(f->name), &(f->file), &(f->line));
+  int res = addr_translate(f->address, &(f->name), &(f->file), &(f->line));
+  assert_inner_ptr(!res, "addr_translate");
 
   feedback_assert_wrn(strcmp(f->name, "??"), "unable to identify instrumented function at 0x%" PRIxPTR " - missing debug symbols?", address);
 
