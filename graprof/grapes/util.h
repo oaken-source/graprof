@@ -71,6 +71,13 @@ void feedback_error_at_line(const char *filename, unsigned int linenum, const ch
 #  define __UU__
 #endif
 
+/* and with some semantic sugar */
+#ifdef __GNUC__
+#  define MAY_FAIL __attribute__((warn_unused_result))
+#else
+#  define MAY_FAIL 
+#endif
+
 /* subset of available ANSI color escape codes */
 #define YELLOW	"\033[1;33m"
 #define GREEN	"\033[1;32m"

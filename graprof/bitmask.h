@@ -50,7 +50,7 @@ typedef struct bitmask bitmask;
  * returns:
  *   a pointer to a bitmask structure on success, NULL otherwise
  */
-bitmask *bitmask_create(unsigned int width) __WR__;
+bitmask *bitmask_create(unsigned int width) MAY_FAIL;
 
 /* return a pointer to a newly allocated deep copy of a given bitmask. Note
  * that to avoid memory leakage, this structure has to be freed by using
@@ -65,7 +65,7 @@ bitmask *bitmask_create(unsigned int width) __WR__;
  * returns:
  *   a pointer to a bitmask structure on success, NULL otherwise
  */
-bitmask *bitmask_copy(bitmask *b) __WR__;
+bitmask *bitmask_copy(bitmask *b) MAY_FAIL;
 
 /* destroy a bitmask structure and free all associated memory
  *
@@ -99,4 +99,4 @@ void bitmask_set(bitmask *b, unsigned int i);
  * returns:
  *   a positive integer if the specified bit is set, 0 otherwise
  */
-int bitmask_get(bitmask *b, unsigned int i) __WR__;
+int bitmask_get(bitmask *b, unsigned int i);

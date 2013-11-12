@@ -105,7 +105,7 @@ typedef struct failed_free failed_free;
  * returns:
  *   -1 on failure, 0 on success
  */
-int memory_malloc(size_t size, uintptr_t caller, uintptr_t result, unsigned long long time) __WR__;
+int memory_malloc(size_t size, uintptr_t caller, uintptr_t result, unsigned long long time) MAY_FAIL;
 
 /* process a reallocation event that has been read from the trace data. Events
  * that fulfill certain conditions are relayed as allocation or free events.
@@ -123,7 +123,7 @@ int memory_malloc(size_t size, uintptr_t caller, uintptr_t result, unsigned long
  * returns:
  *   -1 on failure, 0 on success
  */
-int memory_realloc(uintptr_t ptr, size_t size, uintptr_t caller, uintptr_t result, unsigned long long time) __WR__;
+int memory_realloc(uintptr_t ptr, size_t size, uintptr_t caller, uintptr_t result, unsigned long long time) MAY_FAIL;
 
 /* process a free event that has been read from the trace data
  *
@@ -138,49 +138,49 @@ int memory_realloc(uintptr_t ptr, size_t size, uintptr_t caller, uintptr_t resul
  * returns:
  *   -1 on failure, 0 on success
  */
-int memory_free(uintptr_t ptr, uintptr_t caller, unsigned long long time) __WR__;
+int memory_free(uintptr_t ptr, uintptr_t caller, unsigned long long time) MAY_FAIL;
 
 /* get the total number of bytes allocated
  *
  * returns:
  *   the total number of bytes allocated
  */
-unsigned long long memory_get_total_allocated(void) __WR__;
+unsigned long long memory_get_total_allocated(void);
 
 /* get the maximum number of bytes allocated during child runtime
  *
  * returns:
  *   the maximum number of bytes allocated
  */
-unsigned long long memory_get_maximum_allocated(void) __WR__;
+unsigned long long memory_get_maximum_allocated(void);
 
 /* get the total number of bytes freed
  *
  * returns:
  *   the total number of bytes freed
  */
-unsigned long long memory_get_total_freed(void) __WR__;
+unsigned long long memory_get_total_freed(void);
 
 /* get the total number of allocation trace events
  *
  * returns:
  *   the total number of allocations
  */
-unsigned int memory_get_total_allocations(void) __WR__;
+unsigned int memory_get_total_allocations(void);
 
 /* get the total number of reallocation trace events
  *
  * returns:
  *   the total number of reallocation events
  */
-unsigned int memory_get_total_reallocations(void) __WR__;
+unsigned int memory_get_total_reallocations(void);
 
 /* get the total number of deallocation trace events
  *
  * returns:
  *   the total number of deallocation events
  */
-unsigned int memory_get_total_frees(void) __WR__;
+unsigned int memory_get_total_frees(void);
 
 /* get a list of failed allocation events and their meta information
  *
@@ -190,7 +190,7 @@ unsigned int memory_get_total_frees(void) __WR__;
  * returns:
  *   a pointer to the first element in an array of failed allocation events
  */
-failed_malloc* memory_get_failed_mallocs(unsigned int *nfailed_mallocs) __WR__;
+failed_malloc* memory_get_failed_mallocs(unsigned int *nfailed_mallocs);
 
 /* get a list of failed reallocation events and their meta information
  *
@@ -200,7 +200,7 @@ failed_malloc* memory_get_failed_mallocs(unsigned int *nfailed_mallocs) __WR__;
  * returns:
  *   a pointer to the first element in an array of failed reallocation events
  */
-failed_realloc* memory_get_failed_reallocs(unsigned int *nfailed_reallocs) __WR__;
+failed_realloc* memory_get_failed_reallocs(unsigned int *nfailed_reallocs);
 
 /* get a list of failed deallocation events and their meta information
  *
@@ -210,5 +210,5 @@ failed_realloc* memory_get_failed_reallocs(unsigned int *nfailed_reallocs) __WR_
  * returns:
  *   a pointer to the first element in an array of failed deallocation events
  */
-failed_free* memory_get_failed_frees(unsigned int *nfailed_frees) __WR__;
+failed_free* memory_get_failed_frees(unsigned int *nfailed_frees);
 

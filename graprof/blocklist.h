@@ -53,7 +53,7 @@ typedef struct block block;
  * returns:
  *   a pointer to the first element in an array of known memory blocks
  */
-block *blocklist_get(unsigned int *nblocks) __WR__;
+block *blocklist_get(unsigned int *nblocks);
 
 /* get a non-invalidated block identified by its unique memory address using 
  * binary search
@@ -64,7 +64,7 @@ block *blocklist_get(unsigned int *nblocks) __WR__;
  * returns:
  *   a pointer to a block, if found and not invalidated, NULL otherwise
  */
-block *blocklist_get_by_address(uintptr_t address) __WR__;
+block *blocklist_get_by_address(uintptr_t address);
 
 /* add a block to the blocklist, reuse existing memory if appropriate
  *
@@ -78,7 +78,7 @@ block *blocklist_get_by_address(uintptr_t address) __WR__;
  *   a pointer to the newly inserted, or recycled block structure on success,
  *   NULL on failure.
  */
-block *blocklist_add(uintptr_t address) __WR__;
+block *blocklist_add(uintptr_t address) MAY_FAIL;
 
 /* update the address of a block of memory, e.g. after realloc, and reflect
  * this update in the sorted array of blocks
@@ -93,7 +93,7 @@ block *blocklist_add(uintptr_t address) __WR__;
  * returns:
  *   -1 on failure, 0 on success
  */
-int blocklist_relocate(block *b, uintptr_t address) __WR__;
+int blocklist_relocate(block *b, uintptr_t address) MAY_FAIL;
 
 /* invalidate a block
  *

@@ -60,9 +60,7 @@ static int
 trace_exit (void *buf)
 {
   unsigned long long time = buffer_get(unsigned long long);
-
-  int res = function_exit(time);
-  assert_inner(!res, "function_exit");
+  function_exit(time);
 
   return 0;
 }

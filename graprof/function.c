@@ -323,29 +323,21 @@ function_enter (uintptr_t address, uintptr_t caller, unsigned long long time)
   return 0;
 }
 
-int
+void
 function_exit (unsigned long long time)
 {
   if (call_tree_current_node->parent == NULL)
-    {
-      feedback_warning("exit called on empty call stack - skewed trace data?");
-      return 0;
-    }
+    feedback_warning("exit called on empty call stack - skewed trace data?");
 
   call_tree_current_node->exit_time = time;
   call_tree_current_node = call_tree_current_node->parent;
-
-  return 0;
 }
 
 int
 function_exit_all (unsigned long long time)
 {
   while (call_tree_current_node->parent != NULL)
-    {
-      int res = function_exit(time);
-      assert_inner(!res, "function_exit");
-    }
+    function_exit(time);
 
   function_aggregate_call_tree_node_times(&call_tree_root);
   int res = function_aggregate_function_times();

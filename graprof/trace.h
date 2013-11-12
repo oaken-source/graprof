@@ -38,11 +38,11 @@
  * returns:
  *   -1 on failure, 0 on success
  */
-int trace_read(const char *filename, unsigned char md5_binary[16]) __WR__;
+int trace_read(const char *filename, unsigned char md5_binary[16]) MAY_FAIL;
 
 /* get the total number of ns elapsed from start to end of the program
  *
  * returns:
  *   the time value associated with the end trace symbol
  */
-unsigned long long trace_get_total_runtime(void) __WR__;
+unsigned long long trace_get_total_runtime(void);
