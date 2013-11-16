@@ -32,6 +32,7 @@
   #include <CoreServices/CoreServices.h>
 
   static uint64_t start;
+  static mach_timebase_info_data_t timebase;
 #endif
 
 static void
@@ -42,6 +43,7 @@ highrestimer_init ()
     clock_gettime(CLOCK_MONOTONIC_RAW, &start);
   #elif HAVE_MACH_ABSOLUTE_TIME
     start = mach_absolute_time();
+    mach_timebase_info(&timebase);
   #endif
 }
 
@@ -57,7 +59,7 @@ highrestimer_get (void)
     t = ((end.tv_sec - start.tv_sec) * 1000000000) + (end.tv_nsec - start.tv_nsec);
   #elif HAVE_MACH_ABSOLUTE_TIME
     uint64_t elapsed = mach_absolute_time() - start;
-    t = AbsoluteToNanoseconds(&elapsed);
+    t = elapsed * timebase.numer / timebase.denom;
   #endif
 
   return t;
