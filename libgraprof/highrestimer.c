@@ -21,36 +21,44 @@
 
 #include "highrestimer.h"
 
-#include <stdio.h>
-#include <errno.h>
-#include <time.h>
+#if HAVE_CLOCK_GETTIME
+  #include <time.h>
 
-static struct timespec highrestimer_ts;
+  static struct timespec start;
+#elif HAVE_MACH_ABSOLUTE_TIME
+  #include <stdint.h>
+  #include <mach/mach.h>
+  #include <mach/mach_time.h>
+  #include <CoreServices/CoreServices.h>
 
-#define HIGHRESTIMER_CLOCK CLOCK_MONOTONIC_RAW
+  static uint64_t start;
+#endif
 
 static void
 __attribute__((constructor))
 highrestimer_init ()
 {
-  int res = clock_gettime(HIGHRESTIMER_CLOCK, &highrestimer_ts);
-  if (res)
-    {
-      errno = 0;
-      perror("libgraprof: selected clock_id is not valid. Time measurement will not work.");
-    }
+  #if HAVE_CLOCK_GETTIME
+    clock_gettime(CLOCK_MONOTONIC_RAW, &start);
+  #elif HAVE_MACH_ABSOLUTE_TIME
+    start = mach_absolute_time();
+  #endif
 }
 
 unsigned long long
 highrestimer_get (void)
 {
-  struct timespec tmp_ts;
+  unsigned long long t = 0;
 
-  clock_gettime(HIGHRESTIMER_CLOCK, &tmp_ts);
-
-  unsigned long long t = tmp_ts.tv_sec - highrestimer_ts.tv_sec;
-  t *= 1000000000;
-  t += tmp_ts.tv_nsec - highrestimer_ts.tv_nsec;
+  #if HAVE_CLOCK_GETTIME
+    struct timespec end;
+    clock_gettime(CLOCK_MONOTONIC_RAW, &end);
+  
+    t = ((end.tv_sec - start.tv_sec) * 1000000000) + (end.tv_nsec - start.tv_nsec);
+  #elif HAVE_MACH_ABSOLUTE_TIME
+    uint64_t elapsed = mach_absolute_time() - start;
+    t = AbsoluteToNanoseconds(&elapsed);
+  #endif
 
   return t;
 }
