@@ -22,7 +22,6 @@
 #pragma once
 
 #include <errno.h>
-#include <error.h>
 #include <stdlib.h>
 
 /* sanitize common macro definitions */
