@@ -1,4 +1,18 @@
 
+2013-11-18  Andreas Grapentin  <andreas@grapentin.org>
+
+	* grapes/feedback.c: moved from graprof/grapes/
+	* grapes/feedback.h: likewise
+	* grapes/util.h: likewise
+	* grapes/file.c: added
+	* grapes/file.h: added
+
+	* graprof/graprof.c: using proper md5 mechanism based on config.h
+	* graprof/trace.c: likewise
+	* libgraprof/libgraprof.c: likewise
+
+	* libgraprof/libgraprof.c: improved error handling and feedback
+
 2013-10-29  Andreas Grapentin  <andreas@grapentin.org>
 
 	* graprof/addr.c: removed obsolete found parameter in addr_translate
