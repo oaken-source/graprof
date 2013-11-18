@@ -23,9 +23,29 @@
 
 #include "util.h"
 
-#define MD5_DIGEST_LENGTH 16
+#include <stdlib.h>
 
-void md5_digest (const char *data, unsigned int length, unsigned char *result);
+/* maps a file read-only to a buffer via mmap, use file_unmap to free
+ *
+ * params:
+ *   filename - the path to the file to map
+ *   length - a pointer where the size of the allocation is stored in
+ *
+ * errors:
+ *   may fail and set errno for the same reasons as open, fstat and mmap
+ *
+ * returns:
+ *   a pointer to the mapped area, if successful, NULL otherwise
+ */
+void *file_map(const char *filename, size_t *length) MAY_FAIL;
 
-int md5_digest_file (const char *filename, unsigned char *result) MAY_FAIL;
-
+/* unmaps a memory area previously mapped with file_map
+ *
+ * params:
+ *   data - the pointer reurned by file_map
+ *   length - the length returned by file_map
+ *
+ * errors:
+ *   shit hits the fan if you pass anything except values returned by file_map
+ */
+void file_unmap(void *data, size_t length);

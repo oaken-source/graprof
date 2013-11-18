@@ -28,7 +28,13 @@
 #include "memprofile.h"
 
 #include <grapes/feedback.h>
-#include <grapes/md5.h>
+#include <grapes/file.h>
+
+#if HAVE_OPENSSL_MD5
+  #include <openssl/md5.h>
+#elif HAVE_BSD_MD5
+  #include <bsd/md5.h>
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -82,10 +88,26 @@ main (int argc, char *argv[])
         }
     }
 
-  // get md5 hash from child binary
-  unsigned char md5_binary[MD5_DIGEST_LENGTH] = { 0 };
-  res = md5_digest_file(args.binary_invocation[0], md5_binary);
-  feedback_assert_wrn(!res, "%s: digest verification", args.binary_invocation[0]);
+  unsigned char md5_binary[DIGEST_LENGTH] = { 0 };
+
+  size_t length;
+  void *data;
+
+  data = file_map(args.binary_invocation[0], &length);
+  if (!data)
+    {
+      feedback_warning("%s: digest verification failed", args.binary_invocation[0]);
+    }
+  else
+    {
+      #if HAVE_OPENSSL_MD5
+        MD5(data, length, md5_binary);
+      #elif HAVE_BSD_MD5
+        MD5Data(data, length, (void*)md5_binary);
+      #endif
+    }
+
+  file_unmap(data, length);
 
   free(args.binary_invocation);
 

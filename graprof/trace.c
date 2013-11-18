@@ -28,9 +28,13 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <openssl/md5.h>
-
 #include <grapes/feedback.h>
+
+#if HAVE_OPENSSL_MD5
+  #include <openssl/md5.h>
+#elif HAVE_BSD_MD5
+  #include <bsd/md5.h>
+#endif
 
 #define buffer_get(T) *((T*)(buf)); buf += sizeof(T)
 
@@ -126,15 +130,16 @@ trace_read (const char *filename, unsigned char md5_binary[16])
   FILE *trace = fopen(filename, "r");
   assert_inner(trace, "fopen");
 
-  unsigned char md5[MD5_DIGEST_LENGTH] = { 0 };
+  unsigned char md5[DIGEST_LENGTH] = { 0 };
   void *trace_buf = NULL;
   unsigned long trace_bufsize = 0;
 
-  size_t n = fread(md5, 1, MD5_DIGEST_LENGTH, trace);
-  assert_set_errno(ENOTSUP, n == MD5_DIGEST_LENGTH, "fread");
+  size_t n = fread(md5, 1, DIGEST_LENGTH, trace);
+  assert_set_errno(ENOTSUP, n == DIGEST_LENGTH, "fread");
 
-  unsigned char md5_zero[MD5_DIGEST_LENGTH] = { 0 };
-  feedback_assert(!memcmp(md5, md5_zero, MD5_DIGEST_LENGTH) || !memcmp(md5, md5_binary, MD5_DIGEST_LENGTH), "digest verification failed. This trace was not generated with this executable!"); 
+  unsigned char md5_zero[DIGEST_LENGTH] = { 0 };
+
+  feedback_assert(!memcmp(md5, md5_zero, DIGEST_LENGTH) || !memcmp(md5, md5_binary, DIGEST_LENGTH), "digest verification failed. This trace was not generated with this executable!"); 
 
   n = fread(&trace_bufsize, sizeof(unsigned long), 1, trace);
   assert_set_errno(ENOTSUP, n == 1, "fread");

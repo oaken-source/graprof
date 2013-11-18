@@ -26,7 +26,13 @@
 #include <stdlib.h>
 
 #include <grapes/feedback.h>
-#include <grapes/md5.h>
+#include <grapes/file.h>
+
+#if HAVE_OPENSSL_MD5
+  #include <openssl/md5.h>
+#elif HAVE_BSD_MD5
+  #include <bsd/md5.h>
+#endif
 
 #include "highrestimer.h"
 #include "mallhooks.h"
@@ -74,13 +80,30 @@ libgraprof_fini ()
     buffer_append(char, 'E');
     buffer_append(unsigned long long, highrestimer_get());
 
-    unsigned char md5[MD5_DIGEST_LENGTH] = { 0 };
-    int res = md5_digest_file("/proc/self/exe", md5);
-    feedback_assert_wrn(!res, "libgraprof: /proc/self/exe");
+    unsigned char md5[DIGEST_LENGTH] = { 0 };
+
+    size_t length;
+    void *data;
+
+    data = file_map("/proc/self/exe", &length);
+    if (!data)
+      {
+        feedback_warning("libgraprof: /proc/self/exe");
+      }
+    else
+      {
+        #if HAVE_OPENSSL_MD5
+          MD5(data, length, md5);
+        #elif HAVE_BSD_MD5
+          MD5Data(data, length, (void*)md5);
+        #endif
+      }
+
+    file_unmap(data, length);
 
     size_t n;
-    n = fwrite(md5, 1, MD5_DIGEST_LENGTH, libgraprof_out);
-    feedback_assert_wrn(n == MD5_DIGEST_LENGTH, "libgraprof: %s", libgraprof_filename);
+    n = fwrite(md5, 1, DIGEST_LENGTH, libgraprof_out);
+    feedback_assert_wrn(n == DIGEST_LENGTH, "libgraprof: %s", libgraprof_filename);
 
     n = fwrite(&libgraprof_bufsize, sizeof(unsigned long), 1, libgraprof_out);
     feedback_assert_wrn(n == 1, "libgraprof: %s", libgraprof_filename);
