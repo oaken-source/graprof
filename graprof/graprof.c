@@ -28,13 +28,12 @@
 #include "memprofile.h"
 
 #include <grapes/feedback.h>
+#include <grapes/md5.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/wait.h>
-
-#include <openssl/md5.h>
 
 FILE *graprof_out = NULL;
 int graprof_verbosity = 0;
@@ -85,26 +84,8 @@ main (int argc, char *argv[])
 
   // get md5 hash from child binary
   unsigned char md5_binary[MD5_DIGEST_LENGTH] = { 0 };
-
-  FILE *binary = fopen(args.binary_invocation[0], "r");
-  if (!binary)
-    {
-      feedback_warning("%s: unable to open for digest verification", args.binary_invocation[0]);
-    }
-  else
-    {
-      MD5_CTX c;
-      MD5_Init(&c);
-
-      unsigned char buf[64 * 1024];
-  
-      size_t n;
-      while ((n = fread(buf, 1, 64 * 1024, binary)))
-        MD5_Update(&c, buf, n);
-      MD5_Final(md5_binary, &c);
-       
-      fclose(binary);
-    }
+  res = md5_digest_file(args.binary_invocation[0], md5_binary);
+  feedback_assert_wrn(!res, "%s: digest verification", args.binary_invocation[0]);
 
   free(args.binary_invocation);
 

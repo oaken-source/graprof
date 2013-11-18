@@ -25,7 +25,8 @@
 #include <errno.h>
 #include <stdlib.h>
 
-#include <openssl/md5.h>
+#include <grapes/feedback.h>
+#include <grapes/md5.h>
 
 #include "highrestimer.h"
 #include "mallhooks.h"
@@ -35,6 +36,7 @@
 FILE *libgraprof_out = NULL;
 void *libgraprof_buf = NULL;
 unsigned long libgraprof_bufsize = 0;
+char *libgraprof_filename = NULL;
 
 static void
 __attribute__ ((constructor))
@@ -42,11 +44,11 @@ libgraprof_init ()
 {
   int errsv = errno;
 
-  char *filename = getenv("GRAPROF_OUT");
+  libgraprof_filename = getenv("GRAPROF_OUT");
 
-  if (filename)
+  if (libgraprof_filename)
     {
-      libgraprof_out = fopen(filename, "w");
+      libgraprof_out = fopen(libgraprof_filename, "w");
     }
 
   if (libgraprof_out)
@@ -73,38 +75,18 @@ libgraprof_fini ()
     buffer_append(unsigned long long, highrestimer_get());
 
     unsigned char md5[MD5_DIGEST_LENGTH] = { 0 };
-    FILE *binary = fopen("/proc/self/exe", "r");
-    if (!binary) 
-      {
-        perror("libgraprof: warning: binary identification impossible: /proc/self/exe");
-      }
-    else
-      {
-        MD5_CTX c;
-        MD5_Init(&c);
-    
-        unsigned char buf[64 * 1024];
-        
-        size_t n;
-        while ((n = fread(buf, 1, 64 * 1024, binary)))
-          MD5_Update(&c, buf, n);
-        MD5_Final(md5, &c);
-       
-        fclose(binary);
-      }
+    int res = md5_digest_file("/proc/self/exe", md5);
+    feedback_assert_wrn(!res, "libgraprof: /proc/self/exe");
 
-    size_t res;
-    res = fwrite(md5, 1, MD5_DIGEST_LENGTH, libgraprof_out);
-    if (res != MD5_DIGEST_LENGTH)
-      perror("libgraprof: error: writing trace file");
+    size_t n;
+    n = fwrite(md5, 1, MD5_DIGEST_LENGTH, libgraprof_out);
+    feedback_assert_wrn(n == MD5_DIGEST_LENGTH, "libgraprof: %s", libgraprof_filename);
 
-    res = fwrite(&libgraprof_bufsize, sizeof(unsigned long), 1, libgraprof_out);
-    if (res != 1)
-      perror("libgraprof: error: writing trace file");
+    n = fwrite(&libgraprof_bufsize, sizeof(unsigned long), 1, libgraprof_out);
+    feedback_assert_wrn(n == 1, "libgraprof: %s", libgraprof_filename);
 
-    res = fwrite(libgraprof_buf, 1, libgraprof_bufsize, libgraprof_out);
-    if (res != libgraprof_bufsize)
-      perror("libgraprof: error: writing trace file");
+    n = fwrite(libgraprof_buf, 1, libgraprof_bufsize, libgraprof_out);
+    feedback_assert_wrn(n == libgraprof_bufsize, "libgraprof: %s", libgraprof_filename);
 
     fclose(libgraprof_out);
   }

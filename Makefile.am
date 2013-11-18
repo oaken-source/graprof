@@ -3,4 +3,4 @@
 
 ACLOCAL_AMFLAGS = -I m4
 
-SUBDIRS = libgraprof graprof docs
+SUBDIRS = grapes libgraprof graprof docs

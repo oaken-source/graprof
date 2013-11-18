@@ -28,6 +28,7 @@ LT_INIT
 
 AC_CONFIG_FILES([
   Makefile
+  grapes/Makefile
   libgraprof/Makefile
   graprof/Makefile
   docs/Makefile])
