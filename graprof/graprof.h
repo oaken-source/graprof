@@ -25,11 +25,7 @@
 #include <grapes/util.h>
 #include <grapes/feedback.h>
 
-#if HAVE_ARGP_H
-  #include <argp.h>
-#else
-  #pragma error no argp.h available, and no altenratives implemented
-#endif
+#include <argp.h>
 
 #include <stdlib.h>
 

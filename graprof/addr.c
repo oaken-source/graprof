@@ -21,11 +21,7 @@
 
 #include "addr.h"
 
-#if HAVE_LIBBFD
-  #include <bfd.h>
-#else
-  #pragma error no libbfd found.
-#endif
+#include <bfd.h>
 
 #include <stdlib.h>
 #include <string.h>
