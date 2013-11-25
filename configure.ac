@@ -1,7 +1,7 @@
 
 dnl process this file with autoconf to produce configure script
 
-AC_PREREQ([2.69])
+AC_PREREQ([2.68])
 AC_INIT([graprof], [0.7], [graprof@grapentin.org])
 AC_CONFIG_SRCDIR([libgraprof/libgraprof.h])
 AC_CONFIG_HEADERS([config.h])
