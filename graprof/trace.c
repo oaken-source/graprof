@@ -187,7 +187,7 @@ trace_read (const char *filename, unsigned char md5_binary[16])
           assert_set_errno(ENOTSUP, trace_bufsize == trace_index, "END not at end");
           break;
         default:
-          assert_set_errno(ENOTSUP, 0, "sign switch");
+          assert_set_errno(ENOTSUP, 0, "unrerognized entry signs character '%c'", sign);
           break;
         }
     }
