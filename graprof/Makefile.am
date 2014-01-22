@@ -5,7 +5,7 @@ bin_PROGRAMS = graprof
 
 graprof_SOURCES = graprof.c graprof.h trace.c trace.h addr.c addr.h function.c function.h memory.c memory.h flatprofile.c flatprofile.h callgraph.c callgraph.h strtime.c strtime.h memprofile.c memprofile.h bitmask.c bitmask.h blocklist.c blocklist.h
 
-graprof_LDADD = ${LIBS_GRAPROF} ${top_srcdir}/grapes/libgrapes.la
+graprof_LDADD = ${LIBS_GRAPROF} ${top_builddir}/grapes/libgrapes.la
 
 if TESTBUILD
 

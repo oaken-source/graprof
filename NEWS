@@ -1,10 +1,18 @@
-graprof NEWS -- history of user-visible changes. 2013-08-23
-Copyright (C) 2013 Andreas Grapentin
+graprof NEWS -- history of user-visible changes. 2014-01-22
+Copyright (C) 2013 - 2014 Andreas Grapentin
 See the end for copying conditions
 
 Please send graprof bug reports via 
 <http://github.com/andy-graprof/graprof/issues/>.
 
+Version 0.7.1
+
+* fixed a number of small dormant bugs
+
+* improved portability and configure scripts
+
+
+----------------------------------------------------------------------
 Version 0.7
 
 * Fixed crashes on concurrent access to allocation tracing functions; fixes #7
@@ -51,7 +59,7 @@ Version 0.5
 ----------------------------------------------------------------------
 Copyright information:
 
-Copyright (C) 2013 Andreas Grapentin
+Copyright (C) 2013 - 2014 Andreas Grapentin
 
    Permission is granted to anyone to make or distribute verbatim copies
    of this document as received, in any medium, provided that the
