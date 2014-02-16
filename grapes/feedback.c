@@ -19,6 +19,10 @@
  ******************************************************************************/
 
 
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
+
 #include "feedback.h"
 
 #include <stdarg.h>
@@ -34,11 +38,60 @@
   extern const char *program_invocation_name;
 #endif
 
+void
+feedback_error_at_line (const char *filename, unsigned int linenum, const char *format, ...)
+{
+  int errnum = errno;
+    fprintf(stderr, "%s:%s:%u: ", program_invocation_name, filename, linenum);
+  
+  va_list args;
+  va_start(args, format);
+  vfprintf(stderr, format, args);
+  va_end(args);
+
+  if(errnum)
+    fprintf(stderr, ": %s", strerror(errnum));
+
+  fprintf(stderr, "\n");
+
+  errno = errnum;
+}
+
+static char *feedback_error_prefix = NULL;
+
+int
+feedback_set_error_prefix (const char *format, ...)
+{
+  free(feedback_error_prefix);
+
+  if (format == NULL)
+    {
+      feedback_error_prefix = NULL;
+      return 0;
+    }
+
+  va_list args;
+  va_start(args, format);
+  int length = vsnprintf(NULL, 0, format, args);
+  va_end(args);
+
+  feedback_error_prefix = malloc(sizeof(*feedback_error_prefix) * (length + 1));
+  assert_inner(feedback_error_prefix, "malloc");
+
+  va_start(args, format);
+  vsnprintf(feedback_error_prefix, length + 1, format, args);
+  va_end(args);
+
+  return 0;
+}
+
 void 
 feedback_error (int status, const char *format, ...)
 {
   int errnum = errno;
-  fprintf(stderr, " [ " RED "*" NORMAL " ] %s: error: ", program_invocation_name);
+
+  if (feedback_error_prefix)
+    fprintf(stderr, "%s", feedback_error_prefix);
   
   va_list args;
   va_start(args, format);
@@ -56,30 +109,41 @@ feedback_error (int status, const char *format, ...)
   errno = 0;
 }
 
-void
-feedback_error_at_line (const char *filename, unsigned int linenum, const char *format, ...)
+static char *feedback_warning_prefix = NULL;
+
+int
+feedback_set_warning_prefix (const char *format, ...)
 {
-  int errnum = errno;
-  fprintf(stderr, "%s:%s:%u: ", program_invocation_name, filename, linenum);
-  
+  free(feedback_warning_prefix);
+
+  if (format == NULL)
+    {
+      feedback_warning_prefix = NULL;
+      return 0;
+    }
+
   va_list args;
   va_start(args, format);
-  vfprintf(stderr, format, args);
+  int length = vsnprintf(NULL, 0, format, args);
   va_end(args);
 
-  if(errnum)
-    fprintf(stderr, ": %s", strerror(errnum));
+  feedback_warning_prefix = malloc(sizeof(*feedback_warning_prefix) * (length + 1));
+  assert_inner(feedback_warning_prefix, "malloc");
 
-  fprintf(stderr, "\n");
+  va_start(args, format);
+  vsnprintf(feedback_warning_prefix, length + 1, format, args);
+  va_end(args);
 
-  errno = errnum;
+  return 0;
 }
 
 void 
 feedback_warning (const char *format, ...)
 {	
   int errnum = errno;
-  fprintf(stderr, " [ " YELLOW "*" NORMAL " ] %s: warning: ", program_invocation_name);
+
+  if (feedback_warning_prefix)
+    fprintf(stderr, "%s", feedback_warning_prefix);
 
   va_list args;
   va_start(args, format);
