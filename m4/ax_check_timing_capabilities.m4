@@ -12,8 +12,8 @@ AC_DEFUN([AX_CHECK_TIMING_CAPABILITIES], [
       AC_MSG_ERROR([No known timing mechanism found! Please file a bug containing your system specs!])
     ])
   ])
-  LIBS_LIBGRAPROF=${LIBS} ${LIBS_LIBGRAPROF}
-  LIBS=${LIBS_TMP}
+  LIBS_LIBGRAPROF="${LIBS} ${LIBS_LIBGRAPROF}"
+  LIBS="${LIBS_TMP}"
   AC_SUBST(LIBS_LIBGRAPROF)
 ])
 

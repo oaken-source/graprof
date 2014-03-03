@@ -162,7 +162,7 @@ main (int argc, char *argv[])
   if (!(args.tasks & GRAPROF_NO_GUI))
     {
       if (HAVE_GTK)
-        traceview_main();
+        traceview_main(argc, argv);
       else
         feedback_error(EXIT_FAILURE, "tracing gui disabled at compile-time");
     }

@@ -21,8 +21,22 @@
 
 #include "traceview.h"
 
-void
-traceview_main (void)
-{
+#if HAVE_GTK
+#  include <gtk/gtk.h>
+#endif
 
+void
+traceview_main (int argc, char *argv[])
+{
+  GtkWidget *w;
+  gtk_init(&argc, &argv);
+
+  w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+
+  gtk_signal_connect(GTK_OBJECT(w), "destroy",
+                     GTK_SIGNAL_FUNC(gtk_main_quit), NULL);
+
+  gtk_widget_show(w);
+
+  gtk_main();
 }

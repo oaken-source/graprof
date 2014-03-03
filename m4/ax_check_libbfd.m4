@@ -7,7 +7,9 @@ AC_DEFUN([AX_CHECK_LIBBFD], [
     AC_DEFINE_UNQUOTED([HAVE_LIBBFD], [0], [Define to 1, if you have bfd_openr function])
     AC_MSG_ERROR([no libbfd with bfd_openr found])
   ])
-  LIBS_GRAPROF=${LIBS} ${LIBS_GRAPROF}
-  LIBS=${LIBS_TMP}
+  AC_MSG_WARN([LIBCHECK: libs is '${LIBS_GRAPROF}'])
+  LIBS_GRAPROF="${LIBS} ${LIBS_GRAPROF}"
+  AC_MSG_WARN([LIBCHECK: libs is '${LIBS_GRAPROF}'])
+  LIBS="${LIBS_TMP}"
   AC_SUBST(LIBS_GRAPROF)
 ])
