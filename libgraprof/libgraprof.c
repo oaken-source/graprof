@@ -99,7 +99,8 @@ libgraprof_fini ()
         #endif
       }
 
-    file_unmap(data, length);
+    int res = file_unmap(data, length);
+    feedback_assert_wrn(!res, "libgraprof: %s", libgraprof_filename);
 
     size_t n;
     n = fwrite(md5, 1, DIGEST_LENGTH, libgraprof_out);

@@ -26,6 +26,7 @@
 #include "flatprofile.h"
 #include "callgraph.h"
 #include "memprofile.h"
+#include "traceview.h"
 
 #include <grapes/feedback.h>
 #include <grapes/file.h>
@@ -47,6 +48,11 @@ int graprof_verbosity = 0;
 int
 main (int argc, char *argv[])
 {
+  int res = feedback_set_error_prefix(" [ " RED "*" NORMAL " ] graprof: ");
+  feedback_assert(!res, "feedback_set_error_prefix");
+  res = feedback_set_warning_prefix(" [ " YELLOW "*" NORMAL " ] graprof: ");
+  feedback_assert(!res, "feedback_set_warning_prefix");
+
   struct arguments args = { NULL, NULL, 0, NULL };
   argp_parse (&argp, argc, argv, ARGP_IN_ORDER, 0, &args);
 
@@ -74,7 +80,7 @@ main (int argc, char *argv[])
     }
 
   // read debug symbols from child binary
-  int res = addr_init(args.binary_invocation[0]);
+  res = addr_init(args.binary_invocation[0]);
   if (res)
     {
       if (errno == ENOTSUP)
@@ -107,7 +113,8 @@ main (int argc, char *argv[])
       #endif
     }
 
-  file_unmap(data, length);
+  res = file_unmap(data, length);
+  feedback_assert(!res, "%s: file unmap failed", args.binary_invocation[0]);
 
   free(args.binary_invocation);
 
@@ -154,8 +161,10 @@ main (int argc, char *argv[])
 
   if (!(args.tasks & GRAPROF_NO_GUI))
     {
-      errno = ENOSYS;
-      feedback_assert_wrn(0, "tracing gui");
+      if (HAVE_GTK)
+        traceview_main();
+      else
+        feedback_error(EXIT_FAILURE, "tracing gui disabled at compile-time");
     }
 
   return 0;

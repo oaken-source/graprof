@@ -25,21 +25,13 @@
  * a progress meter as well as some convenience error messaging macros.
  */
 
-#include <stdlib.h>
 #include "util.h"
+
+#include <stdlib.h>
 
 #define feedback_assert(COND, ...) do { if(!(COND)) feedback_error(EXIT_FAILURE, __VA_ARGS__); } while (0)
 #define feedback_assert_wrn(COND, ...) do { if(!(COND)) feedback_warning(__VA_ARGS__); } while (0)
 
-/* prints a formatted error string to stderr, prepends the program name and if
- * errno != 0 appends the appropriate string representation. terminates the 
- * program if status != EXIT_SUCCESS
- *
- * params:
- *   status - the parameter to exit() if != EXIT_SUCCESS
- *   format, ... - the formatted error string
- */
-void feedback_error(int status, const char *format, ...);
 
 /* prints a formatted error string to stderr similar to the one written by the
  * GNU extension fuction error_at_line, and is mainly used by the assertion 
@@ -52,8 +44,45 @@ void feedback_error(int status, const char *format, ...);
  */
 void feedback_error_at_line(const char *filename, unsigned int linenum, const char *format, ...);
 
-/* prints a formatted warning string to stderr, prepends the program name and
- * if errno != 0 appends the approproate string representation.
+/* set a prefix for pretty-printing erorrs passed to feedback_error
+ *
+ * params:
+ *   format, ... - the formatted error prefix
+ *
+ * errors:
+ *   may fail and set errno for the same reasons as malloc
+ *
+ * returns:
+ *   -1 on failure, 0 on success
+ */
+int feedback_set_error_prefix(const char *format, ...) MAY_FAIL;
+
+/* prints a formatted error string to stderr, prepends the string configured 
+ * by feedback_set_error_prefix and if errno != 0 appends the appropriate 
+ * string representation. terminates the program if status != EXIT_SUCCESS
+ *
+ * params:
+ *   status - the parameter to exit() if != EXIT_SUCCESS
+ *   format, ... - the formatted error string
+ */
+void feedback_error(int status, const char *format, ...);
+
+/* set a prefix for pretty-printing warnings passed to feedback_warning
+ *
+ * params:
+ *   format, ... - the formatted warning prefix
+ *
+ * errors:
+ *   may fail and set errno for the same reasons as malloc
+ *
+ * returns:
+ *   -1 on failure, 0 on success
+ */
+int feedback_set_warning_prefix(const char *format, ...) MAY_FAIL;
+
+/* prints a formatted warning string to stderr, prepends the string configured
+ * by feedback_set_warning_prefix and if errno != 0 appends the approproate 
+ * string representation.
  *
  * params:
  *   format, ... - the formatted warning string

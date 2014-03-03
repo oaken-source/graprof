@@ -21,11 +21,19 @@
 
 #pragma once
 
+/* This is a convenience wrapper for the frequently used but combersome mmap
+ * function.
+ */
+
 #include "util.h"
 
 #include <stdlib.h>
 
-/* maps a file read-only to a buffer via mmap, use file_unmap to free
+/* maps a file read-only to a buffer via mmap, use file_unmap to free; the
+ * behaviour of this function diverges from the original mmap functionality
+ * in that it succeeds to map empty files (with length zero) and returns a
+ * pointer to an immutable const char* pointing to an empty string. It is safe
+ * to pass this returned pointer to file_unmap.
  *
  * params:
  *   filename - the path to the file to map
@@ -46,6 +54,9 @@ void *file_map(const char *filename, size_t *length) MAY_FAIL;
  *   length - the length returned by file_map
  *
  * errors:
- *   shit hits the fan if you pass anything except values returned by file_map
+ *   may fail and set errno for the same reasons as munmap
+ *
+ * returns:
+ *   -1 on failure, 0 on success
  */
-void file_unmap(void *data, size_t length);
+int file_unmap(void *data, size_t length) MAY_FAIL;

@@ -1,4 +1,15 @@
 
+2014-03-03  Andreas Grapentin  <andreas@grapentin.org>
+
+	* grapes/feedback.c: updated from upstream
+	* grapes/feedback.h: likewise
+	* grapes/file.c: likewise
+	* grapes/file.h: likewise
+	* graprof/graprof.c: added error and warning prefix setup; added some
+	more error handling; added call to traceview_main
+	* graprof/traceview.c: added
+	* graprof/traceview.h: added
+
 2013-11-18  Andreas Grapentin  <andreas@grapentin.org>
 
 	* grapes/feedback.c: moved from graprof/grapes/
