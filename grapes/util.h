@@ -61,20 +61,13 @@ void feedback_error_at_line(const char *filename, unsigned int linenum, const ch
 #  define assert_set_errno_ptr(COND, ERRNUM, ...) do { if(!(COND)) { errno = ERRNUM; return NULL; } } while (0)
 #endif
 
-/* convenience shortcuts for attributes */
-#ifdef __GNUC__
-#  define __WR__ __attribute__((warn_unused_result))
-#  define __UU__ __attribute__((unused))
-#else
-#  define __WR__
-#  define __UU__
-#endif
-
-/* and with some semantic sugar */
+/* convenience attribute shortcuts with semantic sugar */
 #ifdef __GNUC__
 #  define MAY_FAIL __attribute__((warn_unused_result))
+#  define UNUSED   __attribute__((unused))
 #else
-#  define MAY_FAIL 
+#  define MAY_FAIL
+#  define UNUSED
 #endif
 
 /* subset of available ANSI color escape codes */

@@ -32,9 +32,9 @@
 #include <grapes/file.h>
 
 #if HAVE_OPENSSL_MD5
-  #include <openssl/md5.h>
+#  include <openssl/md5.h>
 #elif HAVE_BSD_MD5
-  #include <bsd/md5.h>
+#  include <bsd/md5.h>
 #endif
 
 #include <stdio.h>
@@ -160,12 +160,7 @@ main (int argc, char *argv[])
     fclose(graprof_out);
 
   if (!(args.tasks & GRAPROF_NO_GUI))
-    {
-      if (HAVE_GTK)
-        traceview_main(argc, argv);
-      else
-        feedback_error(EXIT_FAILURE, "tracing gui disabled at compile-time");
-    }
+    traceview_main();
 
   return 0;
 }

@@ -21,22 +21,12 @@
 
 #include "traceview.h"
 
-#if HAVE_GTK
-#  include <gtk/gtk.h>
-#endif
+#include <grapes/feedback.h>
 
 void
-traceview_main (int argc, char *argv[])
+traceview_main (void)
 {
-  GtkWidget *w;
-  gtk_init(&argc, &argv);
-
-  w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-
-  gtk_signal_connect(GTK_OBJECT(w), "destroy",
-                     GTK_SIGNAL_FUNC(gtk_main_quit), NULL);
-
-  gtk_widget_show(w);
-
-  gtk_main();
+  errno = ENOSYS;
+  feedback_error(EXIT_FAILURE, "tracing gui");
 }
+

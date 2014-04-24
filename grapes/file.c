@@ -33,6 +33,8 @@
 void*
 file_map (const char *filename, size_t *length)
 {
+  *length = 0;
+
   int fd = open(filename, O_RDONLY);
   assert_inner_ptr(fd != -1, "%s: open", filename);
 

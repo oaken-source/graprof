@@ -13,7 +13,7 @@ if TESTBUILD
 noinst_PROGRAMS = graprof-gp
 
 graprof_gp_SOURCES = ${graprof_SOURCES}
-graprof_gp_LDADD = ${graprof_LDADD} ../libgraprof/libgraprof.la
+graprof_gp_LDADD = ${LIBS_GRAPROF} ${top_builddir}/grapes/libgrapes-gp.la ../libgraprof/libgraprof.la
 graprof_gp_CFLAGS = ${graprof_CFLAGS} -finstrument-functions -g
 
 endif ## TESTBUILD

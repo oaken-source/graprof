@@ -139,7 +139,7 @@ feedback_set_warning_prefix (const char *format, ...)
 
 void 
 feedback_warning (const char *format, ...)
-{	
+{
   int errnum = errno;
 
   if (feedback_warning_prefix)
@@ -267,4 +267,11 @@ feedback_readline (const char *prompt)
   return buf;
 }
 
+static void
+__attribute__ ((destructor))
+feedback_fini (void)
+{
+  free(feedback_error_prefix);
+  free(feedback_warning_prefix);
+}
 

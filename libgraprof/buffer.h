@@ -23,6 +23,13 @@
 
 #include <config.h>
 
+#include <stdlib.h>
+
+extern void* __libc_malloc(size_t size);
+extern void* __libc_calloc(size_t nmemb, size_t size);
+extern void* __libc_realloc(void *ptr, size_t size);
+extern void __libc_free(void *ptr);
+
 extern void *libgraprof_buf;
 extern unsigned long libgraprof_bufsize;
 
@@ -34,11 +41,11 @@ extern unsigned long libgraprof_bufsize;
 #define buffer_enlarge(S) \
   unsigned long index = libgraprof_bufsize; \
   libgraprof_bufsize += (S); \
-  libgraprof_buf = realloc(libgraprof_buf, libgraprof_bufsize)
+  libgraprof_buf = __libc_realloc(libgraprof_buf, libgraprof_bufsize)
 
 #define buffer_append(T, V) \
   *((T*)(libgraprof_buf + index)) = (V); \
   index += sizeof(T)
 
 #define buffer_destroy() \
-  free(libgraprof_buf);
+  __libc_free(libgraprof_buf);

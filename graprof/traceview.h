@@ -23,4 +23,4 @@
 
 #include <config.h>
 
-void traceview_main(int argc, char *argv[]);
+void traceview_main(void);
