@@ -55,7 +55,7 @@ highrestimer_get (void)
   #if HAVE_CLOCK_GETTIME
     struct timespec end;
     clock_gettime(CLOCK_MONOTONIC_RAW, &end);
-  
+
     t = ((end.tv_sec - start.tv_sec) * 1000000000) + (end.tv_nsec - start.tv_nsec);
   #elif HAVE_MACH_ABSOLUTE_TIME
     uint64_t elapsed = mach_absolute_time() - start;
