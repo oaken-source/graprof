@@ -21,7 +21,10 @@
 
 #pragma once
 
-#include <config.h>
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
+
 #include <grapes/util.h>
 #include <grapes/feedback.h>
 

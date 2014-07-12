@@ -21,7 +21,9 @@
 
 #pragma once
 
-#include <config.h>
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
 
 /* print the memory profile to graprof_out, declared in graprof.c
  */

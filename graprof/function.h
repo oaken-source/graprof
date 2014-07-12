@@ -21,7 +21,9 @@
 
 #pragma once
 
-#include <config.h>
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
 
 #include <stdint.h>
 
@@ -154,7 +156,7 @@ function* function_get_all(unsigned int *nfunctions);
  *   empty, NULL otherwise
  */
 function* function_get_current(void);
- 
+
 /* compare a function and an address, translate the address to file name and
  * function name, and return the result of the string comparison of both,
  * analogous to strcmp.

@@ -21,15 +21,17 @@
 
 #pragma once
 
-#include <config.h>
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
 
-/* convenience function for human-readable times converts ns to µs, ms or s, 
+/* convenience function for human-readable times converts ns to µs, ms or s,
  * depending on which is most appropriate for the given value.
  *
  * params:
  *   time - the time value in ns, this is modified to fit the resulting time
  *     unit.
- *   prefix - the prefix of the resulting time unit. this is either 'n', 'µ', 
+ *   prefix - the prefix of the resulting time unit. this is either 'n', 'µ',
  *     'm' or ''
  */
 void strtime(unsigned long long *time, const char **prefix);

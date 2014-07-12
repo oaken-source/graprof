@@ -21,7 +21,9 @@
 
 #pragma once
 
-#include <config.h>
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
 
 #include <grapes/util.h>
 
@@ -38,7 +40,7 @@ struct bitmask
 typedef struct bitmask bitmask;
 
 /* return a pointer to a newly allocated and zero initialized bitmask
- * structure. Note that to avoid memory leakage, this structure has to be 
+ * structure. Note that to avoid memory leakage, this structure has to be
  * freed by using bitmask_destroy.
  *
  * params:

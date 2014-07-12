@@ -21,7 +21,9 @@
 
 #pragma once
 
-#include <config.h>
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
 
 #include <stdint.h>
 
@@ -44,8 +46,8 @@
  */
 int addr_init(const char *filename) MAY_FAIL;
 
-/* translate an address specified by <pc> to a function name, file name and 
- * line via the debug sybols loaded by addr_init. Memory for function and 
+/* translate an address specified by <pc> to a function name, file name and
+ * line via the debug sybols loaded by addr_init. Memory for function and
  * file is allocated by this function - remember to free it afterwards.
  *
  * params:

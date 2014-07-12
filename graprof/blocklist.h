@@ -21,7 +21,9 @@
 
 #pragma once
 
-#include <config.h>
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -55,7 +57,7 @@ typedef struct block block;
  */
 block *blocklist_get(unsigned int *nblocks);
 
-/* get a non-invalidated block identified by its unique memory address using 
+/* get a non-invalidated block identified by its unique memory address using
  * binary search
  *
  * params:
