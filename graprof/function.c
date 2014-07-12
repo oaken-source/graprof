@@ -256,10 +256,10 @@ function_create_call_vector_from_node(tree_entry *e, bitmask *b)
 static int
 function_aggregate_function_times (void)
 {
-  bitmask *b = bitmask_create(nfunctions); 
+  bitmask *b = bitmask_create(nfunctions);
   assert_inner(b, "bitmask_create");
 
-  int res = function_create_call_vector_from_node(&call_tree_root, b); 
+  int res = function_create_call_vector_from_node(&call_tree_root, b);
   assert_inner(!res, "function_create_call_vector_from_node");
 
   bitmask_destroy(&b);

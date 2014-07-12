@@ -61,7 +61,7 @@ bitmask_copy (bitmask *b)
   return c;
 }
 
-void 
+void
 bitmask_destroy (bitmask **b)
 {
   free((*b)->fields);

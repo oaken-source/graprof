@@ -71,7 +71,7 @@ addr_read_symbol_table (void)
   return 0;
 }
 
-static int 
+static int
 addr_init_sections (void)
 {
   asection *s;
@@ -85,7 +85,7 @@ addr_init_sections (void)
       assert_inner(addr_sections, "realloc");
 
       addr_section *as = addr_sections + addr_nsections - 1;
-      
+
       as->section = s;
       as->lower = bfd_get_section_vma(addr_bfd, s);
       as->upper = as->lower + bfd_get_section_size(s);

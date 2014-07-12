@@ -23,7 +23,7 @@
 
 #define MAX_TIMEVAL 100000
 
-void 
+void
 strtime (unsigned long long *time, const char **prefix)
 {
   *prefix = "n";

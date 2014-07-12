@@ -278,7 +278,7 @@ memory_realloc (uintptr_t ptr, size_t size, uintptr_t caller, uintptr_t result, 
       int res = blocklist_relocate(b, result);
       assert_inner(!res, "blocklist_relocate");
     }
-    
+
   return 0;
 }
 

@@ -139,7 +139,7 @@ trace_read (const char *filename, unsigned char md5_binary[16])
 
   unsigned char md5_zero[DIGEST_LENGTH] = { 0 };
 
-  feedback_assert(!memcmp(md5, md5_zero, DIGEST_LENGTH) || !memcmp(md5, md5_binary, DIGEST_LENGTH), "digest verification failed. This trace was not generated with this executable!"); 
+  feedback_assert(!memcmp(md5, md5_zero, DIGEST_LENGTH) || !memcmp(md5, md5_binary, DIGEST_LENGTH), "digest verification failed. This trace was not generated with this executable!");
 
   n = fread(&trace_bufsize, sizeof(unsigned long), 1, trace);
   assert_set_errno(ENOTSUP, n == 1, "fread");
