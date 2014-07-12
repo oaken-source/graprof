@@ -33,6 +33,8 @@
 extern FILE *graprof_out;
 extern int graprof_verbosity;
 
+extern struct arguments arguments;
+
 static int
 cmpfunction (const void *p1, const void *p2)
 {

@@ -107,7 +107,7 @@ typedef struct failed_free failed_free;
  * returns:
  *   -1 on failure, 0 on success
  */
-int memory_malloc(size_t size, uintptr_t caller, uintptr_t result, unsigned long long time) MAY_FAIL;
+int memory_malloc(size_t size, uintptr_t caller, uintptr_t result, unsigned long long time) may_fail;
 
 /* process a reallocation event that has been read from the trace data. Events
  * that fulfill certain conditions are relayed as allocation or free events.
@@ -125,7 +125,7 @@ int memory_malloc(size_t size, uintptr_t caller, uintptr_t result, unsigned long
  * returns:
  *   -1 on failure, 0 on success
  */
-int memory_realloc(uintptr_t ptr, size_t size, uintptr_t caller, uintptr_t result, unsigned long long time) MAY_FAIL;
+int memory_realloc(uintptr_t ptr, size_t size, uintptr_t caller, uintptr_t result, unsigned long long time) may_fail;
 
 /* process a free event that has been read from the trace data
  *
@@ -140,7 +140,7 @@ int memory_realloc(uintptr_t ptr, size_t size, uintptr_t caller, uintptr_t resul
  * returns:
  *   -1 on failure, 0 on success
  */
-int memory_free(uintptr_t ptr, uintptr_t caller, unsigned long long time) MAY_FAIL;
+int memory_free(uintptr_t ptr, uintptr_t caller, unsigned long long time) may_fail;
 
 /* get the total number of bytes allocated
  *

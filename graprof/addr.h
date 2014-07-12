@@ -44,7 +44,7 @@
  * returns:
  *   -1 on failure, 0 on success
  */
-int addr_init(const char *filename) MAY_FAIL;
+int addr_init(const char *filename) may_fail;
 
 /* translate an address specified by <pc> to a function name, file name and
  * line via the debug sybols loaded by addr_init. Memory for function and
@@ -64,4 +64,4 @@ int addr_init(const char *filename) MAY_FAIL;
  * returns:
  *   -1 on failure, 0 on success
  */
-int addr_translate(uintptr_t pc, char **function, char **file, unsigned int *line) MAY_FAIL;
+int addr_translate(uintptr_t pc, char **function, char **file, unsigned int *line) may_fail;

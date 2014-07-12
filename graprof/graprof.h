@@ -32,6 +32,11 @@
 
 #include <stdlib.h>
 
+
+#ifndef __GNU_LIBRARY__
+  const char *program_invocation_short_name = PACKAGE_NAME;
+#endif
+
 const char *argp_program_version = PACKAGE_STRING;
 const char *argp_program_bug_address = PACKAGE_BUGREPORT;
 
@@ -43,29 +48,35 @@ extern int graprof_verbosity;
 
 static struct argp_option options[] =
 {
-    {"flat-profile", 'F', 0, 0, "generate flat profile from trace data", 0},
-    {"call-graph", 'C', 0, 0, "generete call graph from trace data", 0},
-    {"memory-profile", 'M', 0, 0, "generate flat memory profile from trace data", 0},
-    {"no-gui", 'g', 0, 0, "do not open the trace explorer gui", 0},
-    {"output", 'o', "<file>", 0, "write profile results to <file> instead of stdout", 0},
-    {"verbose", 'v', 0, 0, "add descriptions to profiling output", 0},
-    {"trace", 't', "<file>", 0, "use a given tracefile instead of running the given binary to generate a trace", 0},
-    {0, 0, 0, 0, 0, 0}
+  {"flat-profile", 'F', 0, 0, "generate flat profile from trace data", 0},
+  {"call-graph", 'C', 0, 0, "generete call graph from trace data", 0},
+  {"memory-profile", 'M', 0, 0, "generate flat memory profile from trace data", 0},
+  {"no-gui", 'g', 0, 0, "do not open the trace explorer gui", 0},
+  {"output", 'o', "<file>", 0, "write profile results to <file> instead of stdout", 0},
+  {"verbose", 'v', 0, 0, "add descriptions to profiling output", 0},
+  {"trace", 't', "<file>", 0, "use a given tracefile instead of running the given binary to generate a trace", 0},
+  {0, 0, 0, 0, 0, 0}
 };
 
-#define GRAPROF_FLAT_PROFILE      0x01
-#define GRAPROF_CALL_GRAPH        0x02
-#define GRAPROF_MEMORY_PROFILE    0x04
-#define GRAPROF_NO_GUI            0x08
+enum graprof_tasks
+{
+  GRAPROF_FLAT_PROFILE      = 0x01,
+  GRAPROF_CALL_GRAPH        = 0x02,
+  GRAPROF_MEMORY_PROFILE    = 0x04,
+  GRAPROF_NO_GUI            = 0x08
+};
+typedef enum graprof_tasks graprof_tasks;
 
 struct arguments
 {
   const char **binary_invocation;
   const char *trace_filename;
 
-  int tasks;
+  graprof_tasks tasks;
   const char *out_filename;
 };
+
+struct arguments arguments = { NULL, NULL, 0, NULL };
 
 static error_t
 parse_opt (int key, char *arg, struct argp_state *state)

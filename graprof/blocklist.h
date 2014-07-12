@@ -80,7 +80,7 @@ block *blocklist_get_by_address(uintptr_t address);
  *   a pointer to the newly inserted, or recycled block structure on success,
  *   NULL on failure.
  */
-block *blocklist_add(uintptr_t address) MAY_FAIL;
+block *blocklist_add(uintptr_t address) may_fail;
 
 /* update the address of a block of memory, e.g. after realloc, and reflect
  * this update in the sorted array of blocks
@@ -95,7 +95,7 @@ block *blocklist_add(uintptr_t address) MAY_FAIL;
  * returns:
  *   -1 on failure, 0 on success
  */
-int blocklist_relocate(block *b, uintptr_t address) MAY_FAIL;
+int blocklist_relocate(block *b, uintptr_t address) may_fail;
 
 /* invalidate a block
  *

@@ -45,30 +45,28 @@
 FILE *graprof_out = NULL;
 int graprof_verbosity = 0;
 
+#ifndef _GNU_SOURCE
+  const char *program_invocation_name = PACKAGE_NAME;
+#endif
+
 int
 main (int argc, char *argv[])
 {
-  int res = feedback_set_error_prefix(" [ " RED "*" NORMAL " ] graprof: ");
-  feedback_assert(!res, "feedback_set_error_prefix");
-  res = feedback_set_warning_prefix(" [ " YELLOW "*" NORMAL " ] graprof: ");
-  feedback_assert(!res, "feedback_set_warning_prefix");
-
-  struct arguments args = { NULL, NULL, 0, NULL };
-  argp_parse (&argp, argc, argv, ARGP_IN_ORDER, 0, &args);
+  argp_parse (&argp, argc, argv, ARGP_IN_ORDER, 0, &arguments);
 
   // set default trace file in environment, if not specified
   setenv("GRAPROF_OUT", "graprof.out", 0);
 
   // fork & exec the child
-  if (!(args.trace_filename))
+  if (!(arguments.trace_filename))
     {
       pid_t pid = fork();
       feedback_assert(pid != -1, "fork failed", pid);
 
       if (!pid)
         {
-          execv(args.binary_invocation[0], (char * const*)args.binary_invocation);
-          feedback_error(EXIT_FAILURE, "failed to execute `%s'", args.binary_invocation[0]);
+          execv(arguments.binary_invocation[0], (char * const*)arguments.binary_invocation);
+          feedback_error(EXIT_FAILURE, "failed to execute `%s'", arguments.binary_invocation[0]);
           exit(1);
         }
       else
@@ -80,17 +78,17 @@ main (int argc, char *argv[])
     }
 
   // read debug symbols from child binary
-  res = addr_init(args.binary_invocation[0]);
+  int res = addr_init(arguments.binary_invocation[0]);
   if (res)
     {
       if (errno == ENOTSUP)
         {
           errno = 0;
-          feedback_warning("%s: file format not supported or no debug symbols found", args.binary_invocation[0]);
+          feedback_warning("%s: file format not supported or no debug symbols found", arguments.binary_invocation[0]);
         }
       else
         {
-          feedback_error(EXIT_FAILURE, "%s", args.binary_invocation[0]);
+          feedback_error(EXIT_FAILURE, "%s", arguments.binary_invocation[0]);
         }
     }
 
@@ -99,10 +97,10 @@ main (int argc, char *argv[])
   size_t length;
   void *data;
 
-  data = file_map(args.binary_invocation[0], &length);
+  data = file_map(arguments.binary_invocation[0], &length);
   if (!data)
     {
-      feedback_warning("%s: digest verification failed", args.binary_invocation[0]);
+      feedback_warning("%s: digest verification failed", arguments.binary_invocation[0]);
     }
   else
     {
@@ -114,14 +112,14 @@ main (int argc, char *argv[])
     }
 
   res = file_unmap(data, length);
-  feedback_assert(!res, "%s: file unmap failed", args.binary_invocation[0]);
+  feedback_assert(!res, "%s: file unmap failed", arguments.binary_invocation[0]);
 
-  free(args.binary_invocation);
+  free(arguments.binary_invocation);
 
   // figure out the proper tracefile
   const char *tracefile = getenv("GRAPROF_OUT");
-  if (args.trace_filename)
-    tracefile = args.trace_filename;
+  if (arguments.trace_filename)
+    tracefile = arguments.trace_filename;
 
   // read the tracefile
   res = trace_read(tracefile, md5_binary);
@@ -140,26 +138,26 @@ main (int argc, char *argv[])
 
   // figure out the proper output file
   graprof_out = stdout;
-  if (args.out_filename)
+  if (arguments.out_filename)
     {
-      graprof_out = fopen(args.out_filename, "w");
-      feedback_assert(graprof_out, "%s", args.out_filename);
+      graprof_out = fopen(arguments.out_filename, "w");
+      feedback_assert(graprof_out, "%s", arguments.out_filename);
     }
 
   // do stuff
-  if (args.tasks & GRAPROF_FLAT_PROFILE)
-    flatprofile_print(args.tasks & GRAPROF_CALL_GRAPH);
+  if (arguments.tasks & GRAPROF_FLAT_PROFILE)
+    flatprofile_print(arguments.tasks & GRAPROF_CALL_GRAPH);
 
-  if (args.tasks & GRAPROF_CALL_GRAPH)
+  if (arguments.tasks & GRAPROF_CALL_GRAPH)
     callgraph_print();
 
-  if (args.tasks & GRAPROF_MEMORY_PROFILE)
+  if (arguments.tasks & GRAPROF_MEMORY_PROFILE)
     memprofile_print();
 
   if (graprof_out != stdout)
     fclose(graprof_out);
 
-  if (!(args.tasks & GRAPROF_NO_GUI))
+  if (!(arguments.tasks & GRAPROF_NO_GUI))
     traceview_main();
 
   return 0;
