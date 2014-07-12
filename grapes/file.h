@@ -25,6 +25,10 @@
  * function.
  */
 
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
+
 #include "util.h"
 
 #include <stdlib.h>
@@ -45,7 +49,7 @@
  * returns:
  *   a pointer to the mapped area, if successful, NULL otherwise
  */
-void *file_map(const char *filename, size_t *length) MAY_FAIL;
+void *file_map(const char *filename, size_t *length) may_fail;
 
 /* unmaps a memory area previously mapped with file_map
  *
@@ -59,4 +63,4 @@ void *file_map(const char *filename, size_t *length) MAY_FAIL;
  * returns:
  *   -1 on failure, 0 on success
  */
-int file_unmap(void *data, size_t length) MAY_FAIL;
+int file_unmap(void *data, size_t length) may_fail;

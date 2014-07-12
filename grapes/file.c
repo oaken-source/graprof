@@ -19,10 +19,6 @@
  ******************************************************************************/
 
 
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
-
 #include "file.h"
 
 #include <fcntl.h>
@@ -44,15 +40,14 @@ file_map (const char *filename, size_t *length)
 
   *length = sb.st_size;
 
-  void *data;
   if (sb.st_size > 0)
-    data = mmap(NULL, sb.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
-  else
-    data = (void*)"";
+    {
+      void *data = mmap(NULL, sb.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+      assert_inner_ptr(data != MAP_FAILED, "%s: mmap", filename);
+      return data;
+    }
 
-  assert_inner_ptr(data != MAP_FAILED, "%s: mmap", filename);
-
-  return data;
+  return (void*)"";
 }
 
 int
@@ -61,8 +56,9 @@ file_unmap (void *data, size_t length)
   if (length > 0)
     {
       int res = munmap(data, length);
-      assert_inner(res == 0, "munmap");
+      assert_inner(!res, "munmap");
     }
+
   return 0;
 }
 

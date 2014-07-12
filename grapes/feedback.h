@@ -21,9 +21,13 @@
 
 #pragma once
 
-/* This is the user feedback module. It contains output control mechanisms and 
+/* This is the user feedback module. It contains output control mechanisms and
  * a progress meter as well as some convenience error messaging macros.
  */
+
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #include "util.h"
 
@@ -34,7 +38,7 @@
 
 
 /* prints a formatted error string to stderr similar to the one written by the
- * GNU extension fuction error_at_line, and is mainly used by the assertion 
+ * GNU extension fuction error_at_line, and is mainly used by the assertion
  * macros defined in util.h
 
  * params:
@@ -44,22 +48,11 @@
  */
 void feedback_error_at_line(const char *filename, unsigned int linenum, const char *format, ...);
 
-/* set a prefix for pretty-printing erorrs passed to feedback_error
- *
- * params:
- *   format, ... - the formatted error prefix
- *
- * errors:
- *   may fail and set errno for the same reasons as malloc
- *
- * returns:
- *   -1 on failure, 0 on success
- */
-int feedback_set_error_prefix(const char *format, ...) MAY_FAIL;
-
-/* prints a formatted error string to stderr, prepends the string configured 
- * by feedback_set_error_prefix and if errno != 0 appends the appropriate 
- * string representation. terminates the program if status != EXIT_SUCCESS
+/* prints a formatted error string to stderr, prepends the string contained
+ * in the variable program_invocation_short_name provided by glibc, if
+ * available, the string contained in program_invocation_name otherwise,
+ * and if errno != 0 appends the appropriate string representation. terminates
+ * the program if status != EXIT_SUCCESS
  *
  * params:
  *   status - the parameter to exit() if != EXIT_SUCCESS
@@ -67,58 +60,13 @@ int feedback_set_error_prefix(const char *format, ...) MAY_FAIL;
  */
 void feedback_error(int status, const char *format, ...);
 
-/* set a prefix for pretty-printing warnings passed to feedback_warning
- *
- * params:
- *   format, ... - the formatted warning prefix
- *
- * errors:
- *   may fail and set errno for the same reasons as malloc
- *
- * returns:
- *   -1 on failure, 0 on success
- */
-int feedback_set_warning_prefix(const char *format, ...) MAY_FAIL;
-
-/* prints a formatted warning string to stderr, prepends the string configured
- * by feedback_set_warning_prefix and if errno != 0 appends the approproate 
- * string representation.
+/* prints a formatted warning string to stderr, prepends the string contained
+ * in the variable program_invocation_short_name provided by glibc, if
+ * available, the string contained in program_invocation_name otherwise,
+ * and if errno != 0 appends the appropriate string representation.
  *
  * params:
  *   format, ... - the formatted warning string
  */
 void feedback_warning(const char *format, ...);
-
-/* finishes the currently running progress meter, if any, and starts a new one
- * with the given tag. 
- *
- * params:
- *   tag - the tag of the progress meter
- *   max - the number of increments that equal 100%. if this is set to zero,
- *         the progress bar will just be a spinner.
- */
-void feedback_progress_start(const char *tag, unsigned long max);
-
-/* increments the currently running progress meter, if any, and outputs any
- * changes of the progress percentile to stdout
- */
-void feedback_progress_inc();
-
-/* finishes the currently running progress meter, if any.
-*/
-void feedback_progress_finish();
-
-/* prompt for a value and return the string input by the user
- *
- * params:
- *   prompt - the prompt shown to the user. if prompt is NULL, no prompt is 
- *            shown
- *
- * returns:
- *   NULL, if there was an error, the string input by the user otherwise.
- *
- * errors:
- *   may fail and set errno for the same reasons as malloc and realloc
- */
-char *feedback_readline(const char *prompt);
 
