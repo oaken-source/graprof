@@ -158,7 +158,10 @@ main (int argc, char *argv[])
     fclose(graprof_out);
 
   if (!(arguments.tasks & GRAPROF_NO_GUI))
-    traceview_main();
+    {
+      res = traceview_main();
+      feedback_assert(!res, "graprof traceview crashed");
+    }
 
   return 0;
 }

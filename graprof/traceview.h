@@ -25,4 +25,6 @@
 #  include <config.h>
 #endif
 
-void traceview_main(void);
+#include <grapes/util.h>
+
+int traceview_main(void) may_fail;
