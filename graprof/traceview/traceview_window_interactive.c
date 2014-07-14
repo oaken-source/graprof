@@ -30,8 +30,23 @@ WINDOW *traceview_window_interactive = NULL;
 int
 traceview_window_interactive_init (void)
 {
-  traceview_window_interactive = newwin(LINES - 2, COLS - 2, 1, 1);
+  traceview_window_interactive = newwin(LINES - 2, COLS, 1, 0);
   assert_inner(traceview_window_interactive, "newwin");
+
+  return 0;
+}
+
+int
+traceview_window_interactive_redraw (void)
+{
+  int res = wresize(traceview_window_interactive, LINES - 2, COLS);
+  assert_inner(res != ERR, "wresize");
+
+  res = mvwin(traceview_window_interactive, 1, 0);
+  assert_inner(res != ERR, "mvwin");
+
+  res = werase(traceview_window_interactive);
+  assert_inner(res != ERR, "werase");
 
   return 0;
 }

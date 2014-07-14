@@ -30,8 +30,23 @@ WINDOW *traceview_window_memprofile = NULL;
 int
 traceview_window_memprofile_init (void)
 {
-  traceview_window_memprofile = newwin(LINES - 2, COLS - 2, 1, 1);
+  traceview_window_memprofile = newwin(LINES - 2, COLS, 1, 0);
   assert_inner(traceview_window_memprofile, "newwin");
+
+  return 0;
+}
+
+int
+traceview_window_memprofile_redraw (void)
+{
+  int res = wresize(traceview_window_memprofile, LINES - 2, COLS);
+  assert_inner(res != ERR, "wresize");
+
+  res = mvwin(traceview_window_memprofile, 1, 0);
+  assert_inner(res != ERR, "mvwin");
+
+  res = werase(traceview_window_memprofile);
+  assert_inner(res != ERR, "werase");
 
   return 0;
 }

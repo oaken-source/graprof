@@ -30,4 +30,6 @@
 
 int traceview_window_flatprofile_init(void) may_fail;
 
+int traceview_window_flatprofile_redraw(void) may_fail;
+
 int traceview_window_flatprofile_key_dispatch(char c) may_fail;

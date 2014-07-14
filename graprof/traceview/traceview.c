@@ -23,7 +23,12 @@
 
 #if HAVE_NCURSES
 
+#include <signal.h>
+#include <string.h>
+
 #include <ncurses.h>
+
+#include <grapes/feedback.h>
 
 #include "traceview_titlebar.h"
 #include "traceview_footer.h"
@@ -53,12 +58,14 @@ static traceview_window traceview_windows[4];
 
 static traceview_window *traceview_focus = NULL;
 
+static WINDOW *traceview_mainwindow = NULL;
+
 
 static int
 traceview_init (void)
 {
-  WINDOW *mainwin = initscr();
-  assert_inner(mainwin, "initscr");
+  traceview_mainwindow = initscr();
+  assert_inner(traceview_mainwindow, "initscr");
 
   assert_inner(has_colors(), "has_colors");
 
@@ -76,7 +83,7 @@ traceview_init (void)
   res = curs_set(0);
   assert_inner(res != ERR, "curs_set");
 
-  res = wrefresh(mainwin);
+  res = wrefresh(traceview_mainwindow);
   assert_inner(res != ERR, "refresh");
 
   res = traceview_titlebar_init();
@@ -183,9 +190,46 @@ traceview_main_inner (void)
   return 0;
 }
 
+static void
+traceview_on_resize (unused int signum)
+{
+  int res = endwin();
+  assert_weak(res != ERR, "endwin");
+  res = refresh();
+  assert_weak(res != ERR, "refresh");
+  res = clear();
+  assert_weak(res != ERR, "clear");
+
+  res = wrefresh(traceview_mainwindow);
+  assert_weak(res != ERR, "wrefresh");
+
+  res = traceview_titlebar_redraw();
+  assert_weak(!res, "traceview_titlebar_redraw");
+  res = traceview_footer_redraw();
+  assert_weak(!res, "traceview_footer_redraw");
+  res = traceview_window_interactive_redraw();
+  assert_weak(!res, "traceview_window_interactive_redraw");
+  res = traceview_window_flatprofile_redraw();
+  assert_weak(!res, "traceview_window_flatprofile_redraw");
+  res = traceview_window_callgraph_redraw();
+  assert_weak(!res, "traceview_window_callgraph_redraw");
+  res = traceview_window_memprofile_redraw();
+  assert_weak(!res, "traceview_window_memprofile_redraw");
+
+  res = wrefresh(traceview_focus->window);
+  assert_weak(res != ERR, "wrefresh");
+}
+
 int
 traceview_main (void)
 {
+  struct sigaction act;
+  memset(&act, 0, sizeof(act));
+  act.sa_handler = traceview_on_resize;
+
+  int res = sigaction(SIGWINCH, &act, NULL);
+  assert_inner(!res, "sigaction");
+
   int res1 = traceview_main_inner();
   int res2 = traceview_fini();
   assert_inner(!res1, "traceview_main_inner");

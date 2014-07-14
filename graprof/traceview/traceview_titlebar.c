@@ -27,16 +27,36 @@
 
 static WINDOW *traceview_titlebar = NULL;
 
+static const char *traceview_titlebar_title = NULL;
+
 int
 traceview_titlebar_init (void)
 {
   traceview_titlebar = newwin(1, COLS, 0, 0);
   assert_inner(traceview_titlebar, "newwin");
 
-  int res = wbkgd(traceview_titlebar, COLOR_PAIR(1));
+  int res = traceview_titlebar_redraw();
+  assert_inner(!res, "traceview_titlebar_redraw");
+
+  return 0;
+}
+
+int
+traceview_titlebar_redraw (void)
+{
+  int res = mvwin(traceview_titlebar, 0, 0);
+  assert_inner(res != ERR, "mvwin");
+
+  res = wresize(traceview_titlebar, 1, COLS);
+  assert_inner(res != ERR, "wresize");
+
+  res = werase(traceview_titlebar);
+  assert_inner(res != ERR, "werase");
+
+  res = wbkgd(traceview_titlebar, COLOR_PAIR(1));
   assert_inner(res != ERR, "wbkgd");
 
-  res = traceview_titlebar_set_title(NULL);
+  res = traceview_titlebar_set_title(traceview_titlebar_title);
   assert_inner(!res, "traceview_titlebar_set_title");
 
   return 0;
@@ -45,6 +65,8 @@ traceview_titlebar_init (void)
 int
 traceview_titlebar_set_title (const char *title)
 {
+  traceview_titlebar_title = title;
+
   int res = wattron(traceview_titlebar, COLOR_PAIR(1));
   assert_inner(res != ERR, "wattron");
 

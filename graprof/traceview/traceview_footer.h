@@ -29,4 +29,6 @@
 
 int traceview_footer_init(void) may_fail;
 
-int traceview_footer_set_index (unsigned int index) may_fail;
+int traceview_footer_redraw(void) may_fail;
+
+int traceview_footer_set_index(unsigned int index) may_fail;

@@ -30,4 +30,6 @@
 
 int traceview_window_memprofile_init(void) may_fail;
 
+int traceview_window_memprofile_redraw(void) may_fail;
+
 int traceview_window_memprofile_key_dispatch(char c) may_fail;

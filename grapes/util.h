@@ -53,17 +53,21 @@ void feedback_error_at_line(const char *filename, unsigned int linenum, const ch
  *   set errno to the given errnum and return -1
  * assert_set_errno_ptr:
  *   set errno to the given errnum and return NULL
+ * assert_weak:
+ *   only print the error string, but do not return
  */
 #if DEBUG
 #  define assert_inner(COND, ...) do { if(!(COND)) { feedback_error_at_line(__FILE__, __LINE__, __VA_ARGS__); return -1; } } while (0)
 #  define assert_inner_ptr(COND, ...) do { if(!(COND)) { feedback_error_at_line(__FILE__, __LINE__, __VA_ARGS__); return NULL; } } while (0)
 #  define assert_set_errno(COND, ERRNUM, ...) do { if(!(COND)) { errno = ERRNUM; feedback_error_at_line(__FILE__, __LINE__, __VA_ARGS__); return -1; } } while (0)
 #  define assert_set_errno_ptr(COND, ERRNUM, ...) do { if(!(COND)) { errno = ERRNUM; feedback_error_at_line(__FILE__, __LINE__, __VA_ARGS__); return NULL; } } while (0)
+#  define assert_weak(COND, ...) do { if (!(COND)) { feedback_error_at_line(__FILE__, __LINE__, __VA_ARGS__); } } while (0)
 #else
 #  define assert_inner(COND, ...) do { if(!(COND)) return -1; } while (0)
 #  define assert_inner_ptr(COND, ...) do { if(!(COND)) return NULL; } while (0)
 #  define assert_set_errno(COND, ERRNUM, ...) do { if(!(COND)) { errno = ERRNUM; return -1; } } while (0)
 #  define assert_set_errno_ptr(COND, ERRNUM, ...) do { if(!(COND)) { errno = ERRNUM; return NULL; } } while (0)
+#  define assert_weak(COND, ...) do { if(!(COND)) { } } while (0)
 #endif
 
 /* convenience attribute shortcuts with semantic sugar */

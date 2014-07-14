@@ -30,8 +30,23 @@ WINDOW *traceview_window_callgraph = NULL;
 int
 traceview_window_callgraph_init (void)
 {
-  traceview_window_callgraph = newwin(LINES - 2, COLS - 2, 1, 1);
+  traceview_window_callgraph = newwin(LINES - 2, COLS, 1, 0);
   assert_inner(traceview_window_callgraph, "newwin");
+
+  return 0;
+}
+
+int
+traceview_window_callgraph_redraw (void)
+{
+  int res = wresize(traceview_window_callgraph, LINES - 2, COLS);
+  assert_inner(res != ERR, "wresize");
+
+  res = mvwin(traceview_window_callgraph, 1, 0);
+  assert_inner(res != ERR, "mvwin");
+
+  res = werase(traceview_window_callgraph);
+  assert_inner(res != ERR, "werase");
 
   return 0;
 }

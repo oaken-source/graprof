@@ -30,4 +30,6 @@
 
 int traceview_window_callgraph_init(void) may_fail;
 
+int traceview_window_callgraph_redraw(void) may_fail;
+
 int traceview_window_callgraph_key_dispatch(char c) may_fail;

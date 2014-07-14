@@ -27,16 +27,36 @@
 
 static WINDOW *traceview_footer = NULL;
 
+static unsigned int traceview_footer_index = 1;
+
 int
 traceview_footer_init (void)
 {
   traceview_footer = newwin(1, COLS, LINES - 1, 0);
   assert_inner(traceview_footer, "newwin");
 
-  int res = wbkgd(traceview_footer, COLOR_PAIR(1));
+  int res = traceview_footer_redraw();
+  assert_inner(!res, "traceview_footer_redraw");
+
+  return 0;
+}
+
+int
+traceview_footer_redraw (void)
+{
+  int res = mvwin(traceview_footer, LINES - 1, 0);
+  assert_inner(res != ERR, "mvwin");
+
+  res = wresize(traceview_footer, 1, COLS);
+  assert_inner(res != ERR, "wresize");
+
+  res = werase(traceview_footer);
+  assert_inner(res != ERR, "werase");
+
+  res = wbkgd(traceview_footer, COLOR_PAIR(1));
   assert_inner(res != ERR, "wbkgd");
 
-  res = traceview_footer_set_index(1);
+  res = traceview_footer_set_index(traceview_footer_index);
   assert_inner(!res, "traceview_footer_set_index");
 
   return 0;
@@ -46,6 +66,8 @@ int
 traceview_footer_set_index (unsigned int index)
 {
   assert_set_errno(index >= 1 && index <= 4, EINVAL, "index out of range");
+
+  traceview_footer_index = index;
 
   int res = wattron(traceview_footer, COLOR_PAIR(1));
   assert_inner(res != ERR, "wattron");

@@ -30,4 +30,6 @@
 
 int traceview_window_interactive_init(void) may_fail;
 
+int traceview_window_interactive_redraw(void) may_fail;
+
 int traceview_window_interactive_key_dispatch(char c) may_fail;
