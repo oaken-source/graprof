@@ -26,7 +26,7 @@
 #include "flatprofile.h"
 #include "callgraph.h"
 #include "memprofile.h"
-#include "traceview.h"
+#include "traceview/traceview.h"
 
 #include <grapes/feedback.h>
 #include <grapes/file.h>
@@ -160,7 +160,12 @@ main (int argc, char *argv[])
   if (!(arguments.tasks & GRAPROF_NO_GUI))
     {
       res = traceview_main();
-      feedback_assert(!res, "graprof traceview crashed");
+      feedback_assert(!res,
+        (errno != ENOSYS
+          ? "graprof traceview crashed"
+          : "graprof traceview disabled at compile time"
+        )
+      );
     }
 
   return 0;

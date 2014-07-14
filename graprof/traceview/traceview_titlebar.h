@@ -19,40 +19,15 @@
  ******************************************************************************/
 
 
-#include "traceview.h"
+#pragma once
 
-#include <grapes/feedback.h>
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
 
-#include <ncurses.h>
+#include <grapes/util.h>
 
-static WINDOW *traceview_window = NULL;
+int traceview_titlebar_init(void) may_fail;
 
-static int
-traceview_init (void)
-{
-  traceview_window = initscr();
-  assert_inner(traceview_window, "initscr");
-
-  return 0;
-}
-
-static int
-traceview_fini (void)
-{
-  endwin();
-
-  return 0;
-}
-
-int
-traceview_main (void)
-{
-  int res = traceview_init();
-  assert_inner(!res, "traceview_init");
-
-  res = traceview_fini();
-  assert_inner(!res, "traceview_fini");
-
-  return 0;
-}
+int traceview_titlebar_set_title(const char *title) may_fail;
 
