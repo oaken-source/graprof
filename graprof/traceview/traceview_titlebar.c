@@ -44,11 +44,11 @@ traceview_titlebar_init (void)
 int
 traceview_titlebar_redraw (void)
 {
-  int res = mvwin(traceview_titlebar, 0, 0);
-  assert_inner(res != ERR, "mvwin");
-
-  res = wresize(traceview_titlebar, 1, COLS);
+  int res = wresize(traceview_titlebar, 1, COLS);
   assert_inner(res != ERR, "wresize");
+
+  res = mvwin(traceview_titlebar, 0, 0);
+  assert_inner(res != ERR, "mvwin");
 
   res = werase(traceview_titlebar);
   assert_inner(res != ERR, "werase");

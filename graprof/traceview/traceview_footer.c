@@ -44,11 +44,11 @@ traceview_footer_init (void)
 int
 traceview_footer_redraw (void)
 {
-  int res = mvwin(traceview_footer, LINES - 1, 0);
-  assert_inner(res != ERR, "mvwin");
-
-  res = wresize(traceview_footer, 1, COLS);
+  int res = wresize(traceview_footer, 1, COLS);
   assert_inner(res != ERR, "wresize");
+
+  res = mvwin(traceview_footer, LINES - 1, 0);
+  assert_inner(res != ERR, "mvwin");
 
   res = werase(traceview_footer);
   assert_inner(res != ERR, "werase");
