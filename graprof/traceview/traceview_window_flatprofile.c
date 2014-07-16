@@ -48,7 +48,7 @@ traceview_window_flatprofile_redraw (void)
   res = werase(traceview_window_flatprofile);
   assert_inner(res != ERR, "werase");
 
-  mvwprintw(traceview_window_flatprofile, 2, 2, "hello world!!");
+  mvwprintw(traceview_window_flatprofile, 2, 2, "I am flatprofile");
 
   res = wrefresh(traceview_window_flatprofile);
   assert_inner(res != ERR, "refresh");

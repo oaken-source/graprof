@@ -48,6 +48,11 @@ traceview_window_memprofile_redraw (void)
   res = werase(traceview_window_memprofile);
   assert_inner(res != ERR, "werase");
 
+  mvwprintw(traceview_window_memprofile, 2, 2, "I am memprofile");
+
+  res = wrefresh(traceview_window_memprofile);
+  assert_inner(res != ERR, "refresh");
+
   return 0;
 }
 

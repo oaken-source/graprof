@@ -48,6 +48,11 @@ traceview_window_interactive_redraw (void)
   res = werase(traceview_window_interactive);
   assert_inner(res != ERR, "werase");
 
+  mvwprintw(traceview_window_interactive, 2, 2, "I am interactive");
+
+  res = wrefresh(traceview_window_interactive);
+  assert_inner(res != ERR, "refresh");
+
   return 0;
 }
 

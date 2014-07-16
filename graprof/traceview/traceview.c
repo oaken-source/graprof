@@ -146,8 +146,8 @@ traceview_init (void)
   res = traceview_footer_set_index(traceview_focus->index);
   assert_inner(!res, "traceview_footer_set_index");
 
-  res = wrefresh(traceview_focus->window);
-  assert_inner(res != ERR, "wrefresh");
+  res = traceview_focus->redraw_callback();
+  assert_inner(!res, "traceview_focus->redraw_callback");
 
   return 0;
 }
@@ -173,24 +173,25 @@ traceview_main_inner (void)
       switch (k)
         {
         case TRACEVIEW_KEY_F1:
-          traceview_help_overlay_enabled = 1;
-          res = traceview_help_overlay_redraw();
-          assert_inner(!res, "traceview_help_overlay_redraw");
-          break;
+          if (traceview_help_overlay_enabled)
+            {
+              traceview_help_overlay_enabled = 0;
+              res = traceview_focus->redraw_callback();
+              assert_inner(!res, "traceview_focus->redraw_callback");
+            }
+          else
+            {
+              traceview_help_overlay_enabled = 1;
+              res = traceview_help_overlay_redraw();
+              assert_inner(!res, "traceview_help_overlay_redraw");
+            }
 
-        case TRACEVIEW_KEY_ESCAPE:
-          traceview_help_overlay_enabled = 0;
-          res = traceview_focus->redraw_callback();
-          assert_inner(!res, "traceview_focus->redraw_callback");
           break;
 
         case TRACEVIEW_KEY_ALT_1:
         case TRACEVIEW_KEY_ALT_2:
         case TRACEVIEW_KEY_ALT_3:
         case TRACEVIEW_KEY_ALT_4:
-          if (traceview_help_overlay_enabled)
-            break;
-
           traceview_focus = traceview_windows + (k - TRACEVIEW_KEY_ALT_1);
 
           res = traceview_footer_set_index(traceview_focus->index);
@@ -200,18 +201,38 @@ traceview_main_inner (void)
 
           traceview_focus->redraw_callback();
           assert_inner(res != ERR, "traceview_focus->redraw_callback");
+
+          if (traceview_help_overlay_enabled)
+            {
+              res = traceview_help_overlay_redraw();
+              assert_inner(!res, "traceview_help_overlay_redraw");
+            }
+
           break;
 
+        case TRACEVIEW_KEY_ESCAPE:
         case TRACEVIEW_KEY_QUIT:
           if (traceview_help_overlay_enabled)
+            {
+              traceview_help_overlay_enabled = 0;
+              res = traceview_focus->redraw_callback();
+              assert_inner(!res, "traceview_focus->redraw_callback");
+              break;
+            }
+          if (k == TRACEVIEW_KEY_ESCAPE)
             break;
           return 0;
 
         default:
-          if (traceview_help_overlay_enabled)
-            break;
           res = traceview_focus->dispatch_callback(k);
           assert_inner(!res, "traceview_focus->dispatch_callback");
+
+          if (traceview_help_overlay_enabled)
+            {
+              res = traceview_help_overlay_redraw();
+              assert_inner(!res, "traceview_help_overlay_redraw");
+            }
+
           break;
         }
     }
