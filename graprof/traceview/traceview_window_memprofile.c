@@ -52,10 +52,9 @@ traceview_window_memprofile_redraw (void)
 }
 
 int
-traceview_window_memprofile_key_dispatch (unused char c)
+traceview_window_memprofile_key_dispatch (unused traceview_key k)
 {
   return 0;
 }
-
 
 #endif // HAVE_NCURSES

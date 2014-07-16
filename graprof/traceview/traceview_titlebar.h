@@ -25,6 +25,8 @@
 #  include <config.h>
 #endif
 
+#if HAVE_NCURSES
+
 #include <grapes/util.h>
 
 int traceview_titlebar_init(void) may_fail;
@@ -33,3 +35,4 @@ int traceview_titlebar_redraw(void) may_fail;
 
 int traceview_titlebar_set_title(const char *title) may_fail;
 
+#endif // HAVE_NCURSES

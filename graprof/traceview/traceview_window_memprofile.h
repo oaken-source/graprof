@@ -25,11 +25,16 @@
 #  include <config.h>
 #endif
 
+#if HAVE_NCURSES
+
 #include <grapes/util.h>
 
+#include "traceview_keys.h"
 
 int traceview_window_memprofile_init(void) may_fail;
 
 int traceview_window_memprofile_redraw(void) may_fail;
 
-int traceview_window_memprofile_key_dispatch(char c) may_fail;
+int traceview_window_memprofile_key_dispatch(traceview_key k) may_fail;
+
+#endif // HAVE_NCURSES

@@ -19,22 +19,53 @@
  ******************************************************************************/
 
 
-#pragma once
-
-#ifdef HAVE_CONFIG_H
-#  include <config.h>
-#endif
-
-#if HAVE_NCURSES
+#include "traceview_keys.h"
 
 #include <grapes/util.h>
 
-#include "traceview_keys.h"
+#if HAVE_NCURSES
 
-int traceview_window_callgraph_init(void) may_fail;
+static traceview_key
+traceview_keys_dispatch_0x1B(WINDOW *w)
+{
+  int res = nodelay(w, 1);
+  assert_weak(res != ERR, "nodelay");
 
-int traceview_window_callgraph_redraw(void) may_fail;
+  char k = wgetch(w);
 
-int traceview_window_callgraph_key_dispatch(traceview_key k) may_fail;
+  res = nodelay(w, 0);
+  assert_weak(res != ERR, "nodelay");
+
+  switch (k)
+    {
+    case '1':
+    case '2':
+    case '3':
+    case '4':
+      return TRACEVIEW_KEY_ALT_1 + (k - '1');
+
+    default:
+      return TRACEVIEW_KEY_NONE;
+    }
+}
+
+traceview_key
+traceview_keys_get (WINDOW *w)
+{
+  char k = wgetch(w);
+
+  switch (k)
+    {
+    case 0x1B: // escape / alt / ...
+      return traceview_keys_dispatch_0x1B(w);
+
+    case 'q':
+    case 'Q':
+      return TRACEVIEW_KEY_QUIT;
+
+    default:
+      return TRACEVIEW_KEY_NONE;
+    }
+}
 
 #endif // HAVE_NCURSES

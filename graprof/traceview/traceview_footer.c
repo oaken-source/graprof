@@ -88,6 +88,4 @@ traceview_footer_set_index (unsigned int index)
   return 0;
 }
 
-
-
 #endif // HAVE_NCURSES

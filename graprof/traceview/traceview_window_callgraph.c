@@ -52,7 +52,7 @@ traceview_window_callgraph_redraw (void)
 }
 
 int
-traceview_window_callgraph_key_dispatch (unused char c)
+traceview_window_callgraph_key_dispatch (unused traceview_key k)
 {
   return 0;
 }

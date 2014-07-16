@@ -38,12 +38,14 @@
 #include "traceview_window_callgraph.h"
 #include "traceview_window_memprofile.h"
 
+#include "traceview_keys.h"
+
 extern WINDOW *traceview_window_interactive;
 extern WINDOW *traceview_window_flatprofile;
 extern WINDOW *traceview_window_callgraph;
 extern WINDOW *traceview_window_memprofile;
 
-typedef int (*traceview_key_dispatch)(char);
+typedef int (*traceview_key_dispatch)(traceview_key);
 
 struct traceview_window
 {
@@ -154,33 +156,30 @@ traceview_main_inner (void)
 
   do
     {
-      char c = wgetch(traceview_focus->window);
-      switch (c)
+      traceview_key k = traceview_keys_get(traceview_focus->window);
+
+      switch (k)
         {
-        case 27: // escape / alt
-          {
-            nodelay(traceview_focus->window, 1);
-            char c2 = wgetch(traceview_focus->window);
-            nodelay(traceview_focus->window, 0);
+        case TRACEVIEW_KEY_ALT_1:
+        case TRACEVIEW_KEY_ALT_2:
+        case TRACEVIEW_KEY_ALT_3:
+        case TRACEVIEW_KEY_ALT_4:
+          traceview_focus = traceview_windows + (k - TRACEVIEW_KEY_ALT_1);
 
-            if (c2 >= '1' && c2 <= '4')
-              {
-                traceview_focus = traceview_windows + (c2 - '1');
+          res = traceview_footer_set_index(traceview_focus->index);
+          assert_inner(!res, "traceview_footer_set_index");
+          res = traceview_titlebar_set_title(traceview_focus->title);
+          assert_inner(!res, "traceview_titlebar_set_title");
 
-                res = traceview_footer_set_index(traceview_focus->index);
-                assert_inner(!res, "traceview_footer_set_index");
-                res = traceview_titlebar_set_title(traceview_focus->title);
-                assert_inner(!res, "traceview_titlebar_set_title");
-
-                res = wrefresh(traceview_focus->window);
-                assert_inner(res != ERR, "wrefresh");
-              }
-          }
+          res = wrefresh(traceview_focus->window);
+          assert_inner(res != ERR, "wrefresh");
           break;
-        case 'q': case 'Q':
+
+        case TRACEVIEW_KEY_QUIT:
           return 0;
+
         default:
-          res = traceview_focus->dispatch_callback(c);
+          res = traceview_focus->dispatch_callback(k);
           assert_inner(!res, "traceview_focus->dispatch_callback");
           break;
         }
@@ -199,9 +198,6 @@ traceview_on_resize (unused int signum)
   assert_weak(res != ERR, "refresh");
   res = clear();
   assert_weak(res != ERR, "clear");
-
-  res = wrefresh(traceview_mainwindow);
-  assert_weak(res != ERR, "wrefresh");
 
   res = traceview_titlebar_redraw();
   assert_weak(!res, "traceview_titlebar_redraw");

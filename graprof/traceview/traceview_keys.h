@@ -27,14 +27,21 @@
 
 #if HAVE_NCURSES
 
-#include <grapes/util.h>
+#include <ncurses.h>
 
-#include "traceview_keys.h"
+enum traceview_key
+{
+  TRACEVIEW_KEY_NONE      = 0x00,
 
-int traceview_window_callgraph_init(void) may_fail;
+  TRACEVIEW_KEY_ALT_1     = 0x01,
+  TRACEVIEW_KEY_ALT_2     = 0x02,
+  TRACEVIEW_KEY_ALT_3     = 0x03,
+  TRACEVIEW_KEY_ALT_4     = 0x04,
 
-int traceview_window_callgraph_redraw(void) may_fail;
+  TRACEVIEW_KEY_QUIT      = 0x10
+};
+typedef enum traceview_key traceview_key;
 
-int traceview_window_callgraph_key_dispatch(traceview_key k) may_fail;
+traceview_key traceview_keys_get(WINDOW *w);
 
 #endif // HAVE_NCURSES
