@@ -38,6 +38,8 @@
 #include "traceview_window_callgraph.h"
 #include "traceview_window_memprofile.h"
 
+#include "traceview_help_overlay.h"
+
 #include "traceview_keys.h"
 
 extern WINDOW *traceview_window_interactive;
@@ -46,12 +48,14 @@ extern WINDOW *traceview_window_callgraph;
 extern WINDOW *traceview_window_memprofile;
 
 typedef int (*traceview_key_dispatch)(traceview_key);
+typedef int (*traceview_redraw)(void);
 
 struct traceview_window
 {
   unsigned int index;
   WINDOW *window;
   traceview_key_dispatch dispatch_callback;
+  traceview_redraw redraw_callback;
   const char *title;
 };
 typedef struct traceview_window traceview_window;
@@ -61,6 +65,9 @@ static traceview_window traceview_windows[4];
 static traceview_window *traceview_focus = NULL;
 
 static WINDOW *traceview_mainwindow = NULL;
+
+extern WINDOW *traceview_help_overlay;
+static unsigned int traceview_help_overlay_enabled = 0;
 
 
 static int
@@ -80,8 +87,6 @@ traceview_init (void)
   assert_inner(res != ERR, "cbreak");
   res = noecho();
   assert_inner(res != ERR, "noecho");
-  //res = keypad(stdscr, 1);
-  //assert_inner(res != ERR, "keypad");
   res = curs_set(0);
   assert_inner(res != ERR, "curs_set");
 
@@ -106,24 +111,31 @@ traceview_init (void)
   res = traceview_window_memprofile_init();
   assert_inner(!res, "traceview_window_memprofile_init");
 
+  res = traceview_help_overlay_init();
+  assert_inner(!res, "traceview_help_overlay_init");
+
   traceview_windows[0].index = 1;
   traceview_windows[0].window = traceview_window_interactive;
   traceview_windows[0].dispatch_callback = traceview_window_interactive_key_dispatch;
+  traceview_windows[0].redraw_callback = traceview_window_interactive_redraw;
   traceview_windows[0].title = "trace explorer";
 
   traceview_windows[1].index = 2;
   traceview_windows[1].window = traceview_window_flatprofile;
   traceview_windows[1].dispatch_callback = traceview_window_flatprofile_key_dispatch;
+  traceview_windows[1].redraw_callback = traceview_window_flatprofile_redraw;
   traceview_windows[1].title = "flat runtime profile";
 
   traceview_windows[2].index = 3;
   traceview_windows[2].window = traceview_window_callgraph;
   traceview_windows[2].dispatch_callback = traceview_window_callgraph_key_dispatch;
+  traceview_windows[2].redraw_callback = traceview_window_callgraph_redraw;
   traceview_windows[2].title = "callgraph profile";
 
   traceview_windows[3].index = 4;
   traceview_windows[3].window = traceview_window_memprofile;
   traceview_windows[3].dispatch_callback = traceview_window_memprofile_key_dispatch;
+  traceview_windows[3].redraw_callback = traceview_window_memprofile_redraw;
   traceview_windows[3].title = "memory allocation profile";
 
   traceview_focus = traceview_windows;
@@ -160,10 +172,25 @@ traceview_main_inner (void)
 
       switch (k)
         {
+        case TRACEVIEW_KEY_F1:
+          traceview_help_overlay_enabled = 1;
+          res = traceview_help_overlay_redraw();
+          assert_inner(!res, "traceview_help_overlay_redraw");
+          break;
+
+        case TRACEVIEW_KEY_ESCAPE:
+          traceview_help_overlay_enabled = 0;
+          res = traceview_focus->redraw_callback();
+          assert_inner(!res, "traceview_focus->redraw_callback");
+          break;
+
         case TRACEVIEW_KEY_ALT_1:
         case TRACEVIEW_KEY_ALT_2:
         case TRACEVIEW_KEY_ALT_3:
         case TRACEVIEW_KEY_ALT_4:
+          if (traceview_help_overlay_enabled)
+            break;
+
           traceview_focus = traceview_windows + (k - TRACEVIEW_KEY_ALT_1);
 
           res = traceview_footer_set_index(traceview_focus->index);
@@ -171,14 +198,18 @@ traceview_main_inner (void)
           res = traceview_titlebar_set_title(traceview_focus->title);
           assert_inner(!res, "traceview_titlebar_set_title");
 
-          res = wrefresh(traceview_focus->window);
-          assert_inner(res != ERR, "wrefresh");
+          traceview_focus->redraw_callback();
+          assert_inner(res != ERR, "traceview_focus->redraw_callback");
           break;
 
         case TRACEVIEW_KEY_QUIT:
+          if (traceview_help_overlay_enabled)
+            break;
           return 0;
 
         default:
+          if (traceview_help_overlay_enabled)
+            break;
           res = traceview_focus->dispatch_callback(k);
           assert_inner(!res, "traceview_focus->dispatch_callback");
           break;
@@ -203,17 +234,15 @@ traceview_on_resize (unused int signum)
   assert_weak(!res, "traceview_titlebar_redraw");
   res = traceview_footer_redraw();
   assert_weak(!res, "traceview_footer_redraw");
-  res = traceview_window_interactive_redraw();
-  assert_weak(!res, "traceview_window_interactive_redraw");
-  res = traceview_window_flatprofile_redraw();
-  assert_weak(!res, "traceview_window_flatprofile_redraw");
-  res = traceview_window_callgraph_redraw();
-  assert_weak(!res, "traceview_window_callgraph_redraw");
-  res = traceview_window_memprofile_redraw();
-  assert_weak(!res, "traceview_window_memprofile_redraw");
 
-  res = wrefresh(traceview_focus->window);
-  assert_weak(res != ERR, "wrefresh");
+  res = traceview_focus->redraw_callback();
+  assert_weak(!res, "traceview_focus->redraw_callback");
+
+  if (traceview_help_overlay_enabled)
+    {
+      res = traceview_help_overlay_redraw();
+      assert_weak(!res, "traceview_help_overlay_redraw");
+    }
 }
 
 int

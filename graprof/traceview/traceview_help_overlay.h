@@ -19,47 +19,18 @@
  ******************************************************************************/
 
 
-#include "traceview_window_flatprofile.h"
+#pragma once
+
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
 
 #if HAVE_NCURSES
 
-#include <ncurses.h>
+#include <grapes/util.h>
 
-WINDOW *traceview_window_flatprofile = NULL;
+int traceview_help_overlay_init(void) may_fail;
 
-int
-traceview_window_flatprofile_init (void)
-{
-  traceview_window_flatprofile = newwin(LINES - 2, COLS, 1, 0);
-  assert_inner(traceview_window_flatprofile, "newwin");
-
-  return 0;
-}
-
-int
-traceview_window_flatprofile_redraw (void)
-{
-  int res = wresize(traceview_window_flatprofile, LINES - 2, COLS);
-  assert_inner(res != ERR, "wresize");
-
-  res = mvwin(traceview_window_flatprofile, 1, 0);
-  assert_inner(res != ERR, "mvwin");
-
-  res = werase(traceview_window_flatprofile);
-  assert_inner(res != ERR, "werase");
-
-  mvwprintw(traceview_window_flatprofile, 2, 2, "hello world!!");
-
-  res = wrefresh(traceview_window_flatprofile);
-  assert_inner(res != ERR, "refresh");
-
-  return 0;
-}
-
-int
-traceview_window_flatprofile_key_dispatch (unused traceview_key k)
-{
-  return 0;
-}
+int traceview_help_overlay_redraw(void) may_fail;
 
 #endif // HAVE_NCURSES

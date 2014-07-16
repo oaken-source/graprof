@@ -19,46 +19,46 @@
  ******************************************************************************/
 
 
-#include "traceview_window_flatprofile.h"
+#include "traceview_help_overlay.h"
 
 #if HAVE_NCURSES
 
 #include <ncurses.h>
 
-WINDOW *traceview_window_flatprofile = NULL;
+WINDOW *traceview_help_overlay = NULL;
 
 int
-traceview_window_flatprofile_init (void)
+traceview_help_overlay_init (void)
 {
-  traceview_window_flatprofile = newwin(LINES - 2, COLS, 1, 0);
-  assert_inner(traceview_window_flatprofile, "newwin");
+  traceview_help_overlay = newwin(LINES - 16, COLS - 14, 8, 7);
+  assert_inner(traceview_help_overlay, "newwin");
+
+  int res = traceview_help_overlay_redraw();
+  assert_inner(!res, "traceview_help_overlay_redraw");
 
   return 0;
 }
 
 int
-traceview_window_flatprofile_redraw (void)
+traceview_help_overlay_redraw (void)
 {
-  int res = wresize(traceview_window_flatprofile, LINES - 2, COLS);
+  int res = wresize(traceview_help_overlay, LINES - 16, COLS - 14);
   assert_inner(res != ERR, "wresize");
 
-  res = mvwin(traceview_window_flatprofile, 1, 0);
+  res = mvwin(traceview_help_overlay, 8, 7);
   assert_inner(res != ERR, "mvwin");
 
-  res = werase(traceview_window_flatprofile);
+  res = werase(traceview_help_overlay);
   assert_inner(res != ERR, "werase");
 
-  mvwprintw(traceview_window_flatprofile, 2, 2, "hello world!!");
+  res = box(traceview_help_overlay, 0, 0);
+  assert_inner(res != ERR, "wbkgd");
 
-  res = wrefresh(traceview_window_flatprofile);
-  assert_inner(res != ERR, "refresh");
+  mvwprintw(traceview_help_overlay, 0, 4, " graprof traceview help ");
 
-  return 0;
-}
+  res = wrefresh(traceview_help_overlay);
+  assert_inner(res != ERR, "wrefresh");
 
-int
-traceview_window_flatprofile_key_dispatch (unused traceview_key k)
-{
   return 0;
 }
 
