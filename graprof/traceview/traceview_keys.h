@@ -31,14 +31,36 @@
 
 enum traceview_key
 {
-  TRACEVIEW_KEY_NONE      = 0x00,
+  TRACEVIEW_KEY_NONE          = 0x0000,
 
-  TRACEVIEW_KEY_ALT_1     = 0x01,
-  TRACEVIEW_KEY_ALT_2     = 0x02,
-  TRACEVIEW_KEY_ALT_3     = 0x03,
-  TRACEVIEW_KEY_ALT_4     = 0x04,
+  TRACEVIEW_KEY_QUIT          = 0x0001,
+  TRACEVIEW_KEY_ENTER         = 0x0002,
 
-  TRACEVIEW_KEY_QUIT      = 0x10
+  TRACEVIEW_KEY_ARROW_UP      = 0x1000,
+  TRACEVIEW_KEY_ARROW_DOWN    = 0x1001,
+  TRACEVIEW_KEY_ARROW_RIGHT   = 0x1002,
+  TRACEVIEW_KEY_ARROW_LEFT    = 0x1003,
+
+  TRACEVIEW_KEY_ESCAPE        = 0x1004,
+
+  TRACEVIEW_KEY_F1            = 0x2001,
+  TRACEVIEW_KEY_F2            = 0x2002,
+  TRACEVIEW_KEY_F3            = 0x2003,
+  TRACEVIEW_KEY_F4            = 0x2004,
+  TRACEVIEW_KEY_F5            = 0x2005,
+  TRACEVIEW_KEY_F6            = 0x2006,
+  TRACEVIEW_KEY_F7            = 0x2007,
+  TRACEVIEW_KEY_F8            = 0x2008,
+  TRACEVIEW_KEY_F9            = 0x2009,
+  TRACEVIEW_KEY_F10           = 0x2010,
+  TRACEVIEW_KEY_F11           = 0x2011,
+  TRACEVIEW_KEY_F12           = 0x2012,
+
+  TRACEVIEW_KEY_ALT_1         = 0x8001,
+  TRACEVIEW_KEY_ALT_2         = 0x8002,
+  TRACEVIEW_KEY_ALT_3         = 0x8003,
+  TRACEVIEW_KEY_ALT_4         = 0x8004,
+
 };
 typedef enum traceview_key traceview_key;
 

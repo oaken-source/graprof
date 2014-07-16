@@ -80,8 +80,8 @@ traceview_init (void)
   assert_inner(res != ERR, "cbreak");
   res = noecho();
   assert_inner(res != ERR, "noecho");
-  res = keypad(stdscr, 1);
-  assert_inner(res != ERR, "keypad");
+  //res = keypad(stdscr, 1);
+  //assert_inner(res != ERR, "keypad");
   res = curs_set(0);
   assert_inner(res != ERR, "curs_set");
 

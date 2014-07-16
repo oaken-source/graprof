@@ -144,6 +144,9 @@ main (int argc, char *argv[])
       feedback_assert(graprof_out, "%s", arguments.out_filename);
     }
 
+  if (!arguments.tasks)
+    arguments.tasks = GRAPROF_FLAT_PROFILE | GRAPROF_CALL_GRAPH | GRAPROF_MEMORY_PROFILE;
+
   // do stuff
   if (arguments.tasks & GRAPROF_FLAT_PROFILE)
     flatprofile_print(arguments.tasks & GRAPROF_CALL_GRAPH);
@@ -157,7 +160,7 @@ main (int argc, char *argv[])
   if (graprof_out != stdout)
     fclose(graprof_out);
 
-  if (!(arguments.tasks & GRAPROF_NO_GUI))
+  if (arguments.tasks & GRAPROF_TRACING_GUI)
     {
       res = traceview_main();
       feedback_assert(!res,
