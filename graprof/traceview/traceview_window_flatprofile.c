@@ -23,12 +23,14 @@
 
 #if HAVE_NCURSES
 
+#include "../flatprofile.h"
+
 WINDOW *traceview_window_flatprofile = NULL;
 
 int
 traceview_window_flatprofile_init (void)
 {
-  traceview_window_flatprofile = newwin(LINES - 2, COLS, 1, 0);
+  traceview_window_flatprofile = newwin(LINES - 4, COLS - 2, 2, 1);
   assert_inner(traceview_window_flatprofile, "newwin");
 
   return 0;
@@ -37,16 +39,16 @@ traceview_window_flatprofile_init (void)
 int
 traceview_window_flatprofile_redraw (void)
 {
-  int res = wresize(traceview_window_flatprofile, LINES - 2, COLS);
+  int res = wresize(traceview_window_flatprofile, LINES - 4, COLS - 2);
   assert_inner(res != ERR, "wresize");
 
-  res = mvwin(traceview_window_flatprofile, 1, 0);
+  res = mvwin(traceview_window_flatprofile, 2, 1);
   assert_inner(res != ERR, "mvwin");
 
   res = werase(traceview_window_flatprofile);
   assert_inner(res != ERR, "werase");
 
-  mvwprintw(traceview_window_flatprofile, 2, 2, "I am flatprofile");
+  mvwprintw(traceview_window_flatprofile, 0, 0, "%s", flatprofile_as_str());
 
   res = wrefresh(traceview_window_flatprofile);
   assert_inner(res != ERR, "refresh");
@@ -57,6 +59,19 @@ traceview_window_flatprofile_redraw (void)
 int
 traceview_window_flatprofile_key_dispatch (unused traceview_key k)
 {
+  switch (k)
+    {
+    case TRACEVIEW_KEY_ARROW_UP:
+
+      break;
+
+    case TRACEVIEW_KEY_ARROW_DOWN:
+
+      break;
+
+    default:
+      break;
+    }
   return 0;
 }
 

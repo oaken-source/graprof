@@ -190,8 +190,6 @@ flatprofile_print (void)
       assert_inner(!res, "flatprofile_generate");
     }
 
-  fprintf(graprof_out, "%s\n", flatprofile_str);
-
   return 0;
 }
 

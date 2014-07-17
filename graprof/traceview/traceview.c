@@ -25,6 +25,7 @@
 
 #include <signal.h>
 #include <string.h>
+#include <locale.h>
 
 #include <ncurses.h>
 
@@ -64,6 +65,8 @@ static unsigned int traceview_help_overlay_enabled = 0;
 static int
 traceview_init (void)
 {
+  setlocale(LC_CTYPE, "");
+
   WINDOW *w = initscr();
   assert_inner(w, "initscr");
 
