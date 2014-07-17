@@ -40,6 +40,7 @@
 #include "traceview_window_memprofile.h"
 
 #include "traceview_help_overlay.h"
+#include "traceview_scrollbar.h"
 
 #include "traceview_keys.h"
 
@@ -107,6 +108,9 @@ traceview_init (void)
 
   res = traceview_help_overlay_init();
   assert_inner(!res, "traceview_help_overlay_init");
+
+  res = traceview_scrollbar_init();
+  assert_inner(!res, "traceview_scrollbar_init");
 
   traceview_windows[0].index = 1;
   traceview_windows[0].window = traceview_window_interactive;

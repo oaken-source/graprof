@@ -30,10 +30,17 @@
 #include "../function.h"
 #include "../strtime.h"
 
+#include "traceview_scrollbar.h"
+
 WINDOW *traceview_window_flatprofile = NULL;
 
 static int traceview_window_flatprofile_focus = -1;
 static int traceview_window_flatprofile_max_focus = -1;
+
+static int traceview_window_flatprofile_scrolldown = 0;
+static int traceview_window_flatprofile_max_scrolldown = 0;
+
+static unsigned int traceview_window_flatprofile_maxlines = 0;
 
 int
 traceview_window_flatprofile_init (void)
@@ -47,7 +54,15 @@ traceview_window_flatprofile_init (void)
 int
 traceview_window_flatprofile_redraw (void)
 {
-  int res = wresize(traceview_window_flatprofile, LINES - 2, COLS);
+  unsigned int nfunctions = function_get_nfunctions();
+  traceview_window_flatprofile_maxlines = LINES - 2 - 9 - 2;
+
+  traceview_window_flatprofile_max_scrolldown = nfunctions - traceview_window_flatprofile_maxlines;
+
+  assert_set_errno(traceview_window_flatprofile_maxlines > 0, ENOTSUP, "terminal window too small");
+
+  unsigned int have_scrollbar = (traceview_window_flatprofile_max_scrolldown > 0);
+  int res = wresize(traceview_window_flatprofile, LINES - 2, COLS - have_scrollbar);
   assert_inner(res != ERR, "wresize");
 
   res = mvwin(traceview_window_flatprofile, 1, 0);
@@ -63,7 +78,6 @@ traceview_window_flatprofile_redraw (void)
       "total runtime:                      %llu %sseconds", time, prefix);
   mvwprintw(traceview_window_flatprofile, 2, 1,
       "total number of function calls:     %llu", function_get_total_calls());
-  unsigned int nfunctions = function_get_nfunctions();
   mvwprintw(traceview_window_flatprofile, 3, 1,
       "total number of distinct functions: %u", nfunctions);
 
@@ -82,8 +96,11 @@ traceview_window_flatprofile_redraw (void)
   function *functions = function_get_all(&nfunctions);
 
   unsigned int i;
-  for (i = 0; i < nfunctions; ++i)
+  for (i = traceview_window_flatprofile_scrolldown; i < nfunctions; ++i)
     {
+      if (i - traceview_window_flatprofile_scrolldown > traceview_window_flatprofile_maxlines)
+        break;
+
       function *f = sorted_functions[i];
 
       unsigned long long total_runtime = trace_get_total_runtime();
@@ -110,13 +127,13 @@ traceview_window_flatprofile_redraw (void)
       unsigned int index = (unsigned int)(f - functions);
 
       if (!strcmp(f->name, "??"))
-        mvwprintw(traceview_window_flatprofile, 9 + i, 1,
+        mvwprintw(traceview_window_flatprofile, 9 + i - traceview_window_flatprofile_scrolldown, 1,
           "%6.2f %6llu %ss %6llu %ss %8lu %6llu %ss %6llu %ss  0x%" PRIxPTR " [%u]",
           percent_time, self_time, self_time_prefix, children_time, children_time_prefix,
           calls, self_per_call, self_per_call_prefix, children_per_call, children_per_call_prefix,
           f->address, index);
       else
-        mvwprintw(traceview_window_flatprofile, 9 + i, 1,
+        mvwprintw(traceview_window_flatprofile, 9 + i - traceview_window_flatprofile_scrolldown, 1,
           "%6.2f %6llu %ss %6llu %ss %8lu %6llu %ss %6llu %ss  %s [%u]",
           percent_time, self_time, self_time_prefix, children_time, children_time_prefix,
           calls, self_per_call, self_per_call_prefix, children_per_call, children_per_call_prefix,
@@ -124,9 +141,15 @@ traceview_window_flatprofile_redraw (void)
 
       if ((int)i == traceview_window_flatprofile_focus)
         {
-          res = mvwchgat(traceview_window_flatprofile, 9 + i, 0, COLS, A_STANDOUT, 0, NULL);
+          res = mvwchgat(traceview_window_flatprofile, 9 + i - traceview_window_flatprofile_scrolldown, 0, COLS, A_STANDOUT, 0, NULL);
           assert_inner(res != ERR, "mvwchgat");
         }
+    }
+
+  if (have_scrollbar)
+    {
+      res = traceview_scrollbar_redraw(7, COLS - 1, LINES - 2 - 6, traceview_window_flatprofile_scrolldown * 1.0 / traceview_window_flatprofile_max_scrolldown);
+      assert_inner(!res, "traceview_scrollbar_redraw");
     }
 
   res = wrefresh(traceview_window_flatprofile);
@@ -144,6 +167,10 @@ traceview_window_flatprofile_key_dispatch (unused traceview_key k)
       if (traceview_window_flatprofile_focus > 0)
         {
           --traceview_window_flatprofile_focus;
+
+          if (traceview_window_flatprofile_focus < traceview_window_flatprofile_scrolldown)
+            traceview_window_flatprofile_scrolldown = traceview_window_flatprofile_focus;
+
           int res = traceview_window_flatprofile_redraw();
           assert_inner(!res, "traceview_window_flatprofile_redraw");
         }
@@ -153,6 +180,10 @@ traceview_window_flatprofile_key_dispatch (unused traceview_key k)
       if (traceview_window_flatprofile_focus < traceview_window_flatprofile_max_focus)
         {
           ++traceview_window_flatprofile_focus;
+
+          if (traceview_window_flatprofile_focus >= traceview_window_flatprofile_scrolldown + (int)traceview_window_flatprofile_maxlines)
+            traceview_window_flatprofile_scrolldown = traceview_window_flatprofile_focus - traceview_window_flatprofile_maxlines;
+
           int res = traceview_window_flatprofile_redraw();
           assert_inner(!res, "traceview_window_flatprofile_redraw");
         }
