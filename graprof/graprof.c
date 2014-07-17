@@ -149,7 +149,10 @@ main (int argc, char *argv[])
 
   // do stuff
   if (arguments.tasks & GRAPROF_FLAT_PROFILE)
-    flatprofile_print(arguments.tasks & GRAPROF_CALL_GRAPH);
+    {
+      res = flatprofile_print();
+      assert_inner(!res, "flatprofile_print");
+    }
 
   if (arguments.tasks & GRAPROF_CALL_GRAPH)
     callgraph_print();

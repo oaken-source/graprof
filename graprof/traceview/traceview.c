@@ -215,15 +215,11 @@ traceview_main_inner (void)
           return 0;
 
         default:
+          if (traceview_help_overlay_enabled)
+            break;
+
           res = traceview_focus->key_dispatch(k);
           assert_inner(!res, "traceview_focus->key_dispatch");
-
-          if (traceview_help_overlay_enabled)
-            {
-              res = traceview_help_overlay_redraw();
-              assert_inner(!res, "traceview_help_overlay_redraw");
-            }
-
           break;
         }
     }

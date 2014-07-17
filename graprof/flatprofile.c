@@ -35,6 +35,8 @@ extern int graprof_verbosity;
 
 extern struct arguments arguments;
 
+static const char *flatprofile_str = NULL;
+
 static int
 cmpfunction (const void *p1, const void *p2)
 {
@@ -49,28 +51,28 @@ cmpfunction (const void *p1, const void *p2)
   return 1;
 }
 
-void
-flatprofile_print (int callgraph_enabled)
+static size_t
+flatprofile_snprintf (char *buffer, size_t length)
 {
-  fprintf(graprof_out,
-        "Flat profile:\n"
-        "\n");
+  size_t pos = 0;
+  pos += snprintf(buffer + pos, length,
+      "Flat profile:\n"
+      "\n");
 
   const char *prefix;
   unsigned long long time = trace_get_total_runtime();
-
   strtime(&time, &prefix);
 
-  fprintf(graprof_out,
-        " total runtime:                      %llu %sseconds\n"
-        " total number of function calls:     %llu\n"
-        " total number of distinct functions: %u\n"
-        "\n"
-        "  %%       self    children             self    children\n"
-        " time      time      time     calls    /call     /call  name\n",
-        time, prefix,
-        function_get_total_calls(),
-        function_get_nfunctions());
+  pos += snprintf(buffer + pos, length,
+      " total runtime:                      %llu %sseconds\n"
+      " total number of function calls:     %llu\n"
+      " total number of distinct functions: %u\n"
+      "\n"
+      "  %%       self    children             self    children\n"
+      " time      time      time     calls    /call     /call  name\n",
+      time, prefix,
+      function_get_total_calls(),
+      function_get_nfunctions());
 
   unsigned int nfunctions = 0;
   function *functions = function_get_all(&nfunctions);
@@ -87,46 +89,45 @@ flatprofile_print (int callgraph_enabled)
       function *f = sorted_functions[i];
 
       time = trace_get_total_runtime();
-      fprintf(graprof_out, "%6.2f ", (100.0 * f->self_time) / time);
+      pos += snprintf(buffer + pos, length, "%6.2f ", (100.0 * f->self_time) / time);
 
       time = f->self_time;
       strtime(&time, &prefix);
 
-      fprintf(graprof_out, "%6llu %ss ", time, prefix);
+      pos += snprintf(buffer + pos, length, "%6llu %ss ", time, prefix);
 
       time = f->children_time;
       strtime(&time, &prefix);
 
-      fprintf(graprof_out, "%6llu %ss ", time, prefix);
+      pos += snprintf(buffer + pos, length, "%6llu %ss ", time, prefix);
 
-      fprintf(graprof_out, "%8lu ", f->calls);
+      pos += snprintf(buffer + pos, length, "%8lu ", f->calls);
 
       time = f->self_time / f->calls;
       strtime(&time, &prefix);
 
-      fprintf(graprof_out, "%6llu %ss ", time, prefix);
+      pos += snprintf(buffer + pos, length, "%6llu %ss ", time, prefix);
 
       time = f->children_time / f->calls;
       strtime(&time, &prefix);
 
-      fprintf(graprof_out, "%6llu %ss  ", time, prefix);
+      pos += snprintf(buffer + pos, length, "%6llu %ss  ", time, prefix);
 
       if (!strcmp(f->name, "??"))
-        fprintf(graprof_out, "0x%" PRIxPTR , f->address);
+        pos += snprintf(buffer + pos, length, "0x%" PRIxPTR , f->address);
       else
-        fprintf(graprof_out, "%s", f->name);
+        pos += snprintf(buffer + pos, length, "%s", f->name);
 
-      if (callgraph_enabled)
-        fprintf(graprof_out, " [%u]", (unsigned int)(f - functions));
+      pos += snprintf(buffer + pos, length, " [%u]", (unsigned int)(f - functions));
 
-      fprintf(graprof_out, "\n");
+      pos += snprintf(buffer + pos, length, "\n");
     }
 
   free(sorted_functions);
 
   if (graprof_verbosity >= 1)
     {
-      fprintf(graprof_out,
+      pos += snprintf(buffer + pos, length,
         "\n"
         " %%          the percentage of the total running time of the\n"
         " time       program spent in this function\n"
@@ -151,4 +152,46 @@ flatprofile_print (int callgraph_enabled)
         "            address - this is the minor sort of this listing\n"
         "\n");
     }
+
+  return pos + 1;
 }
+
+static int may_fail
+flatprofile_generate (void)
+{
+  size_t flatprofile_length = flatprofile_snprintf(NULL, 0);
+
+  flatprofile_str = calloc(flatprofile_length, sizeof(*flatprofile_str));
+  assert_inner(flatprofile_str, "calloc");
+
+  flatprofile_snprintf((char*)flatprofile_str, flatprofile_length);
+
+  return 0;
+}
+
+const char*
+flatprofile_as_str (void)
+{
+  if (!flatprofile_str)
+    {
+      int res = flatprofile_generate();
+      assert_inner_ptr(!res, "flatprofile_generate");
+    }
+
+  return flatprofile_str;
+}
+
+int
+flatprofile_print (void)
+{
+  if (!flatprofile_str)
+    {
+      int res = flatprofile_generate();
+      assert_inner(!res, "flatprofile_generate");
+    }
+
+  fprintf(graprof_out, "%s\n", flatprofile_str);
+
+  return 0;
+}
+
