@@ -31,6 +31,10 @@
 
 #include "traceview_keys.h"
 
+#include <ncurses.h>
+
+extern WINDOW *traceview_window_memprofile;
+
 int traceview_window_memprofile_init(void) may_fail;
 
 int traceview_window_memprofile_redraw(void) may_fail;

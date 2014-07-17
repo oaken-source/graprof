@@ -23,8 +23,6 @@
 
 #if HAVE_NCURSES
 
-#include <ncurses.h>
-
 WINDOW *traceview_window_callgraph = NULL;
 
 int

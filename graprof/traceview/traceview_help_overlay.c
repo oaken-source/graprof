@@ -23,14 +23,15 @@
 
 #if HAVE_NCURSES
 
-#include <ncurses.h>
-
 WINDOW *traceview_help_overlay = NULL;
+
+static unsigned int traceview_help_overlay_width = 34;
+static unsigned int traceview_help_overlay_height = 8;
 
 int
 traceview_help_overlay_init (void)
 {
-  traceview_help_overlay = newwin(LINES - 16, COLS - 14, 8, 7);
+  traceview_help_overlay = newwin(1, 1, 1, 1);
   assert_inner(traceview_help_overlay, "newwin");
 
   int res = traceview_help_overlay_redraw();
@@ -42,10 +43,13 @@ traceview_help_overlay_init (void)
 int
 traceview_help_overlay_redraw (void)
 {
-  int res = wresize(traceview_help_overlay, LINES - 16, COLS - 14);
+  int res = wresize(traceview_help_overlay, traceview_help_overlay_height, traceview_help_overlay_width);
   assert_inner(res != ERR, "wresize");
 
-  res = mvwin(traceview_help_overlay, 8, 7);
+  unsigned int x = COLS  / 2 - traceview_help_overlay_width  / 2;
+  unsigned int y = LINES / 2 - traceview_help_overlay_height / 2;
+
+  res = mvwin(traceview_help_overlay, y, x);
   assert_inner(res != ERR, "mvwin");
 
   res = werase(traceview_help_overlay);
@@ -54,7 +58,11 @@ traceview_help_overlay_redraw (void)
   res = box(traceview_help_overlay, 0, 0);
   assert_inner(res != ERR, "wbkgd");
 
-  mvwprintw(traceview_help_overlay, 0, 4, " graprof traceview help ");
+  mvwprintw(traceview_help_overlay, 0, 2, " graprof traceview help ");
+  mvwprintw(traceview_help_overlay, 2, 2, "F1  - show / dismiss this help");
+  mvwprintw(traceview_help_overlay, 3, 2, "ESC - back");
+  mvwprintw(traceview_help_overlay, 4, 2, "q   - back / exit");
+  mvwprintw(traceview_help_overlay, 6, 2, "ALT + [1-4] - switch view");
 
   res = wrefresh(traceview_help_overlay);
   assert_inner(res != ERR, "wrefresh");
