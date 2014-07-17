@@ -31,8 +31,9 @@
 
 static function *functions = NULL;
 static unsigned int nfunctions = 0;
+static function **sorted_functions = NULL;
 
-unsigned long long total_calls = 0;
+static unsigned long long total_calls = 0;
 
 static tree_entry call_tree_root = { -1, 0, 0, 0, 0, 0, NULL, NULL, 0, NULL, 0 };
 static tree_entry *call_tree_current_node = &call_tree_root;
@@ -82,7 +83,7 @@ function_call_data_init (call_data *d)
   d->children_time = 0;
 }
 
-static function*
+static function* may_fail
 function_push (uintptr_t address)
 {
   ++nfunctions;
@@ -101,7 +102,7 @@ function_push (uintptr_t address)
   return f;
 }
 
-static int
+static int may_fail
 function_add_caller (function *f, unsigned int caller_id)
 {
   unsigned int i;
@@ -124,7 +125,7 @@ function_add_caller (function *f, unsigned int caller_id)
   return 0;
 }
 
-static int
+static int may_fail
 function_add_callee (function *f, unsigned int callee_id)
 {
   unsigned int i;
@@ -201,7 +202,7 @@ function_add_caller_children_time (unsigned int caller_id, unsigned int callee_i
       f->callers[i].children_time += time;
 }
 
-static int
+static int may_fail
 function_create_call_vector_from_node(tree_entry *e, bitmask *b)
 {
   if (e->function_id != (unsigned int)-1)
@@ -253,7 +254,7 @@ function_create_call_vector_from_node(tree_entry *e, bitmask *b)
   return 0;
 }
 
-static int
+static int may_fail
 function_aggregate_function_times (void)
 {
   bitmask *b = bitmask_create(nfunctions);
@@ -263,6 +264,35 @@ function_aggregate_function_times (void)
   assert_inner(!res, "function_create_call_vector_from_node");
 
   bitmask_destroy(&b);
+
+  return 0;
+}
+
+static int
+cmpfunction (const void *p1, const void *p2)
+{
+  function *f1 = *(function**)p1;
+  function *f2 = *(function**)p2;
+
+  if (f2->self_time == f1->self_time)
+    return strcmp(f1->name, f2->name);
+
+  if (f2->self_time < f1->self_time)
+    return -1;
+  return 1;
+}
+
+static int may_fail
+function_sort (void)
+{
+  sorted_functions = malloc(sizeof(function*) * nfunctions);
+  assert_inner(sorted_functions, "malloc");
+
+  unsigned int i;
+  for (i = 0; i < nfunctions; ++i)
+    sorted_functions[i] = functions + i;
+
+  qsort(sorted_functions, nfunctions, sizeof(function*), cmpfunction);
 
   return 0;
 }
@@ -364,6 +394,20 @@ function_get_all (unsigned int *n)
   return functions;
 }
 
+function**
+function_get_all_sorted (unsigned int *n)
+{
+  *n = nfunctions;
+
+  if (!sorted_functions)
+    {
+      int res = function_sort();
+      assert_inner_ptr(!res, "function_sort");
+    }
+
+  return sorted_functions;
+}
+
 function*
 function_get_current (void)
 {
@@ -437,6 +481,7 @@ function_fini ()
       free(functions[i].secondaries);
     }
   free(functions);
+  free(sorted_functions);
 
   free_call_tree(&call_tree_root);
 }

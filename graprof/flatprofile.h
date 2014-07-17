@@ -27,13 +27,6 @@
 
 #include <grapes/util.h>
 
-/* generate the flat runtime profile into a string
- *
- * returns: a char buffer containing the flat runtime profile on success,
- *          NULL otherwise
- */
-const char *flatprofile_as_str(void) may_fail;
-
 /* print the flat runtime profile to graprof_out, declared in graprof.c
  *
  * returns: -1 on failure, 0 on success

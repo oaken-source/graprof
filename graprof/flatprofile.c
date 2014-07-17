@@ -33,29 +33,10 @@
 extern FILE *graprof_out;
 extern int graprof_verbosity;
 
-extern struct arguments arguments;
-
-static const char *flatprofile_str = NULL;
-
-static int
-cmpfunction (const void *p1, const void *p2)
+int
+flatprofile_print (void)
 {
-  function *f1 = *(function**)p1;
-  function *f2 = *(function**)p2;
-
-  if (f2->self_time == f1->self_time)
-    return strcmp(f1->name, f2->name);
-
-  if (f2->self_time < f1->self_time)
-    return -1;
-  return 1;
-}
-
-static size_t
-flatprofile_snprintf (char *buffer, size_t length)
-{
-  size_t pos = 0;
-  pos += snprintf(buffer + pos, length,
+  fprintf(graprof_out,
       "Flat profile:\n"
       "\n");
 
@@ -63,7 +44,7 @@ flatprofile_snprintf (char *buffer, size_t length)
   unsigned long long time = trace_get_total_runtime();
   strtime(&time, &prefix);
 
-  pos += snprintf(buffer + pos, length,
+  fprintf(graprof_out,
       " total runtime:                      %llu %sseconds\n"
       " total number of function calls:     %llu\n"
       " total number of distinct functions: %u\n"
@@ -75,59 +56,52 @@ flatprofile_snprintf (char *buffer, size_t length)
       function_get_nfunctions());
 
   unsigned int nfunctions = 0;
+  function **sorted_functions = function_get_all_sorted(&nfunctions);
   function *functions = function_get_all(&nfunctions);
 
-  function **sorted_functions = malloc(sizeof(function*) * nfunctions);
   unsigned int i;
-  for (i = 0; i < nfunctions; ++i)
-    sorted_functions[i] = functions + i;
-
-  qsort(sorted_functions, nfunctions, sizeof(function*), cmpfunction);
-
   for (i = 0; i < nfunctions; ++i)
     {
       function *f = sorted_functions[i];
 
       time = trace_get_total_runtime();
-      pos += snprintf(buffer + pos, length, "%6.2f ", (100.0 * f->self_time) / time);
+      fprintf(graprof_out, "%6.2f ", (100.0 * f->self_time) / time);
 
       time = f->self_time;
       strtime(&time, &prefix);
 
-      pos += snprintf(buffer + pos, length, "%6llu %ss ", time, prefix);
+      fprintf(graprof_out, "%6llu %ss ", time, prefix);
 
       time = f->children_time;
       strtime(&time, &prefix);
 
-      pos += snprintf(buffer + pos, length, "%6llu %ss ", time, prefix);
+      fprintf(graprof_out, "%6llu %ss ", time, prefix);
 
-      pos += snprintf(buffer + pos, length, "%8lu ", f->calls);
+      fprintf(graprof_out, "%8lu ", f->calls);
 
       time = f->self_time / f->calls;
       strtime(&time, &prefix);
 
-      pos += snprintf(buffer + pos, length, "%6llu %ss ", time, prefix);
+      fprintf(graprof_out, "%6llu %ss ", time, prefix);
 
       time = f->children_time / f->calls;
       strtime(&time, &prefix);
 
-      pos += snprintf(buffer + pos, length, "%6llu %ss  ", time, prefix);
+      fprintf(graprof_out, "%6llu %ss  ", time, prefix);
 
       if (!strcmp(f->name, "??"))
-        pos += snprintf(buffer + pos, length, "0x%" PRIxPTR , f->address);
+        fprintf(graprof_out, "0x%" PRIxPTR , f->address);
       else
-        pos += snprintf(buffer + pos, length, "%s", f->name);
+        fprintf(graprof_out, "%s", f->name);
 
-      pos += snprintf(buffer + pos, length, " [%u]", (unsigned int)(f - functions));
+      fprintf(graprof_out, " [%u]", (unsigned int)(f - functions));
 
-      pos += snprintf(buffer + pos, length, "\n");
+      fprintf(graprof_out, "\n");
     }
-
-  free(sorted_functions);
 
   if (graprof_verbosity >= 1)
     {
-      pos += snprintf(buffer + pos, length,
+      fprintf(graprof_out,
         "\n"
         " %%          the percentage of the total running time of the\n"
         " time       program spent in this function\n"
@@ -151,43 +125,6 @@ flatprofile_snprintf (char *buffer, size_t length)
         " name       the name of the function, if available, else its\n"
         "            address - this is the minor sort of this listing\n"
         "\n");
-    }
-
-  return pos + 1;
-}
-
-static int may_fail
-flatprofile_generate (void)
-{
-  size_t flatprofile_length = flatprofile_snprintf(NULL, 0);
-
-  flatprofile_str = calloc(flatprofile_length, sizeof(*flatprofile_str));
-  assert_inner(flatprofile_str, "calloc");
-
-  flatprofile_snprintf((char*)flatprofile_str, flatprofile_length);
-
-  return 0;
-}
-
-const char*
-flatprofile_as_str (void)
-{
-  if (!flatprofile_str)
-    {
-      int res = flatprofile_generate();
-      assert_inner_ptr(!res, "flatprofile_generate");
-    }
-
-  return flatprofile_str;
-}
-
-int
-flatprofile_print (void)
-{
-  if (!flatprofile_str)
-    {
-      int res = flatprofile_generate();
-      assert_inner(!res, "flatprofile_generate");
     }
 
   return 0;

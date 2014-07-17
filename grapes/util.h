@@ -70,6 +70,13 @@ void feedback_error_at_line(const char *filename, unsigned int linenum, const ch
 #  define assert_weak(COND, ...) do { if(!(COND)) { } } while (0)
 #endif
 
+/* convenience min/max macros
+ *
+ * note that these maxros may evaluate their parameters more than once.
+ */
+#define max(X, Y) ((X) > (Y) ? (X) : (Y))
+#define min(X, Y) ((X) > (Y) ? (Y) : (X))
+
 /* convenience attribute shortcuts with semantic sugar */
 #ifdef __GNUC__
 #  define may_fail __attribute__((warn_unused_result))
