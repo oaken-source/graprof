@@ -66,12 +66,12 @@ static unsigned int traceview_help_overlay_enabled = 0;
 static int
 traceview_init (void)
 {
+  // this fixes some encoding issues with wprintw on systems where the default
+  // locale is UTF-8 based. TODO: what about non-utf8 based systems?
   setlocale(LC_CTYPE, "");
 
   WINDOW *w = initscr();
   assert_inner(w, "initscr");
-
-  assert_inner(has_colors(), "has_colors");
 
   int res = start_color();
   assert_inner(res != ERR, "start_color");

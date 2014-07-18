@@ -120,13 +120,13 @@ traceview_window_flatprofile_redraw (void)
 
       if (!strcmp(f->name, "??"))
         mvwprintw(traceview_window_flatprofile, 9 + i - traceview_window_flatprofile_scrolldown, 1,
-          "%6.2f %6llu %ss %6llu %ss %8lu %6llu %ss %6llu %ss  0x%" PRIxPTR,
+          "%6.2f %6llu %ss %6llu %ss %8llu %6llu %ss %6llu %ss  0x%" PRIxPTR,
           percent_time, self_time, self_time_prefix, children_time, children_time_prefix,
           calls, self_per_call, self_per_call_prefix, children_per_call, children_per_call_prefix,
           f->address);
       else
         mvwprintw(traceview_window_flatprofile, 9 + i - traceview_window_flatprofile_scrolldown, 1,
-          "%6.2f %6llu %ss %6llu %ss %8lu %6llu %ss %6llu %ss  %s",
+          "%6.2f %6llu %ss %6llu %ss %8llu %6llu %ss %6llu %ss  %s",
           percent_time, self_time, self_time_prefix, children_time, children_time_prefix,
           calls, self_per_call, self_per_call_prefix, children_per_call, children_per_call_prefix,
           f->name);

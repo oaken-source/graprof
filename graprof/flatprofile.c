@@ -64,39 +64,36 @@ flatprofile_print (void)
     {
       function *f = sorted_functions[i];
 
-      unsigned long long time = trace_get_total_runtime();
-      fprintf(graprof_out, "%6.2f ", (100.0 * f->self_time) / time);
+      unsigned long long total_runtime = trace_get_total_runtime();
+      float percent_time = (100.0 * f->self_time) / total_runtime;
 
-      time = f->self_time;
-      const char *prefix = strtime(&time);
+      unsigned long long self_time = f->self_time;
+      const char *self_time_prefix = strtime(&self_time);
 
-      fprintf(graprof_out, "%6llu %ss ", time, prefix);
+      unsigned long long children_time = f->children_time;
+      const char *children_time_prefix = strtime(&children_time);
 
-      time = f->children_time;
-      prefix = strtime(&time);
+      unsigned long long calls = f->calls;
 
-      fprintf(graprof_out, "%6llu %ss ", time, prefix);
+      unsigned long long self_per_call = f->self_time / f->calls;
+      const char *self_per_call_prefix = strtime(&self_per_call);
 
-      fprintf(graprof_out, "%8lu ", f->calls);
+      unsigned long long children_per_call = f->children_time / f->calls;
+      const char *children_per_call_prefix = strtime(&children_per_call);
 
-      time = f->self_time / f->calls;
-      prefix = strtime(&time);
+      unsigned int index = f - functions;
 
-      fprintf(graprof_out, "%6llu %ss ", time, prefix);
-
-      time = f->children_time / f->calls;
-      prefix = strtime(&time);
-
-      fprintf(graprof_out, "%6llu %ss  ", time, prefix);
+      fprintf(graprof_out,
+        "%6.2f %6llu %ss %6llu %ss %8llu %6llu %ss %6llu %ss  ",
+        percent_time, self_time, self_time_prefix, children_time, children_time_prefix,
+        calls, self_per_call, self_per_call_prefix, children_per_call, children_per_call_prefix);
 
       if (!strcmp(f->name, "??"))
-        fprintf(graprof_out, "0x%" PRIxPTR , f->address);
+        fprintf(graprof_out, "0x%" PRIxPTR, f->address);
       else
         fprintf(graprof_out, "%s", f->name);
 
-      fprintf(graprof_out, " [%u]", (unsigned int)(f - functions));
-
-      fprintf(graprof_out, "\n");
+      fprintf(graprof_out, " [%u]\n", index);
     }
 
   if (graprof_verbosity >= 1)
@@ -123,9 +120,10 @@ flatprofile_print (void)
         " /call      of this function in the call tree per call\n"
         "\n"
         " name       the name of the function, if available, else its\n"
-        "            address - this is the minor sort of this listing\n"
-        "\n");
+        "            address - this is the minor sort of this listing\n");
     }
+
+  fprintf(graprof_out, "\n");
 
   return 0;
 }
