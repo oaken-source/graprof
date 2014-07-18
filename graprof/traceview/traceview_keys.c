@@ -37,7 +37,7 @@ typedef struct key_info key_info;
 
 key_info keys = { 0, TRACEVIEW_KEY_NONE, 0, NULL };
 
-static key_info*
+static key_info* may_fail
 push_key (key_info *i, char code, traceview_key k)
 {
   ++(i->nchildren);
@@ -166,7 +166,7 @@ wgetch_immediate(WINDOW *w)
   return k;
 }
 
-static key_info*
+static key_info* may_fail
 get_match (key_info *k, char c)
 {
   size_t i;
