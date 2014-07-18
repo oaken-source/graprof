@@ -51,7 +51,7 @@ traceview_scrollbar_redraw (int y, int x, int height, float state)
 
   mvwaddch(traceview_scrollbar, 0, 0, ACS_UARROW);
   mvwaddch(traceview_scrollbar, height - 1, 0, ACS_DARROW);
-  mvwaddch(traceview_scrollbar, 1 + state * (height - 2), 0, ACS_BLOCK);
+  mvwaddch(traceview_scrollbar, 1 + state * (height - 3), 0, ACS_BLOCK);
 
   res = wrefresh(traceview_scrollbar);
   assert_inner(res != ERR, "wrefresh");

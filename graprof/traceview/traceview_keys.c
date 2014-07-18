@@ -44,10 +44,6 @@ traceview_keys_dispatch_0x1B_0x5B_0x31(WINDOW *w)
 {
   char k = traceview_keys_get_immediate(w);
 
-  char k2 = traceview_keys_get_immediate(w);
-  if (k2 != 0x7E) // no F key
-    return TRACEVIEW_KEY_NONE;
-
   switch (k)
     {
     case 0x31:
@@ -55,11 +51,13 @@ traceview_keys_dispatch_0x1B_0x5B_0x31(WINDOW *w)
     case 0x33:
     case 0x34:
     case 0x35:
+      traceview_keys_get_immediate(w);
       return TRACEVIEW_KEY_F1 + (k - 0x31);
 
     case 0x37:
     case 0x38:
     case 0x39:
+      traceview_keys_get_immediate(w);
       return TRACEVIEW_KEY_F6 + (k - 0x37);
 
     default:
@@ -73,18 +71,16 @@ traceview_keys_dispatch_0x1B_0x5B_0x32(WINDOW *w)
 {
   char k = traceview_keys_get_immediate(w);
 
-  char k2 = traceview_keys_get_immediate(w);
-  if (k2 != 0x7E) // no F key
-    return TRACEVIEW_KEY_NONE;
-
   switch (k)
     {
     case 0x30:
     case 0x31:
+      traceview_keys_get_immediate(w);
       return TRACEVIEW_KEY_F9 + (k - 0x30);
 
     case 0x33:
     case 0x34:
+      traceview_keys_get_immediate(w);
       return TRACEVIEW_KEY_F11 + (k - 0x33);
 
     default:
@@ -105,6 +101,14 @@ traceview_keys_dispatch_0x1B_0x5B(WINDOW *w)
 
     case 0x32:
       return traceview_keys_dispatch_0x1B_0x5B_0x32(w); // F9 - F12
+
+    case 0x35:
+      traceview_keys_get_immediate(w);
+      return TRACEVIEW_KEY_PAGE_UP;
+
+    case 0x36:
+      traceview_keys_get_immediate(w);
+      return TRACEVIEW_KEY_PAGE_DOWN;
 
     case 0x41:
     case 0x42:

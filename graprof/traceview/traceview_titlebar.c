@@ -25,7 +25,7 @@
 
 #include <ncurses.h>
 
-static WINDOW *traceview_titlebar = NULL;
+WINDOW *traceview_titlebar = NULL;
 
 static const char *traceview_titlebar_title = NULL;
 

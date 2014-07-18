@@ -166,7 +166,7 @@ traceview_main_inner (void)
 
   do
     {
-      traceview_key k = traceview_keys_get(traceview_focus->window);
+      traceview_key k = traceview_keys_get(traceview_titlebar);
 
       switch (k)
         {

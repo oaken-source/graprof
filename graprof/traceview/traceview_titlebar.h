@@ -29,6 +29,10 @@
 
 #include <grapes/util.h>
 
+#include <ncurses.h>
+
+extern WINDOW *traceview_titlebar;
+
 int traceview_titlebar_init(void) may_fail;
 
 int traceview_titlebar_redraw(void) may_fail;
