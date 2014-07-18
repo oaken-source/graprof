@@ -71,9 +71,8 @@ traceview_window_flatprofile_redraw (void)
   res = werase(traceview_window_flatprofile);
   assert_inner(res != ERR, "werase");
 
-  const char *prefix;
   unsigned long long time = trace_get_total_runtime();
-  strtime(&time, &prefix);
+  const char *prefix = strtime(&time);
   mvwprintw(traceview_window_flatprofile, 1, 1,
       "total runtime:                      %llu %sseconds", time, prefix);
   mvwprintw(traceview_window_flatprofile, 2, 1,
@@ -92,8 +91,7 @@ traceview_window_flatprofile_redraw (void)
   mvwprintw(traceview_window_flatprofile, 8, 1,
       " time      time      time     calls    /call     /call  name");
 
-  function **sorted_functions = function_get_all_sorted(&nfunctions);
-  function *functions = function_get_all(&nfunctions);
+  function **sorted_functions = function_get_all_sorted();
 
   unsigned int i;
   for (i = traceview_window_flatprofile_scrolldown; i < nfunctions; ++i)
@@ -107,37 +105,31 @@ traceview_window_flatprofile_redraw (void)
       float percent_time = (100.0 * f->self_time) / total_runtime;
 
       unsigned long long self_time = f->self_time;
-      const char *self_time_prefix = NULL;
-      strtime(&self_time, &self_time_prefix);
+      const char *self_time_prefix = strtime(&self_time);
 
-      unsigned long long children_time = f->self_time;
-      const char *children_time_prefix = NULL;
-      strtime(&children_time, &children_time_prefix);
+      unsigned long long children_time = f->children_time;
+      const char *children_time_prefix = strtime(&children_time);
 
       unsigned long long calls = f->calls;
 
       unsigned long long self_per_call = f->self_time / f->calls;
-      const char *self_per_call_prefix = NULL;
-      strtime(&self_per_call, &self_per_call_prefix);
+      const char *self_per_call_prefix = strtime(&self_per_call);
 
       unsigned long long children_per_call = f->children_time / f->calls;
-      const char *children_per_call_prefix = NULL;
-      strtime(&children_per_call, &children_per_call_prefix);
-
-      unsigned int index = (unsigned int)(f - functions);
+      const char *children_per_call_prefix = strtime(&children_per_call);
 
       if (!strcmp(f->name, "??"))
         mvwprintw(traceview_window_flatprofile, 9 + i - traceview_window_flatprofile_scrolldown, 1,
-          "%6.2f %6llu %ss %6llu %ss %8lu %6llu %ss %6llu %ss  0x%" PRIxPTR " [%u]",
+          "%6.2f %6llu %ss %6llu %ss %8lu %6llu %ss %6llu %ss  0x%" PRIxPTR,
           percent_time, self_time, self_time_prefix, children_time, children_time_prefix,
           calls, self_per_call, self_per_call_prefix, children_per_call, children_per_call_prefix,
-          f->address, index);
+          f->address);
       else
         mvwprintw(traceview_window_flatprofile, 9 + i - traceview_window_flatprofile_scrolldown, 1,
-          "%6.2f %6llu %ss %6llu %ss %8lu %6llu %ss %6llu %ss  %s [%u]",
+          "%6.2f %6llu %ss %6llu %ss %8lu %6llu %ss %6llu %ss  %s",
           percent_time, self_time, self_time_prefix, children_time, children_time_prefix,
           calls, self_per_call, self_per_call_prefix, children_per_call, children_per_call_prefix,
-          f->name, index);
+          f->name);
 
       if ((int)i == traceview_window_flatprofile_focus)
         {

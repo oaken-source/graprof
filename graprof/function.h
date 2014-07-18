@@ -141,23 +141,23 @@ function* function_get_by_address(uintptr_t address);
 
 /* get the list of known functions
  *
- * params:
- *   nfunctions - a pointer where the length of the returned array is stored
+ * note: the length of the returned array can be determined by invoking
+ *       function_get_nfunctions();
  *
  * returns:
  *   a pointer to the first of an array of functions
  */
-function* function_get_all(unsigned int *nfunctions);
+function* function_get_all(void);
 
 /* get the list of known functions sorted by total runtime descending
  *
- * params:
- *   nfunctions - a pointer where the length of the returned array is stored
+ * note: the length of the returned array can be determined by invoking
+ *       function_get_nfunctions();
  *
  * returns:
  *   a pointer to the first of an array of pointers to functions
  */
-function** function_get_all_sorted(unsigned int *nfunctions) may_fail;
+function** function_get_all_sorted(void) may_fail;
 
 /* get the function currently on the top of the call stack
  *

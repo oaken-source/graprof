@@ -42,7 +42,9 @@ callgraph_print (void)
   const char *prefix;
   unsigned long long time = trace_get_total_runtime();
 
-  strtime(&time, &prefix);
+  prefix = strtime(&time);
+
+  unsigned int nfunctions = function_get_nfunctions();
 
   fprintf(graprof_out,
         " total runtime:                      %llu %sseconds\n"
@@ -53,10 +55,9 @@ callgraph_print (void)
         "  index  time          time      time       called       name\n",
         time, prefix,
         function_get_total_calls(),
-        function_get_nfunctions());
+        nfunctions);
 
-  unsigned int nfunctions = 0;
-  function *functions = function_get_all(&nfunctions);
+  function *functions = function_get_all();
 
   unsigned int i;
   for (i = 0; i < nfunctions; ++i)
@@ -74,11 +75,11 @@ callgraph_print (void)
           else
             {
               time = f->callers[j].self_time;
-              strtime(&time, &prefix);
+              prefix = strtime(&time);
               fprintf(graprof_out, "                   %6llu %ss ", time, prefix);
 
               time = f->callers[j].children_time;
-              strtime(&time, &prefix);
+              prefix = strtime(&time);
               fprintf(graprof_out, "%6llu %ss ", time, prefix);
 
               fprintf(graprof_out, "%8lu/%-8lu  ", f->callers[j].calls, f->calls);
@@ -96,11 +97,11 @@ callgraph_print (void)
       fprintf(graprof_out, " %6u %6.2f     ", i, (100.0 * (f->self_time + f->children_time)) / time);
 
       time = f->self_time;
-      strtime(&time, &prefix);
+      prefix = strtime(&time);
       fprintf(graprof_out, "%6llu %ss ", time, prefix);
 
       time = f->children_time;
-      strtime(&time, &prefix);
+      prefix = strtime(&time);
       fprintf(graprof_out, "%6llu %ss ", time, prefix);
 
       fprintf(graprof_out, "%8lu           ", f->calls);
@@ -115,11 +116,11 @@ callgraph_print (void)
       for (j = 0; j < f->ncallees; ++j)
         {
           time = f->callees[j].self_time;
-          strtime(&time, &prefix);
+          prefix = strtime(&time);
           fprintf(graprof_out, "            %6.2f %6llu %ss ", (100.0 * (f->callees[j].self_time + f->callees[j].children_time)) / (f->self_time + f->children_time), time, prefix);
 
           time = f->callees[j].children_time;
-          strtime(&time, &prefix);
+          prefix = strtime(&time);
           fprintf(graprof_out, "%6llu %ss ", time, prefix);
 
           fprintf(graprof_out, "%8lu/%-8lu  ", f->callees[j].calls, functions[f->callees[j].function_id].calls);

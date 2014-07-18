@@ -31,7 +31,8 @@
  * params:
  *   time - the time value in ns, this is modified to fit the resulting time
  *     unit.
- *   prefix - the prefix of the resulting time unit. this is either 'n', 'µ',
- *     'm' or ''
+ *
+ * returns:
+ *   a const char* to the unit prefix ("n", "µ", "m", or " ")
  */
-void strtime(unsigned long long *time, const char **prefix);
+const char* strtime(unsigned long long *time);

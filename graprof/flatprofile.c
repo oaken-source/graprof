@@ -40,9 +40,10 @@ flatprofile_print (void)
       "Flat profile:\n"
       "\n");
 
-  const char *prefix;
-  unsigned long long time = trace_get_total_runtime();
-  strtime(&time, &prefix);
+  unsigned long long total_runtime = trace_get_total_runtime();
+  const char *total_runtime_prefix = strtime(&total_runtime);
+
+  unsigned int nfunctions = function_get_nfunctions();
 
   fprintf(graprof_out,
       " total runtime:                      %llu %sseconds\n"
@@ -51,41 +52,40 @@ flatprofile_print (void)
       "\n"
       "  %%       self    children             self    children\n"
       " time      time      time     calls    /call     /call  name\n",
-      time, prefix,
+      total_runtime, total_runtime_prefix,
       function_get_total_calls(),
-      function_get_nfunctions());
+      nfunctions);
 
-  unsigned int nfunctions = 0;
-  function **sorted_functions = function_get_all_sorted(&nfunctions);
-  function *functions = function_get_all(&nfunctions);
+  function **sorted_functions = function_get_all_sorted();
+  function *functions = function_get_all();
 
   unsigned int i;
   for (i = 0; i < nfunctions; ++i)
     {
       function *f = sorted_functions[i];
 
-      time = trace_get_total_runtime();
+      unsigned long long time = trace_get_total_runtime();
       fprintf(graprof_out, "%6.2f ", (100.0 * f->self_time) / time);
 
       time = f->self_time;
-      strtime(&time, &prefix);
+      const char *prefix = strtime(&time);
 
       fprintf(graprof_out, "%6llu %ss ", time, prefix);
 
       time = f->children_time;
-      strtime(&time, &prefix);
+      prefix = strtime(&time);
 
       fprintf(graprof_out, "%6llu %ss ", time, prefix);
 
       fprintf(graprof_out, "%8lu ", f->calls);
 
       time = f->self_time / f->calls;
-      strtime(&time, &prefix);
+      prefix = strtime(&time);
 
       fprintf(graprof_out, "%6llu %ss ", time, prefix);
 
       time = f->children_time / f->calls;
-      strtime(&time, &prefix);
+      prefix = strtime(&time);
 
       fprintf(graprof_out, "%6llu %ss  ", time, prefix);
 

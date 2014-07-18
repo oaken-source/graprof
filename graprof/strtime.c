@@ -23,25 +23,27 @@
 
 #define MAX_TIMEVAL 100000
 
-void
-strtime (unsigned long long *time, const char **prefix)
+const char*
+strtime (unsigned long long *time)
 {
-  *prefix = "n";
+  const char *prefix = "n";
   if (*time >= MAX_TIMEVAL)
     {
-      *prefix = "µ";
+      prefix = "µ";
       *time /= 1000;
     }
 
   if (*time >= MAX_TIMEVAL)
     {
-      *prefix = "m";
+      prefix = "m";
       *time /= 1000;
     }
 
   if (*time >= MAX_TIMEVAL)
     {
-      *prefix = " ";
+      prefix = " ";
       *time /= 1000;
     }
+
+  return prefix;
 }

@@ -388,17 +388,14 @@ function_get_by_address (uintptr_t address)
 }
 
 function*
-function_get_all (unsigned int *n)
+function_get_all (void)
 {
-  *n = nfunctions;
   return functions;
 }
 
 function**
-function_get_all_sorted (unsigned int *n)
+function_get_all_sorted (void)
 {
-  *n = nfunctions;
-
   if (!sorted_functions)
     {
       int res = function_sort();
