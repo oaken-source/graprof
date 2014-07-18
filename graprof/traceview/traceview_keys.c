@@ -25,8 +25,135 @@
 
 #if HAVE_NCURSES
 
+struct key_info
+{
+  char key;
+  traceview_key value;
+
+  size_t nchildren;
+  struct key_info *children;
+};
+typedef struct key_info key_info;
+
+key_info keys = { 0, TRACEVIEW_KEY_NONE, 0, NULL };
+
+static key_info*
+push_key (key_info *i, char code, traceview_key k)
+{
+  ++(i->nchildren);
+  i->children = realloc(i->children, sizeof(*(i->children)) * i->nchildren);
+  assert_inner_ptr(i->children, "realloc");
+
+  key_info *tmp = i->children + i->nchildren - 1;
+  tmp->key = code;
+  tmp->value = k;
+  tmp->nchildren = 0;
+  tmp->children = NULL;
+
+  return tmp;
+}
+
+#define DEFINE_KEYS(GROUP) \
+  key_info *current = &keys; \
+  GROUP
+
+#define KEY(CODE, KEY) \
+  do \
+    { \
+      key_info *res = push_key(current, (CODE), (KEY)); \
+      assert_inner(res != NULL, "push_key"); \
+    } \
+  while (0);
+
+#define KEY_GROUP(CODE, GROUP) \
+  do \
+    { \
+      key_info *tmp = push_key(current, (CODE), TRACEVIEW_KEY_NONE); \
+      assert_inner(tmp != NULL, "push_key"); \
+      key_info *current = tmp; \
+      GROUP \
+    } \
+  while (0);
+
+int
+traceview_keys_init (void)
+{
+
+  DEFINE_KEYS(
+
+    KEY( 'q', TRACEVIEW_KEY_QUIT)
+    KEY( 'Q', TRACEVIEW_KEY_QUIT)
+    KEY(0x0A, TRACEVIEW_KEY_ENTER)
+
+    KEY_GROUP(0x1B,
+
+      KEY( '1', TRACEVIEW_KEY_ALT_1)
+      KEY( '2', TRACEVIEW_KEY_ALT_2)
+      KEY( '3', TRACEVIEW_KEY_ALT_3)
+      KEY( '4', TRACEVIEW_KEY_ALT_4)
+      KEY( ERR, TRACEVIEW_KEY_ESCAPE)
+
+      KEY_GROUP(0x5B,
+
+        KEY(0x41, TRACEVIEW_KEY_ARROW_UP)
+        KEY(0x42, TRACEVIEW_KEY_ARROW_DOWN)
+        KEY(0x43, TRACEVIEW_KEY_ARROW_LEFT)
+        KEY(0x44, TRACEVIEW_KEY_ARROW_RIGHT)
+
+        KEY_GROUP(0x35, KEY(0x7E, TRACEVIEW_KEY_PAGE_UP))
+        KEY_GROUP(0x36, KEY(0x7E, TRACEVIEW_KEY_PAGE_DOWN))
+
+        KEY_GROUP(0x31,
+
+          KEY_GROUP(0x31, KEY(0x7E, TRACEVIEW_KEY_F1))
+          KEY_GROUP(0x32, KEY(0x7E, TRACEVIEW_KEY_F2))
+          KEY_GROUP(0x33, KEY(0x7E, TRACEVIEW_KEY_F3))
+          KEY_GROUP(0x34, KEY(0x7E, TRACEVIEW_KEY_F4))
+          KEY_GROUP(0x35, KEY(0x7E, TRACEVIEW_KEY_F5))
+          KEY_GROUP(0x37, KEY(0x7E, TRACEVIEW_KEY_F6))
+          KEY_GROUP(0x38, KEY(0x7E, TRACEVIEW_KEY_F7))
+          KEY_GROUP(0x39, KEY(0x7E, TRACEVIEW_KEY_F8))
+        )
+
+        KEY_GROUP(0x32,
+
+          KEY_GROUP(0x30, KEY(0x7E, TRACEVIEW_KEY_F9))
+          KEY_GROUP(0x31, KEY(0x7E, TRACEVIEW_KEY_F10))
+          KEY_GROUP(0x33, KEY(0x7E, TRACEVIEW_KEY_F11))
+          KEY_GROUP(0x34, KEY(0x7E, TRACEVIEW_KEY_F12))
+        )
+      )
+    )
+  )
+
+  return 0;
+}
+
+#undef KEY_GROUP
+#undef KEY
+#undef DEFINE_KEYS
+
+static void
+traceview_keys_fini_walker (key_info *k)
+{
+  if (!(k->nchildren))
+    return;
+
+  size_t i;
+  for (i = 0; i < k->nchildren; ++i)
+    traceview_keys_fini_walker(k->children + i);
+
+  free(k->children);
+}
+
+void
+traceview_keys_fini (void)
+{
+  traceview_keys_fini_walker(&keys);
+}
+
 static char
-traceview_keys_get_immediate(WINDOW *w)
+wgetch_immediate(WINDOW *w)
 {
   int res = nodelay(w, 1);
   assert_inner(res != ERR, "nodelay");
@@ -39,135 +166,32 @@ traceview_keys_get_immediate(WINDOW *w)
   return k;
 }
 
-static traceview_key
-traceview_keys_dispatch_0x1B_0x5B_0x31(WINDOW *w)
+static key_info*
+get_match (key_info *k, char c)
 {
-  char k = traceview_keys_get_immediate(w);
+  size_t i;
+  for (i = 0; i < k->nchildren; ++i)
+    if (k->children[i].key == c)
+      return k->children + i;
 
-  switch (k)
-    {
-    case 0x31:
-    case 0x32:
-    case 0x33:
-    case 0x34:
-    case 0x35:
-      traceview_keys_get_immediate(w);
-      return TRACEVIEW_KEY_F1 + (k - 0x31);
-
-    case 0x37:
-    case 0x38:
-    case 0x39:
-      traceview_keys_get_immediate(w);
-      return TRACEVIEW_KEY_F6 + (k - 0x37);
-
-    default:
-      fprintf(stderr, "0x1B, 0x5B, 0x31, 0x%02X\n", k);
-      return TRACEVIEW_KEY_NONE;
-    }
-}
-
-static traceview_key
-traceview_keys_dispatch_0x1B_0x5B_0x32(WINDOW *w)
-{
-  char k = traceview_keys_get_immediate(w);
-
-  switch (k)
-    {
-    case 0x30:
-    case 0x31:
-      traceview_keys_get_immediate(w);
-      return TRACEVIEW_KEY_F9 + (k - 0x30);
-
-    case 0x33:
-    case 0x34:
-      traceview_keys_get_immediate(w);
-      return TRACEVIEW_KEY_F11 + (k - 0x33);
-
-    default:
-      fprintf(stderr, "0x1B, 0x5B, 0x32, 0x%02X\n", k);
-      return TRACEVIEW_KEY_NONE;
-    }
-}
-
-static traceview_key
-traceview_keys_dispatch_0x1B_0x5B(WINDOW *w)
-{
-  char k = traceview_keys_get_immediate(w);
-
-  switch (k)
-    {
-    case 0x31:
-      return traceview_keys_dispatch_0x1B_0x5B_0x31(w); // F1 - F8
-
-    case 0x32:
-      return traceview_keys_dispatch_0x1B_0x5B_0x32(w); // F9 - F12
-
-    case 0x35:
-      traceview_keys_get_immediate(w);
-      return TRACEVIEW_KEY_PAGE_UP;
-
-    case 0x36:
-      traceview_keys_get_immediate(w);
-      return TRACEVIEW_KEY_PAGE_DOWN;
-
-    case 0x41:
-    case 0x42:
-    case 0x43:
-    case 0x44:
-      return TRACEVIEW_KEY_ARROW_UP + (k - 0x41);
-
-    default:
-      fprintf(stderr, "0x1B, 0x5B, 0x%02X\n", k);
-      return TRACEVIEW_KEY_NONE;
-    }
-}
-
-static traceview_key
-traceview_keys_dispatch_0x1B(WINDOW *w)
-{
-  char k = traceview_keys_get_immediate(w);
-
-  switch (k)
-    {
-    case 0x5B: // arrow keys / F keys / ...
-      return traceview_keys_dispatch_0x1B_0x5B(w);
-
-    case '1':
-    case '2':
-    case '3':
-    case '4':
-      return TRACEVIEW_KEY_ALT_1 + (k - '1');
-
-    case ERR:
-      return TRACEVIEW_KEY_ESCAPE;
-
-    default:
-      fprintf(stderr, "0x1B, 0x%02X\n", k);
-      return TRACEVIEW_KEY_NONE;
-    }
+  return NULL;
 }
 
 traceview_key
 traceview_keys_get (WINDOW *w)
 {
-  char k = wgetch(w);
-
-  switch (k)
+  key_info *current = &keys;
+  while (current->value == TRACEVIEW_KEY_NONE)
     {
-    case 0x1B: // escape / alt / arrow keys / F keys / ...
-      return traceview_keys_dispatch_0x1B(w);
+      char k = (current == &keys) ? wgetch(w) : wgetch_immediate(w);
+      current = get_match(current, k);
 
-    case 0x0A: // enter
-      return TRACEVIEW_KEY_ENTER;
-
-    case 'q':
-    case 'Q':
-      return TRACEVIEW_KEY_QUIT;
-
-    default:
-      fprintf(stderr, "0x%02X\n", k);
-      return TRACEVIEW_KEY_NONE;
+      if (!current)
+        return TRACEVIEW_KEY_NONE;
     }
+
+  return current->value;
 }
+
 
 #endif // HAVE_NCURSES

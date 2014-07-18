@@ -27,6 +27,8 @@
 
 #if HAVE_NCURSES
 
+#include <grapes/util.h>
+
 #include <ncurses.h>
 
 enum traceview_key
@@ -66,6 +68,10 @@ enum traceview_key
 
 };
 typedef enum traceview_key traceview_key;
+
+int traceview_keys_init(void) may_fail;
+
+void traceview_keys_fini(void);
 
 traceview_key traceview_keys_get(WINDOW *w);
 
