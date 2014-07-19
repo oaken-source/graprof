@@ -28,3 +28,9 @@
 #include <grapes/util.h>
 
 int traceview_main(void) may_fail;
+
+#if HAVE_NCURSES
+
+int traceview_navigate_to_callgraph_function(unsigned int function_id) may_fail;
+
+#endif // HAVE_NCURSES

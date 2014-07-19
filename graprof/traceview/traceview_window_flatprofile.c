@@ -31,6 +31,7 @@
 #include "../strtime.h"
 
 #include "traceview_scrollbar.h"
+#include "traceview.h"
 
 WINDOW *traceview_window_flatprofile = NULL;
 
@@ -39,6 +40,7 @@ static WINDOW *listing = NULL;
 
 static unsigned int focus_index = 0;
 static unsigned int focus_max = 0;
+static unsigned int focus_function = 0;
 
 static unsigned int scrolldown = 0;
 static unsigned int scrolldown_max = 0;
@@ -126,6 +128,7 @@ redraw_listing_item (unsigned int line, function *f, int focus)
 
   if (focus)
     {
+      focus_function = (unsigned int)(f - function_get_all());
       int res = mvwchgat(listing, line, 0, -1, A_STANDOUT, 0, NULL);
       assert_inner(res != ERR, "mvwchgat");
     }
@@ -227,6 +230,11 @@ traceview_window_flatprofile_key_dispatch (unused traceview_key k)
       scrolldown = min((int)(scrolldown_max - items_shown), (int)scrolldown) + items_shown;
       res = traceview_window_flatprofile_redraw();
       assert_inner(!res, "traceview_window_flatprofile_redraw");
+      break;
+
+    case TRACEVIEW_KEY_ENTER:
+      res = traceview_navigate_to_callgraph_function(focus_function);
+      assert_inner(!res, "traceview_navigate_to_callgraph_function");
       break;
 
     default:
