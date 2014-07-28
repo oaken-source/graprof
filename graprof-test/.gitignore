@@ -4,4 +4,6 @@ gp.out.*
 gprof.out.*
 graprof.out.*
 
+gui.log
+
 git-local

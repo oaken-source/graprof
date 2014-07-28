@@ -303,6 +303,9 @@ traceview_navigate_to_callgraph_function (unused unsigned int function_id)
   int res = switch_focus(TRACEVIEW_FOCUS_CALLGRAPH);
   assert_inner(!res, "switch_focus");
 
+  res = traceview_window_callgraph_navigate_to_function(function_id);
+  assert_inner(!res, "tracevieww_window_callgraph_navigate_to_function");
+
   return 0;
 }
 

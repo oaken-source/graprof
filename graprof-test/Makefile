@@ -1,12 +1,15 @@
 
-SUBDIRS=analysisperf
+SUBDIRS=analysisperf guitest
 
 all: $(SUBDIRS)
 
 analysisperf: FORCE
 	make -C $@
 
-clean: 
-	for i in $(SUBDIRS); do make -C $$i clean; done 
+guitest: FORCE
+	make -C $@
+
+clean:
+	for i in $(SUBDIRS); do make -C $$i clean; done
 
 FORCE:

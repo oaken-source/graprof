@@ -41,4 +41,6 @@ int traceview_window_callgraph_redraw(void) may_fail;
 
 int traceview_window_callgraph_key_dispatch(traceview_key k) may_fail;
 
+int traceview_window_callgraph_navigate_to_function(unsigned int function_id) may_fail;
+
 #endif // HAVE_NCURSES
