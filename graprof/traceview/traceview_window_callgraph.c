@@ -34,6 +34,15 @@ static WINDOW *listing = NULL;
 
 static unsigned int function_id = 0;
 
+static unsigned int focus_index = 0;
+static unsigned int focus_max = 0;
+unused static unsigned int focus_function = 0;
+
+static unsigned int scrolldown = 0;
+static unsigned int scrolldown_max = 0;
+
+static unsigned int items_shown = 0;
+
 int
 traceview_window_callgraph_init (void)
 {
@@ -61,18 +70,22 @@ redraw_header (void)
   res = werase(header);
   assert_inner(res != ERR, "werase");
 
-  unsigned long long time = trace_get_total_runtime();
-  const char *prefix = strtime(&time);
+  function *f = function_get_all() + function_id;
+  unsigned long long total_time = f->self_time + f->children_time;
+  const char *total_time_prefix = strtime(&total_time);
+  unsigned long long self_time = f->self_time;
+  const char *self_time_prefix = strtime(&self_time);
+
+
   mvwprintw(header, 1, 1,
-      "total runtime:                      %llu %sseconds", time, prefix);
+      "function name:                      %s", f->name);
   mvwprintw(header, 2, 1,
-      "total number of function calls:     %llu", function_get_total_calls());
+      "total time:                         %llu %sseconds (%.2f%%)", total_time, total_time_prefix);
   mvwprintw(header, 3, 1,
-      "total number of distinct functions: %u", function_get_nfunctions());
+      "self time:                          %llu %sseconds (%.2f%%)", self_time, self_time_prefix);
 
   res = mvwhline(header, 5, 0, 0, COLS);
 
-  function *f = function_get_all() + function_id;
   mvwprintw(header, 5, 2, " %s ", f->name);
 
   res = wrefresh(header);
@@ -84,9 +97,20 @@ redraw_header (void)
 static int may_fail
 redraw_listing (void)
 {
-  //function *f = function_get_all() + function_id;
+  unsigned int height = LINES - 8;
+  items_shown = height - 3;
+  unsigned int items_total = function_get_nfunctions();
 
-  int res = wresize(listing, LINES - 8, COLS);
+  unsigned int have_scrollbar = (items_shown < items_total);
+  focus_max = items_total - 1;
+  scrolldown_max = items_total - items_shown;
+
+  if (focus_index < scrolldown)
+    scrolldown = focus_index;
+  if (focus_index >= scrolldown + items_shown)
+    scrolldown = focus_index - items_shown + 1;
+
+  int res = wresize(listing, height, COLS - have_scrollbar);
   assert_inner(res != ERR, "wresize");
 
   res = mvwin(listing, 7, 0);
@@ -94,6 +118,26 @@ redraw_listing (void)
 
   res = werase(listing);
   assert_inner(res != ERR, "werase");
+
+  mvwprintw(listing, 1, 1,
+      "  %%       self    children");
+  mvwprintw(listing, 2, 1,
+      " time      time      time       called       name");
+
+  /*function **sorted_functions = function_get_all_sorted();
+
+  unsigned int i;
+  for (i = scrolldown; i < min(items_total, scrolldown + items_shown); ++i)
+    {
+      res = redraw_listing_item(3 + i - scrolldown, sorted_functions[i], i == focus_index);
+      assert_inner(!res, "redraw_listing_item");
+    }
+
+  if (have_scrollbar)
+    {
+      res = traceview_scrollbar_redraw(7, COLS - 1, height, scrolldown * 1.0 / scrolldown_max);
+      assert_inner(!res, "traceview_scrollbar_redraw");
+    }*/
 
   res = wrefresh(listing);
   assert_inner(res != ERR, "wrefresh");
@@ -132,6 +176,14 @@ traceview_window_callgraph_key_dispatch (traceview_key k)
         function_id = max(1, function_id) - 1;
         res = traceview_window_callgraph_redraw();
         assert_inner(!res, "traceview_window_callgraph_redraw");
+        break;
+
+      case TRACEVIEW_KEY_ARROW_DOWN:
+
+        break;
+
+      case TRACEVIEW_KEY_ARROW_UP:
+
         break;
 
       case TRACEVIEW_KEY_ENTER:
