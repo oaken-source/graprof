@@ -4,7 +4,7 @@
 EXTRA_DIST = \
     asparagus.exp \
     lib/feedback.tcl lib/globals.tcl lib/string.tcl \
-    steps/dispatcher.tcl steps/default.tcl \
+    steps/dispatcher.tcl steps/custom.tcl steps/default.tcl \
     overhead.tests/overhead.exp
 
 AUTOMAKE_OPTIONS = dejagnu

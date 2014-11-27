@@ -36,5 +36,6 @@ given the c code "${src}"
   when I time
 
 unset -nocomplain ::env(GRAPROF_OUT)
+file delete -force gp.out
 
 send_user "\n"
