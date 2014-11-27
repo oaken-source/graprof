@@ -13,6 +13,7 @@ configure
 libtool
 scripts/
 stamp-h1
+.dirstamp
 
 # libtool generated files
 .libs
