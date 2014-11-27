@@ -72,4 +72,4 @@ graprof_graprof_gp_LDADD = ${graprof_graprof_LDADD} grapes/libgrapes-gp.la libgr
 
 endif ## PROFILING
 
-SUBDIRS = docs
+SUBDIRS = tests docs

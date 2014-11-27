@@ -1,0 +1,40 @@
+
+set libdir $::env(libdir)
+set ::env(LD_LIBRARY_PATH) ${libdir}
+
+unset -nocomplain ::env(GRAPROF_OUT)
+
+set src "
+    int foo (void) { return 0; }
+    int main (void) {
+      unsigned int i;
+      for (i = 0; i < 1000000; ++i) foo();
+      return 0;
+    }"
+
+### test the instrumentation overhead of libgraprof
+# time execution of 10 million function calls
+given the c code "${src}"
+  when I compile with cflags "-Wall -Wextra -Werror -g"
+  then it should return 0
+  when I time
+# time the same with noop instrumentation
+given the c code "${src}"
+  when I compile with cflags "-Wall -Wextra -Werror -finstrument-functions -g"
+  then it should return 0
+  when I time
+# time the same with inert graprof instrumentation
+given the c code "${src}"
+  when I compile with cflags "-Wall -Wextra -Werror -finstrument-functions -g -L${libdir} -lgraprof"
+  then it should return 0
+  when I time
+# time the same with active graprof instrumentation
+set ::env(GRAPROF_OUT) gp.out
+given the c code "${src}"
+  when I compile with cflags "-Wall -Wextra -Werror -finstrument-functions -g -L${libdir} -lgraprof"
+  then it should return 0
+  when I time
+
+unset -nocomplain ::env(GRAPROF_OUT)
+
+send_user "\n"

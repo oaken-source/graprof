@@ -19,6 +19,13 @@ stamp-h1
 .libs
 .deps
 
+# runtest generated files
+*.log
+*.log.*
+*.sum
+gp.out
+site.*
+
 **/Makefile
 **/Makefile.in
 
