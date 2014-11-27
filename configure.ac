@@ -10,7 +10,7 @@ AC_CONFIG_MACRO_DIR([m4])
 
 AC_SUBST([AM_CFLAGS], [])
 
-AM_INIT_AUTOMAKE([-Wall -Werror gnu subdir-objects])
+AM_INIT_AUTOMAKE([-Wall -Werror gnu])
 
 AC_PROG_CC
 AM_PROG_CC_C_O

@@ -15,8 +15,6 @@ scripts/
 stamp-h1
 .dirstamp
 
-.dirstamp
-
 # libtool generated files
 .libs
 .deps
