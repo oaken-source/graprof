@@ -55,7 +55,7 @@ traceview_window_interactive_redraw (void)
 }
 
 int
-traceview_window_interactive_key_dispatch (unused traceview_key k)
+traceview_window_interactive_key_dispatch (__unused traceview_key k)
 {
   return 0;
 }

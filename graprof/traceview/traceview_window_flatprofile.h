@@ -35,10 +35,10 @@
 
 extern WINDOW *traceview_window_flatprofile;
 
-int traceview_window_flatprofile_init(void) may_fail;
+int traceview_window_flatprofile_init(void) __may_fail;
 
-int traceview_window_flatprofile_redraw(void) may_fail;
+int traceview_window_flatprofile_redraw(void) __may_fail;
 
-int traceview_window_flatprofile_key_dispatch(traceview_key k) may_fail;
+int traceview_window_flatprofile_key_dispatch(traceview_key k) __may_fail;
 
 #endif // HAVE_NCURSES

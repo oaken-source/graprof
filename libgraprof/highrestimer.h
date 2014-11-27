@@ -25,13 +25,17 @@
 #  include <config.h>
 #endif
 
+#include <grapes/util.h>
+
 /* get the number of nanoseconds elapsed since the start of the program
  *
  * errors:
- *   EINVAL - your system does not support CLOCK_MONOTONIC_RAW
+ *   EINVAL - your system has clock_gettime, but does not support
+ *            CLOCK_MONOTONIC_RAW
+ *   ENOSYS - neither clock_gettime nor mach_absolute_time available
  *
  * returns:
  *   the number of nanoseconds elapsed since the start of the program on
  *   success, -1 on failure
  */
-unsigned long long highrestimer_get(void);
+unsigned long long highrestimer_get(void) __may_fail;

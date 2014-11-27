@@ -104,7 +104,7 @@ typedef struct function function;
  * returns:
  *   -1 on failure, 0 on success
  */
-int function_enter(uintptr_t address, uintptr_t caller, unsigned long long time) may_fail;
+int function_enter(uintptr_t address, uintptr_t caller, unsigned long long time) __may_fail;
 
 /* process an exit event for the last entered function, that has been read
  * from the trace data
@@ -127,7 +127,7 @@ void function_exit(unsigned long long time);
  * returns:
  *   -1 on failure, 0 on success
  */
-int function_exit_all(unsigned long long time) may_fail;
+int function_exit_all(unsigned long long time) __may_fail;
 
 /* get the function represented by a given address
  *
@@ -157,7 +157,7 @@ function* function_get_all(void);
  * returns:
  *   a pointer to the first of an array of pointers to functions
  */
-function** function_get_all_sorted(void) may_fail;
+function** function_get_all_sorted(void) __may_fail;
 
 /* get the function currently on the top of the call stack
  *
@@ -180,7 +180,7 @@ function* function_get_current(void);
  *   0, if function "=" address
  *   > 0, if function ">" address
  */
-int function_compare(function *f, uintptr_t addr) may_fail;
+int function_compare(function *f, uintptr_t addr) __may_fail;
 
 /* get the total number of function calls
  *

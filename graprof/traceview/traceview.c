@@ -255,7 +255,7 @@ traceview_main_inner (void)
 }
 
 static void
-traceview_on_resize (unused int signum)
+traceview_on_resize (__unused int signum)
 {
   int res = endwin();
   assert_weak(res != ERR, "endwin");
@@ -298,7 +298,7 @@ traceview_main (void)
 }
 
 int
-traceview_navigate_to_callgraph_function (unused unsigned int function_id)
+traceview_navigate_to_callgraph_function (__unused unsigned int function_id)
 {
   int res = switch_focus(TRACEVIEW_FOCUS_CALLGRAPH);
   assert_inner(!res, "switch_focus");

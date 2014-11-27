@@ -70,7 +70,7 @@ enum traceview_key
 };
 typedef enum traceview_key traceview_key;
 
-int traceview_keys_init(void) may_fail;
+int traceview_keys_init(void) __may_fail;
 
 void traceview_keys_fini(void);
 

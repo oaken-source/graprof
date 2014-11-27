@@ -21,10 +21,13 @@
 
 #include "file.h"
 
+#include "util.h" // <grapes/util.h>
+
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
 
+const char *file_map_empty = "";
 
 void*
 file_map (const char *filename, size_t *length)
@@ -47,13 +50,13 @@ file_map (const char *filename, size_t *length)
       return data;
     }
 
-  return (void*)"";
+  return (void*)file_map_empty;
 }
 
 int
 file_unmap (void *data, size_t length)
 {
-  if (length > 0)
+  if (data && (data != file_map_empty))
     {
       int res = munmap(data, length);
       assert_inner(!res, "munmap");

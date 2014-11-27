@@ -62,7 +62,7 @@ traceview_window_flatprofile_init (void)
   return 0;
 }
 
-static int may_fail
+static int __may_fail
 redraw_header (void)
 {
   int res = wresize(header, 6, COLS);
@@ -93,7 +93,7 @@ redraw_header (void)
   return 0;
 }
 
-static int may_fail
+static int __may_fail
 redraw_listing_item (unsigned int line, function *f, int focus)
 {
   unsigned long long total_runtime = trace_get_total_runtime();
@@ -136,7 +136,7 @@ redraw_listing_item (unsigned int line, function *f, int focus)
   return 0;
 }
 
-static int may_fail
+static int __may_fail
 redraw_listing (void)
 {
   unsigned int height = LINES - 8;
@@ -200,7 +200,7 @@ traceview_window_flatprofile_redraw (void)
 }
 
 int
-traceview_window_flatprofile_key_dispatch (unused traceview_key k)
+traceview_window_flatprofile_key_dispatch (__unused traceview_key k)
 {
   int res;
 

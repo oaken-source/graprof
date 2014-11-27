@@ -3,9 +3,11 @@ proc when_I_time { } {
 
   global asparagus_executable_path
 
+  set iterations 50
+
   set time_start [clock clicks -milliseconds]
 
-  for { set i 0 } { $i < 10 } { incr i } {
+  for { set i 0 } { $i < $iterations } { incr i } {
     if { [ catch {
       spawn $asparagus_executable_path
       wait $spawn_id
@@ -15,7 +17,7 @@ proc when_I_time { } {
     }
   }
 
-  set time_taken [expr [expr [clock clicks -milliseconds] - $time_start] / 10]
+  set time_taken [expr [expr [clock clicks -milliseconds] - $time_start] / $iterations]
 
   send_log "TIME: $time_taken ms\n"
 

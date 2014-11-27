@@ -31,8 +31,8 @@
 
 #include <ncurses.h>
 
-int traceview_scrollbar_init(void) may_fail;
+int traceview_scrollbar_init(void) __may_fail;
 
-int traceview_scrollbar_redraw(int x, int y, int height, float state) may_fail;
+int traceview_scrollbar_redraw(int x, int y, int height, float state) __may_fail;
 
 #endif // HAVE_NCURSES

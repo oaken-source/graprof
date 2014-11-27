@@ -29,10 +29,10 @@
 
 #include <grapes/util.h>
 
-int traceview_footer_init(void) may_fail;
+int traceview_footer_init(void) __may_fail;
 
-int traceview_footer_redraw(void) may_fail;
+int traceview_footer_redraw(void) __may_fail;
 
-int traceview_footer_set_index(unsigned int index) may_fail;
+int traceview_footer_set_index(unsigned int index) __may_fail;
 
 #endif // HAVE_NCURSES

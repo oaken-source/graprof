@@ -36,7 +36,7 @@ static unsigned int function_id = 0;
 
 static unsigned int focus_index = 0;
 static unsigned int focus_max = 0;
-unused static unsigned int focus_function = 0;
+__unused static unsigned int focus_function = 0;
 
 static unsigned int scrolldown = 0;
 static unsigned int scrolldown_max = 0;
@@ -58,7 +58,7 @@ traceview_window_callgraph_init (void)
   return 0;
 }
 
-static int may_fail
+static int __may_fail
 redraw_header (void)
 {
   int res = wresize(header, 6, COLS);
@@ -94,7 +94,7 @@ redraw_header (void)
   return 0;
 }
 
-static int may_fail
+static int __may_fail
 redraw_listing (void)
 {
   unsigned int height = LINES - 8;

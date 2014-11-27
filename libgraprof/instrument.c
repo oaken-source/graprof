@@ -47,7 +47,7 @@ instrument_enter (void *func, void *caller)
 }
 
 static void
-instrument_exit (void *func __attribute__ ((unused)), void *caller __attribute__ ((unused)))
+instrument_exit (__unused void *func, __unused void *caller)
 {
   mallhooks_uninstall_hooks();
 

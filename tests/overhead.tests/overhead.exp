@@ -13,7 +13,7 @@ set src "
     }"
 
 ### test the instrumentation overhead of libgraprof
-# time execution of 10 million function calls
+# time execution of 1 million function calls
 given the c code "${src}"
   when I compile with cflags "-Wall -Wextra -Werror -g"
   then it should return 0

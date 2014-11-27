@@ -83,7 +83,7 @@ function_call_data_init (call_data *d)
   d->children_time = 0;
 }
 
-static function* may_fail
+static function* __may_fail
 function_push (uintptr_t address)
 {
   ++nfunctions;
@@ -102,7 +102,7 @@ function_push (uintptr_t address)
   return f;
 }
 
-static int may_fail
+static int __may_fail
 function_add_caller (function *f, unsigned int caller_id)
 {
   unsigned int i;
@@ -125,7 +125,7 @@ function_add_caller (function *f, unsigned int caller_id)
   return 0;
 }
 
-static int may_fail
+static int __may_fail
 function_add_callee (function *f, unsigned int callee_id)
 {
   unsigned int i;
@@ -202,7 +202,7 @@ function_add_caller_children_time (unsigned int caller_id, unsigned int callee_i
       f->callers[i].children_time += time;
 }
 
-static int may_fail
+static int __may_fail
 function_create_call_vector_from_node(tree_entry *e, bitmask *b)
 {
   if (e->function_id != (unsigned int)-1)
@@ -254,7 +254,7 @@ function_create_call_vector_from_node(tree_entry *e, bitmask *b)
   return 0;
 }
 
-static int may_fail
+static int __may_fail
 function_aggregate_function_times (void)
 {
   bitmask *b = bitmask_create(nfunctions);
@@ -282,7 +282,7 @@ cmpfunction (const void *p1, const void *p2)
   return 1;
 }
 
-static int may_fail
+static int __may_fail
 function_sort (void)
 {
   sorted_functions = malloc(sizeof(function*) * nfunctions);

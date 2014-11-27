@@ -21,7 +21,7 @@
 
 #pragma once
 
-/* This is a convenience wrapper for the frequently used but combersome mmap
+/* This is a convenience wrapper for the frequently used but cumbersome mmap
  * function.
  */
 
@@ -29,7 +29,7 @@
 # include <config.h>
 #endif
 
-#include "util.h"
+#include <grapes/util.h>
 
 #include <stdlib.h>
 
@@ -45,11 +45,12 @@
  *
  * errors:
  *   may fail and set errno for the same reasons as open, fstat and mmap
+ *   the behaviour is undefined if the length poiner is invalid
  *
  * returns:
  *   a pointer to the mapped area, if successful, NULL otherwise
  */
-void *file_map(const char *filename, size_t *length) may_fail;
+void *file_map(const char *filename, size_t *length) __may_fail;
 
 /* unmaps a memory area previously mapped with file_map
  *
@@ -63,4 +64,4 @@ void *file_map(const char *filename, size_t *length) may_fail;
  * returns:
  *   -1 on failure, 0 on success
  */
-int file_unmap(void *data, size_t length) may_fail;
+int file_unmap(void *data, size_t length) __may_fail;

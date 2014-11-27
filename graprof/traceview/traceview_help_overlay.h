@@ -33,8 +33,8 @@
 
 extern WINDOW *traceview_help_overlay;
 
-int traceview_help_overlay_init(void) may_fail;
+int traceview_help_overlay_init(void) __may_fail;
 
-int traceview_help_overlay_redraw(void) may_fail;
+int traceview_help_overlay_redraw(void) __may_fail;
 
 #endif // HAVE_NCURSES

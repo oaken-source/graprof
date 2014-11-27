@@ -21,14 +21,13 @@
 
 #include "feedback.h"
 
+#include "util.h" // <grapes/util.h>
+
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#include <time.h>
-
-#include "util.h"
 
 extern const char *program_invocation_short_name;
 

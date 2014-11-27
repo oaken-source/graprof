@@ -22,10 +22,13 @@
 #include "highrestimer.h"
 
 #if HAVE_CLOCK_GETTIME
+
   #include <time.h>
 
   static struct timespec start;
+
 #elif HAVE_MACH_ABSOLUTE_TIME
+
   #include <stdint.h>
   #include <mach/mach.h>
   #include <mach/mach_time.h>
@@ -33,6 +36,7 @@
 
   static uint64_t start;
   static mach_timebase_info_data_t timebase;
+
 #endif
 
 static void
@@ -40,28 +44,35 @@ __attribute__((constructor))
 highrestimer_init ()
 {
   #if HAVE_CLOCK_GETTIME
+
     clock_gettime(CLOCK_MONOTONIC_RAW, &start);
+
   #elif HAVE_MACH_ABSOLUTE_TIME
+
     start = mach_absolute_time();
     mach_timebase_info(&timebase);
+
   #endif
 }
 
 unsigned long long
 highrestimer_get (void)
 {
-  unsigned long long t = 0;
-
   #if HAVE_CLOCK_GETTIME
-    struct timespec end;
-    clock_gettime(CLOCK_MONOTONIC_RAW, &end);
 
-    t = ((end.tv_sec - start.tv_sec) * 1000000000) + (end.tv_nsec - start.tv_nsec);
+    struct timespec end;
+    int res = clock_gettime(CLOCK_MONOTONIC_RAW, &end);
+    assert_inner(!res, "clock_gettime");
+
+    return ((end.tv_sec - start.tv_sec) * 1000000000) + (end.tv_nsec - start.tv_nsec);
+
   #elif HAVE_MACH_ABSOLUTE_TIME
+
     uint64_t elapsed = mach_absolute_time() - start;
-    t = elapsed * timebase.numer / timebase.denom;
+    return  elapsed * timebase.numer / timebase.denom;
+
   #endif
 
-  return t;
+  assert_set_errno(0, ENOSYS, "no highres timer functionality");
 }
 
