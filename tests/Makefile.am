@@ -12,6 +12,6 @@ AUTOMAKE_OPTIONS = dejagnu
 DEJAGNU  = ${top_srcdir}/tests/asparagus.exp
 DEJATOOL = overhead
 
-libdir   = $(top_builddir)/grapes/.libs/
+libdir   = $(top_builddir)/libgraprof/.libs/
 
 export DEJAGNU libdir

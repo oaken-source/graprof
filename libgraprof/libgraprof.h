@@ -24,3 +24,13 @@
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
+
+#include <grapes/util.h>
+
+/* activate all profiling hooks
+ */
+inline void libgraprof_install_hooks (void);
+
+/* deactivate all profiling hooks
+ */
+inline void libgraprof_uninstall_hooks (void);

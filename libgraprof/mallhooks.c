@@ -21,34 +21,29 @@
 
 #include "mallhooks.h"
 
+#include "libgraprof.h"
 #include "highrestimer.h"
-#include "buffer.h"
+
+#include "common/tracebuffer.h"
 
 #include <stdint.h>
 #include <stdlib.h>
 
-extern void* __libc_malloc(size_t size);
-extern void* __libc_calloc(size_t nmemb, size_t size);
-extern void* __libc_realloc(void *ptr, size_t size);
-extern void __libc_free(void *ptr);
-
 static void*
 malloc_hook (size_t size, const void *caller)
 {
-  void *result;
+  libgraprof_uninstall_hooks();
 
-  mallhooks_uninstall_hooks();
+  void *result = malloc(size);
 
-  result = __libc_malloc(size);
+  tracebuffer_packet p = {
+    .type = '+',
+    .malloc = { size, (uintptr_t)(caller - 4), (uintptr_t)result },
+    .time = highrestimer_get()
+  };
+  tracebuffer_append(p);
 
-  buffer_enlarge(sizeof(char) + sizeof(size_t) + 2 * sizeof(uintptr_t) + sizeof(unsigned long long));
-  buffer_append(char, '+');
-  buffer_append(size_t, size);
-  buffer_append(uintptr_t, (uintptr_t)(caller - 4));
-  buffer_append(uintptr_t, (uintptr_t)result);
-  buffer_append(unsigned long long, highrestimer_get());
-
-  mallhooks_install_hooks();
+  libgraprof_install_hooks();
 
   return result;
 }
@@ -56,20 +51,18 @@ malloc_hook (size_t size, const void *caller)
 static void*
 calloc_hook (size_t nmemb, size_t size, const void *caller)
 {
-  void *result;
+  libgraprof_uninstall_hooks();
 
-  mallhooks_uninstall_hooks();
+  void *result = calloc(nmemb, size);
 
-  result = __libc_calloc(nmemb, size);
+  tracebuffer_packet p = {
+    .type = '+',
+    .calloc = { nmemb * size, (uintptr_t)(caller - 4), (uintptr_t)result },
+    .time = highrestimer_get()
+  };
+  tracebuffer_append(p);
 
-  buffer_enlarge(sizeof(char) + sizeof(size_t) + 2 * sizeof(uintptr_t) + sizeof(unsigned long long));
-  buffer_append(char, '+');
-  buffer_append(size_t, nmemb * size);
-  buffer_append(uintptr_t, (uintptr_t)(caller - 4));
-  buffer_append(uintptr_t, (uintptr_t)result);
-  buffer_append(unsigned long long, highrestimer_get());
-
-  mallhooks_install_hooks();
+  libgraprof_install_hooks();
 
   return result;
 }
@@ -78,21 +71,18 @@ calloc_hook (size_t nmemb, size_t size, const void *caller)
 static void*
 realloc_hook (void *ptr, size_t size, const void *caller)
 {
-  void *result;
+  libgraprof_uninstall_hooks();
 
-  mallhooks_uninstall_hooks();
+  void *result = realloc(ptr, size);
 
-  result = __libc_realloc(ptr, size);
+  tracebuffer_packet p = {
+    .type = '*',
+    .realloc = { (uintptr_t)ptr, size, (uintptr_t)(caller - 4), (uintptr_t)result },
+    .time = highrestimer_get()
+  };
+  tracebuffer_append(p);
 
-  buffer_enlarge(sizeof(char) + sizeof(size_t) + 3 * sizeof(uintptr_t) + sizeof(unsigned long long));
-  buffer_append(char, '*');
-  buffer_append(uintptr_t, (uintptr_t)ptr);
-  buffer_append(size_t, size);
-  buffer_append(uintptr_t, (uintptr_t)(caller - 4));
-  buffer_append(uintptr_t, (uintptr_t)result);
-  buffer_append(unsigned long long, highrestimer_get());
-
-  mallhooks_install_hooks();
+  libgraprof_install_hooks();
 
   return result;
 }
@@ -100,20 +90,21 @@ realloc_hook (void *ptr, size_t size, const void *caller)
 static void
 free_hook (void *ptr, const void *caller)
 {
-  mallhooks_uninstall_hooks();
+  libgraprof_uninstall_hooks();
 
-  __libc_free(ptr);
+  free(ptr);
 
   if (ptr)
     {
-      buffer_enlarge(sizeof(char) + 2 * sizeof(uintptr_t) + sizeof(unsigned long long));
-      buffer_append(char, '-');
-      buffer_append(uintptr_t, (uintptr_t)ptr);
-      buffer_append(uintptr_t, (uintptr_t)(caller - 4));
-      buffer_append(unsigned long long, highrestimer_get());
+      tracebuffer_packet p = {
+        .type = '-',
+        .free = { (uintptr_t)ptr, (uintptr_t)(caller - 4) },
+        .time = highrestimer_get()
+      };
+      tracebuffer_append(p);
     }
 
-  mallhooks_install_hooks();
+  libgraprof_install_hooks();
 }
 
 #if USE_DEPRECATED_MALLOC_HOOKS
@@ -125,7 +116,7 @@ static void *(*old_realloc_hook)(void*, size_t, const void*);
 static void (*old_free_hook)(void *, const void*);
 
 void
-mallhooks_install_hooks (void)
+libgraprof_install_hooks (void)
 {
   old_malloc_hook = __malloc_hook;
   __malloc_hook = malloc_hook;
@@ -138,7 +129,7 @@ mallhooks_install_hooks (void)
 }
 
 void
-mallhooks_uninstall_hooks (void)
+libgraprof_uninstall_hooks (void)
 {
   __malloc_hook = old_malloc_hook;
   __realloc_hook = old_realloc_hook;
@@ -146,6 +137,11 @@ mallhooks_uninstall_hooks (void)
 }
 
 #else // USE_DEPRECATED_MALLOC_HOOKS
+
+extern void* __libc_malloc(size_t size);
+extern void* __libc_calloc(size_t nmemb, size_t size);
+extern void* __libc_realloc(void *ptr, size_t size);
+extern void __libc_free(void *ptr);
 
 static unsigned int mallhooks_active = 0;
 

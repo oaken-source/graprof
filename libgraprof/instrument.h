@@ -25,10 +25,12 @@
 #  include <config.h>
 #endif
 
+#include <grapes/util.h>
+
 /* activate the function instrumentation hooks
  */
-void instrument_install_hooks(void);
+inline void instrument_install_hooks(void);
 
 /* deactivate the function instrumentation hooks
  */
-void instrument_uninstall_hooks(void);
+inline void instrument_uninstall_hooks(void);

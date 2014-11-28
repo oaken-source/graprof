@@ -25,10 +25,12 @@
 #  include <config.h>
 #endif
 
+#include <grapes/util.h>
+
 /* activate the allocation hooks
  */
-void mallhooks_install_hooks(void);
+inline void mallhooks_install_hooks(void);
 
 /* deactivate the allocation hooks
  */
-void mallhooks_uninstall_hooks(void);
+inline void mallhooks_uninstall_hooks(void);

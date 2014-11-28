@@ -19,76 +19,30 @@
  ******************************************************************************/
 
 
-#include "libgraprof.h"
-
-#include "highrestimer.h"
-#include "mallhooks.h"
-#include "instrument.h"
-
-#include "common/tracebuffer.h"
+#include "md5.h"
 
 #include <grapes/feedback.h>
 #include <grapes/file.h>
 
-#include <stdio.h>
-#include <errno.h>
-#include <stdlib.h>
-
-FILE *libgraprof_out = NULL;
-char *libgraprof_filename = NULL;
-
-static void
-__attribute__ ((constructor))
-libgraprof_init ()
-{
-  int errsv = errno;
-
-  libgraprof_filename = getenv("GRAPROF_OUT");
-
-  if (libgraprof_filename)
-    libgraprof_out = fopen(libgraprof_filename, "wb");
-
-  if (libgraprof_out)
-    libgraprof_install_hooks();
-
-  errno = errsv;
-}
-
-static void
-__attribute__ ((destructor))
-libgraprof_fini ()
-{
-  int errsv = errno;
-
-  if (libgraprof_out)
-  {
-    mallhooks_uninstall_hooks();
-
-    tracebuffer_packet p = {
-      .type = 'E',
-      .exit_all = { { 0 } },
-      .time = highrestimer_get()
-    };
-    md5_digest(p.exit_all.digest, "/proc/self/exe");
-    tracebuffer_append(p);
-    tracebuffer_flush();
-
-    fclose(libgraprof_out);
-  }
-
-  errno = errsv;
-}
-
 void
-libgraprof_install_hooks (void)
+md5_digest (unsigned char *dest, const char *filename)
 {
-  instrument_install_hooks();
-  mallhooks_install_hooks();
-}
+  size_t length;
+  void *data;
 
-void
-libgraprof_uninstall_hooks (void)
-{
-  instrument_uninstall_hooks();
-  mallhooks_uninstall_hooks();
+  data = file_map(filename, &length);
+  if (!data)
+    {
+      feedback_warning("libgraprof: %s", filename);
+      return;
+    }
+
+  #if HAVE_OPENSSL_MD5
+    MD5(data, length, dest);
+  #elif HAVE_BSD_MD5
+    MD5Data(data, length, (void*)dest);
+  #endif
+
+  int res = file_unmap(data, length);
+  feedback_assert_wrn(!res, "libgraprof: %s", filename);
 }

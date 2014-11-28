@@ -19,76 +19,30 @@
  ******************************************************************************/
 
 
-#include "libgraprof.h"
-
-#include "highrestimer.h"
-#include "mallhooks.h"
-#include "instrument.h"
-
-#include "common/tracebuffer.h"
-
-#include <grapes/feedback.h>
-#include <grapes/file.h>
+#include "tracebuffer.h"
 
 #include <stdio.h>
-#include <errno.h>
-#include <stdlib.h>
 
-FILE *libgraprof_out = NULL;
-char *libgraprof_filename = NULL;
+#define BUFSIZE 1024
 
-static void
-__attribute__ ((constructor))
-libgraprof_init ()
+static tracebuffer_packet tracebuffer_buffer[BUFSIZE];
+size_t tracebuffer_index = 0;
+
+extern FILE *libgraprof_out;
+
+void
+tracebuffer_append (tracebuffer_packet p)
 {
-  int errsv = errno;
+  tracebuffer_buffer[tracebuffer_index++] = p;
 
-  libgraprof_filename = getenv("GRAPROF_OUT");
-
-  if (libgraprof_filename)
-    libgraprof_out = fopen(libgraprof_filename, "wb");
-
-  if (libgraprof_out)
-    libgraprof_install_hooks();
-
-  errno = errsv;
-}
-
-static void
-__attribute__ ((destructor))
-libgraprof_fini ()
-{
-  int errsv = errno;
-
-  if (libgraprof_out)
-  {
-    mallhooks_uninstall_hooks();
-
-    tracebuffer_packet p = {
-      .type = 'E',
-      .exit_all = { { 0 } },
-      .time = highrestimer_get()
-    };
-    md5_digest(p.exit_all.digest, "/proc/self/exe");
-    tracebuffer_append(p);
+  if (tracebuffer_index == BUFSIZE)
     tracebuffer_flush();
-
-    fclose(libgraprof_out);
-  }
-
-  errno = errsv;
 }
 
 void
-libgraprof_install_hooks (void)
+tracebuffer_flush (void)
 {
-  instrument_install_hooks();
-  mallhooks_install_hooks();
+  fwrite(tracebuffer_buffer, sizeof(*tracebuffer_buffer), tracebuffer_index - 1, libgraprof_out);
+  tracebuffer_index = 0;
 }
 
-void
-libgraprof_uninstall_hooks (void)
-{
-  instrument_uninstall_hooks();
-  mallhooks_uninstall_hooks();
-}

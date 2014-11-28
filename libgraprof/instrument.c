@@ -21,9 +21,10 @@
 
 #include "instrument.h"
 
-#include "mallhooks.h"
+#include "libgraprof.h"
 #include "highrestimer.h"
-#include "buffer.h"
+
+#include "common/tracebuffer.h"
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -33,30 +34,33 @@ static unsigned int instrument_active = 0;
 static void
 instrument_enter (void *func, void *caller)
 {
+  libgraprof_uninstall_hooks();
+
   unsigned long long time = highrestimer_get();
 
-  mallhooks_uninstall_hooks();
+  tracebuffer_packet p = {
+    .type = 'e',
+    .enter = { (uintptr_t)func, (uintptr_t)(caller - 4) },
+    .time = time
+  };
+  tracebuffer_append(p);
 
-  buffer_enlarge(sizeof(char) + 2 * sizeof(uintptr_t) + sizeof(unsigned long long));
-  buffer_append(char, 'e');
-  buffer_append(uintptr_t, (uintptr_t)func);
-  buffer_append(uintptr_t, (uintptr_t)(caller - 4));
-  buffer_append(unsigned long long, time);
-
-  mallhooks_install_hooks();
+  libgraprof_install_hooks();
 }
 
 static void
 instrument_exit (__unused void *func, __unused void *caller)
 {
-  mallhooks_uninstall_hooks();
+  libgraprof_uninstall_hooks();
 
-  buffer_enlarge(sizeof(char) + sizeof(unsigned long long));
-  buffer_append(char, 'x');
+  tracebuffer_packet p = {
+    .type = 'x',
+    .exit = { },
+    .time = highrestimer_get()
+  };
+  tracebuffer_append(p);
 
-  mallhooks_install_hooks();
-
-  buffer_append(unsigned long long, highrestimer_get());
+  libgraprof_install_hooks();
 }
 
 void

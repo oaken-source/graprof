@@ -25,6 +25,8 @@
 #  include <config.h>
 #endif
 
+#include <grapes/util.h>
+
 #include <stdlib.h>
 
 extern void* __libc_malloc(size_t size);

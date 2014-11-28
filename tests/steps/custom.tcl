@@ -17,9 +17,9 @@ proc when_I_time { } {
     }
   }
 
-  set time_taken [expr [expr [clock clicks -milliseconds] - $time_start] / $iterations]
+  set time_taken [expr [expr [clock clicks -milliseconds] - $time_start] / [expr $iterations]]
 
-  send_log "TIME: $time_taken ms\n"
+  send_log "TIME: $time_taken ns\n"
 
   pass_step
 

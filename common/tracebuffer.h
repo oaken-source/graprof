@@ -19,76 +19,59 @@
  ******************************************************************************/
 
 
-#include "libgraprof.h"
+#pragma once
 
-#include "highrestimer.h"
-#include "mallhooks.h"
-#include "instrument.h"
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
 
-#include "common/tracebuffer.h"
+#include <grapes/util.h>
 
-#include <grapes/feedback.h>
-#include <grapes/file.h>
+#include "common/md5.h"
 
-#include <stdio.h>
-#include <errno.h>
-#include <stdlib.h>
+#include <stdint.h>
 
-FILE *libgraprof_out = NULL;
-char *libgraprof_filename = NULL;
-
-static void
-__attribute__ ((constructor))
-libgraprof_init ()
+struct tracebuffer_packet
 {
-  int errsv = errno;
+  char type;
 
-  libgraprof_filename = getenv("GRAPROF_OUT");
+  union {
+    struct {
+      uintptr_t func;
+      uintptr_t caller;
+    } enter;
+    struct {
+    } exit;
+    struct {
+      unsigned char digest[DIGEST_LENGTH];
+    } exit_all;
+    struct {
+      size_t size;
+      uintptr_t caller;
+      uintptr_t result;
+    } malloc;
+    struct {
+      size_t size;
+      uintptr_t caller;
+      uintptr_t result;
+    } calloc;
+    struct {
+      uintptr_t ptr;
+      size_t size;
+      uintptr_t caller;
+      uintptr_t result;
+    } realloc;
+    struct {
+      uintptr_t ptr;
+      uintptr_t caller;
+    } free;
+  };
 
-  if (libgraprof_filename)
-    libgraprof_out = fopen(libgraprof_filename, "wb");
+  unsigned long long time;
 
-  if (libgraprof_out)
-    libgraprof_install_hooks();
+};
+typedef struct tracebuffer_packet tracebuffer_packet;
 
-  errno = errsv;
-}
+void tracebuffer_append (tracebuffer_packet p);
 
-static void
-__attribute__ ((destructor))
-libgraprof_fini ()
-{
-  int errsv = errno;
-
-  if (libgraprof_out)
-  {
-    mallhooks_uninstall_hooks();
-
-    tracebuffer_packet p = {
-      .type = 'E',
-      .exit_all = { { 0 } },
-      .time = highrestimer_get()
-    };
-    md5_digest(p.exit_all.digest, "/proc/self/exe");
-    tracebuffer_append(p);
-    tracebuffer_flush();
-
-    fclose(libgraprof_out);
-  }
-
-  errno = errsv;
-}
-
-void
-libgraprof_install_hooks (void)
-{
-  instrument_install_hooks();
-  mallhooks_install_hooks();
-}
-
-void
-libgraprof_uninstall_hooks (void)
-{
-  instrument_uninstall_hooks();
-  mallhooks_uninstall_hooks();
-}
+void tracebuffer_flush (void);
