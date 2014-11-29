@@ -42,7 +42,7 @@ tracebuffer_append (tracebuffer_packet p)
 {
   tracebuffer_buffer[tracebuffer_index++] = p;
 
-  if (tracebuffer_index == BUFSIZE)
+  if (__unlikely(tracebuffer_index == BUFSIZE))
     tracebuffer_flush();
 }
 

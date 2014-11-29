@@ -55,11 +55,11 @@ calloc_hook (size_t nmemb, size_t size, const void *caller)
 
   void *result = calloc(nmemb, size);
 
-  tracebuffer_packet p = {
-    .type = '+',
-    .calloc = { nmemb * size, (uintptr_t)(caller - 4), (uintptr_t)result },
-    .time = highrestimer_get()
-  };
+  static tracebuffer_packet p = { '+', { { 0 } }, 0 };
+    p.calloc.size   = nmemb * size;
+    p.calloc.caller = (uintptr_t)(caller - 4);
+    p.calloc.result = (uintptr_t)result;
+    p.time = highrestimer_get();
   tracebuffer_append(p);
 
   libgraprof_install_hooks();

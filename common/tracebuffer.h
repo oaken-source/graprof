@@ -68,7 +68,6 @@ struct tracebuffer_packet
   };
 
   unsigned long long time;
-
 };
 typedef struct tracebuffer_packet tracebuffer_packet;
 

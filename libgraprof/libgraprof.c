@@ -33,6 +33,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 FILE *libgraprof_out = NULL;
 char *libgraprof_filename = NULL;
@@ -48,7 +49,12 @@ libgraprof_init ()
   libgraprof_filename = getenv("GRAPROF_OUT");
 
   if (libgraprof_filename)
-    libgraprof_out = fopen(libgraprof_filename, "wb");
+    {
+      int errnum = errno;
+      unlink(libgraprof_filename);
+      errno = errnum;
+      libgraprof_out = fopen(libgraprof_filename, "wb");
+    }
 
   if (libgraprof_out)
     libgraprof_install_hooks();

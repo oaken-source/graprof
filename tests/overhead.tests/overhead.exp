@@ -8,7 +8,7 @@ set src "
     int foo (void) { return 0; }
     int main (void) {
       unsigned int i;
-      for (i = 0; i < 1000000; ++i) foo();
+      for (i = 0; i < 10000000; ++i) foo();
       return 0;
     }"
 
