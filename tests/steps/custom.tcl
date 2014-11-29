@@ -3,7 +3,7 @@ proc when_I_time { } {
 
   global asparagus_executable_path
 
-  set iterations 50
+  set iterations 2
 
   set time_start [clock clicks -milliseconds]
 

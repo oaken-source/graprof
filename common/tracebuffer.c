@@ -30,6 +30,13 @@ size_t tracebuffer_index = 0;
 
 extern FILE *libgraprof_out;
 
+static void
+tracebuffer_flush ()
+{
+  fwrite(tracebuffer_buffer, sizeof(*tracebuffer_buffer), tracebuffer_index, libgraprof_out);
+  tracebuffer_index = 0;
+}
+
 void
 tracebuffer_append (tracebuffer_packet p)
 {
@@ -40,9 +47,8 @@ tracebuffer_append (tracebuffer_packet p)
 }
 
 void
-tracebuffer_flush (void)
+tracebuffer_finish (void)
 {
-  fwrite(tracebuffer_buffer, sizeof(*tracebuffer_buffer), tracebuffer_index - 1, libgraprof_out);
-  tracebuffer_index = 0;
+  tracebuffer_flush();
 }
 

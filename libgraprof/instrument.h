@@ -27,10 +27,3 @@
 
 #include <grapes/util.h>
 
-/* activate the function instrumentation hooks
- */
-inline void instrument_install_hooks(void);
-
-/* deactivate the function instrumentation hooks
- */
-inline void instrument_uninstall_hooks(void);

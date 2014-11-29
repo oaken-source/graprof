@@ -69,15 +69,15 @@ void feedback_error_at_line(const char *filename, unsigned int linenum, const ch
     do { if (DEBUG) { feedback_error_at_line(__FILE__, __LINE__, __VA_ARGS__); } } while (0)
 
 #define assert_inner(COND, ...) \
-    do { if (!(COND)) { _assert_feedback(__VA_ARGS__); return -1; } } while(0)
+    do { if (__unlikely(!(COND))) { _assert_feedback(__VA_ARGS__); return -1; } } while(0)
 #define assert_inner_ptr(COND, ...) \
-    do { if (!(COND)) { _assert_feedback(__VA_ARGS__); return NULL; } } while(0)
+    do { if (__unlikely(!(COND))) { _assert_feedback(__VA_ARGS__); return NULL; } } while(0)
 #define assert_set_errno(COND, ERRNUM, ...) \
-    do { if (!(COND)) { errno = ERRNUM; _assert_feedback(__VA_ARGS__); return -1; } } while(0)
+    do { if (__unlikely(!(COND))) { errno = ERRNUM; _assert_feedback(__VA_ARGS__); return -1; } } while(0)
 #define assert_set_errno_ptr(COND, ERRNUM, ...) \
-    do { if (!(COND)) { errno = ERRNUM; _assert_feedback(__VA_ARGS__); return NULL; } } while(0)
+    do { if (__unlikely(!(COND))) { errno = ERRNUM; _assert_feedback(__VA_ARGS__); return NULL; } } while(0)
 #define assert_weak(COND, ...) \
-    do { if (!(COND)) { _assert_feedback(__VA_ARGS__); } } while (0)
+    do { if (__unlikely(!(COND))) { _assert_feedback(__VA_ARGS__); } } while (0)
 
 /* convenience min/max macros
  *
@@ -97,3 +97,11 @@ void feedback_error_at_line(const char *filename, unsigned int linenum, const ch
 #  define __debug_func
 #endif
 
+/* branch optimization macros */
+#ifdef __GNUC__
+#  define __likely(X)   __builtin_expect((X),1)
+#  define __unlikely(X) __builtin_expect((X),0)
+#else
+#  define __likely(X)   (X)
+#  define __unlikely(X) (X)
+#endif

@@ -23,6 +23,13 @@ given the c code "${src}"
   when I compile with cflags "-Wall -Wextra -Werror -finstrument-functions -g"
   then it should return 0
   when I time
+# time the same with active noop instrumentation
+given the c code "${src}
+    void __cyg_profile_func_enter (void *func, void *caller) { }
+    void __cyg_profile_func_exit (void *func, void *caller) { }"
+  when I compile with cflags "-Wall -Wextra -finstrument-functions -g"
+  then it should return 0
+  when I time
 # time the same with inert graprof instrumentation
 given the c code "${src}"
   when I compile with cflags "-Wall -Wextra -Werror -finstrument-functions -g -L${libdir} -lgraprof"

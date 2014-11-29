@@ -107,78 +107,31 @@ free_hook (void *ptr, const void *caller)
   libgraprof_install_hooks();
 }
 
-#if USE_DEPRECATED_MALLOC_HOOKS
-
-#include <malloc.h>
-
-static void *(*old_malloc_hook)(size_t, const void*);
-static void *(*old_realloc_hook)(void*, size_t, const void*);
-static void (*old_free_hook)(void *, const void*);
-
-void
-libgraprof_install_hooks (void)
-{
-  old_malloc_hook = __malloc_hook;
-  __malloc_hook = malloc_hook;
-
-  old_realloc_hook = __realloc_hook;
-  __realloc_hook = realloc_hook;
-
-  old_free_hook = __free_hook;
-  __free_hook = free_hook;
-}
-
-void
-libgraprof_uninstall_hooks (void)
-{
-  __malloc_hook = old_malloc_hook;
-  __realloc_hook = old_realloc_hook;
-  __free_hook = old_free_hook;
-}
-
-#else // USE_DEPRECATED_MALLOC_HOOKS
-
 extern void* __libc_malloc(size_t size);
 extern void* __libc_calloc(size_t nmemb, size_t size);
 extern void* __libc_realloc(void *ptr, size_t size);
 extern void __libc_free(void *ptr);
 
-static unsigned int mallhooks_active = 0;
-
-void
-mallhooks_install_hooks (void)
-{
-  mallhooks_active = 1;
-}
-
-void
-mallhooks_uninstall_hooks (void)
-{
-  mallhooks_active = 0;
-}
-
 void*
 malloc (size_t size)
 {
-  return (mallhooks_active ? malloc_hook(size, __builtin_return_address(0)) : __libc_malloc(size));
+  return (libgraprof_hooked ? malloc_hook(size, __builtin_return_address(0)) : __libc_malloc(size));
 }
 
 void*
 calloc (size_t nmemb, size_t size)
 {
-  return (mallhooks_active ? calloc_hook(nmemb, size, __builtin_return_address(0)) : __libc_calloc(nmemb, size));
+  return (libgraprof_hooked ? calloc_hook(nmemb, size, __builtin_return_address(0)) : __libc_calloc(nmemb, size));
 }
 
 void*
 realloc (void *ptr, size_t size)
 {
-  return (mallhooks_active ? realloc_hook(ptr, size, __builtin_return_address(0)) : __libc_realloc(ptr, size));
+  return (libgraprof_hooked ? realloc_hook(ptr, size, __builtin_return_address(0)) : __libc_realloc(ptr, size));
 }
 
 void
 free (void *ptr)
 {
-  return (mallhooks_active ? free_hook(ptr, __builtin_return_address(0)) : __libc_free(ptr));
+  return (libgraprof_hooked ? free_hook(ptr, __builtin_return_address(0)) : __libc_free(ptr));
 }
-
-#endif // USE_DEPRECATED_MALLOC_HOOKS

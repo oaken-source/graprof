@@ -29,11 +29,12 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-static unsigned int instrument_active = 0;
-
-static void
-instrument_enter (void *func, void *caller)
+void
+__cyg_profile_func_enter (void *func, void *caller)
 {
+  if (__unlikely(!libgraprof_hooked))
+    return;
+
   libgraprof_uninstall_hooks();
 
   unsigned long long time = highrestimer_get();
@@ -48,9 +49,12 @@ instrument_enter (void *func, void *caller)
   libgraprof_install_hooks();
 }
 
-static void
-instrument_exit (__unused void *func, __unused void *caller)
+void
+__cyg_profile_func_exit (__unused void *func, __unused void *caller)
 {
+  if (__unlikely(!libgraprof_hooked))
+    return;
+
   libgraprof_uninstall_hooks();
 
   tracebuffer_packet p = {
@@ -61,30 +65,4 @@ instrument_exit (__unused void *func, __unused void *caller)
   tracebuffer_append(p);
 
   libgraprof_install_hooks();
-}
-
-void
-instrument_install_hooks (void)
-{
-  instrument_active = 1;
-}
-
-void
-instrument_uninstall_hooks (void)
-{
-  instrument_active = 0;
-}
-
-void
-__cyg_profile_func_enter (void *func, void *caller)
-{
-  if (instrument_active)
-    instrument_enter(func, caller);
-}
-
-void
-__cyg_profile_func_exit (void *func, void *caller)
-{
-  if (instrument_active)
-    instrument_exit(func, caller);
 }

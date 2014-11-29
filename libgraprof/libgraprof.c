@@ -37,6 +37,8 @@
 FILE *libgraprof_out = NULL;
 char *libgraprof_filename = NULL;
 
+unsigned int libgraprof_hooked = 0;
+
 static void
 __attribute__ ((constructor))
 libgraprof_init ()
@@ -62,7 +64,7 @@ libgraprof_fini ()
 
   if (libgraprof_out)
   {
-    mallhooks_uninstall_hooks();
+    libgraprof_uninstall_hooks();
 
     tracebuffer_packet p = {
       .type = 'E',
@@ -71,7 +73,7 @@ libgraprof_fini ()
     };
     md5_digest(p.exit_all.digest, "/proc/self/exe");
     tracebuffer_append(p);
-    tracebuffer_flush();
+    tracebuffer_finish();
 
     fclose(libgraprof_out);
   }
@@ -82,13 +84,11 @@ libgraprof_fini ()
 void
 libgraprof_install_hooks (void)
 {
-  instrument_install_hooks();
-  mallhooks_install_hooks();
+  libgraprof_hooked = 1;
 }
 
 void
 libgraprof_uninstall_hooks (void)
 {
-  instrument_uninstall_hooks();
-  mallhooks_uninstall_hooks();
+  libgraprof_hooked = 0;
 }

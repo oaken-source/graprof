@@ -74,4 +74,4 @@ typedef struct tracebuffer_packet tracebuffer_packet;
 
 void tracebuffer_append (tracebuffer_packet p);
 
-void tracebuffer_flush (void);
+void tracebuffer_finish (void);
