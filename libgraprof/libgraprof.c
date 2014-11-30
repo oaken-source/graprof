@@ -58,11 +58,11 @@ libgraprof_init ()
 
   if (libgraprof_out)
     {
-      libgraprof_install_hooks();
       static tracebuffer_packet p = { .type = 'I' };
         p.time = highrestimer_get();
       md5_digest(p.init.digest, "/proc/self/exe");
       tracebuffer_append(&p);
+      libgraprof_install_hooks();
     }
 
   errno = errsv;

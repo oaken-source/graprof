@@ -31,12 +31,6 @@
 #include <grapes/feedback.h>
 #include <grapes/file.h>
 
-#if HAVE_OPENSSL_MD5
-#  include <openssl/md5.h>
-#elif HAVE_BSD_MD5
-#  include <bsd/md5.h>
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -92,27 +86,8 @@ main (int argc, char *argv[])
         }
     }
 
-  unsigned char md5_binary[DIGEST_LENGTH] = { 0 };
-
-  size_t length;
-  void *data;
-
-  data = file_map(arguments.binary_invocation[0], &length);
-  if (!data)
-    {
-      feedback_warning("%s: digest verification failed", arguments.binary_invocation[0]);
-    }
-  else
-    {
-      #if HAVE_OPENSSL_MD5
-        MD5(data, length, md5_binary);
-      #elif HAVE_BSD_MD5
-        MD5Data(data, length, (void*)md5_binary);
-      #endif
-    }
-
-  res = file_unmap(data, length);
-  feedback_assert(!res, "%s: file unmap failed", arguments.binary_invocation[0]);
+  unsigned char md5_binary[DIGEST_LENGTH];
+  md5_digest(md5_binary, arguments.binary_invocation[0]);
 
   free(arguments.binary_invocation);
 

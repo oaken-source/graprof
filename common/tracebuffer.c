@@ -49,6 +49,6 @@ tracebuffer_append (const tracebuffer_packet *p)
 void
 tracebuffer_finish (void)
 {
-  tracebuffer_flush();
+  if (tracebuffer_index)
+    tracebuffer_flush();
 }
-

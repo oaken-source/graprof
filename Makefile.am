@@ -58,7 +58,7 @@ graprof_graprof_SOURCES = \
     graprof/traceview/traceview_scrollbar.c graprof/traceview/traceview_scrollbar.h
 
 graprof_graprof_CFLAGS = ${CFLAGS_GRAPROF}
-graprof_graprof_LDADD = ${LIBS_GRAPROF} grapes/libgrapes.la
+graprof_graprof_LDADD = ${LIBS_GRAPROF} grapes/libgrapes.la common/libcommon.la
 
 if PROFILING
 
