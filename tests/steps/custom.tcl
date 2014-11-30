@@ -22,7 +22,7 @@ proc when_I_time { } {
     set time_taken [expr [clock clicks -milliseconds] - $time_start]
     set time_total [expr $time_total + $time_taken]
 
-    send_user "debug: [expr $time_taken / 10.0]\n"
+    send_user "debug: $time_taken\n"
 
   }
 

@@ -25,34 +25,30 @@
 #include "memory.h"
 #include "addr.h"
 
+#include <grapes/feedback.h>
+#include <grapes/file.h>
+
 #include <stdio.h>
 #include <string.h>
 
-#include <grapes/feedback.h>
-
-#if HAVE_OPENSSL_MD5
-  #include <openssl/md5.h>
-#elif HAVE_BSD_MD5
-  #include <bsd/md5.h>
-#endif
-
-#define buffer_get(T) *((T*)(buf)); buf += sizeof(T)
-
 static unsigned long long trace_total_runtime = 0;
 
-static int trace_enter(void *buf);
-static int trace_exit(void *buf);
-static int trace_malloc(void *buf);
-static int trace_realloc(void *buf);
-static int trace_free(void *buf);
-static int trace_end(void *buf);
+static int
+trace_init (tracebuffer_packet *p, unsigned char md5_binary[DIGEST_LENGTH])
+{
+  unsigned char *md5 =      p->init.digest;
+
+  feedback_assert_wrn(!memcmp(md5, md5_binary, DIGEST_LENGTH), "binary digest verification failed");
+
+  return 0;
+}
 
 static int
-trace_enter (void *buf)
+trace_enter (tracebuffer_packet *p)
 {
-  uintptr_t func = buffer_get(uintptr_t);
-  uintptr_t caller = buffer_get(uintptr_t);
-  unsigned long long time = buffer_get(unsigned long long);
+  uintptr_t func =          p->enter.func;
+  uintptr_t caller =        p->enter.caller;
+  unsigned long long time = p->time;
 
   int res = function_enter(func, caller, time);
   assert_inner(!res, "function_enter");
@@ -61,21 +57,21 @@ trace_enter (void *buf)
 }
 
 static int
-trace_exit (void *buf)
+trace_exit (tracebuffer_packet *p)
 {
-  unsigned long long time = buffer_get(unsigned long long);
+  unsigned long long time = p->time;
   function_exit(time);
 
   return 0;
 }
 
 static int
-trace_malloc (void *buf)
+trace_malloc (tracebuffer_packet *p)
 {
-  size_t size = buffer_get(size_t);
-  uintptr_t caller = buffer_get(uintptr_t);
-  uintptr_t result = buffer_get(uintptr_t);
-  unsigned long long time = buffer_get(unsigned long long);
+  size_t size =             p->malloc.size;
+  uintptr_t caller =        p->malloc.caller;
+  uintptr_t result =        p->malloc.result;
+  unsigned long long time = p->time;
 
   int res = memory_malloc(size, caller, result, time);
   assert_inner(!res, "memory_malloc");
@@ -84,13 +80,13 @@ trace_malloc (void *buf)
 }
 
 static int
-trace_realloc (void *buf)
+trace_realloc (tracebuffer_packet *p)
 {
-  uintptr_t ptr = buffer_get(uintptr_t);
-  size_t size = buffer_get(size_t);
-  uintptr_t caller = buffer_get(uintptr_t);
-  uintptr_t result = buffer_get(uintptr_t);
-  unsigned long long time = buffer_get(unsigned long long);
+  uintptr_t ptr =           p->realloc.ptr;
+  size_t size =             p->realloc.size;
+  uintptr_t caller =        p->realloc.caller;
+  uintptr_t result =        p->realloc.result;
+  unsigned long long time = p->time;
 
   int res = memory_realloc(ptr, size, caller, result, time);
   assert_inner(!res, "memory_realloc");
@@ -99,11 +95,11 @@ trace_realloc (void *buf)
 }
 
 static int
-trace_free (void *buf)
+trace_free (tracebuffer_packet *p)
 {
-  uintptr_t ptr = buffer_get(uintptr_t);
-  uintptr_t caller = buffer_get(uintptr_t);
-  unsigned long long time = buffer_get(unsigned long long);
+  uintptr_t ptr =           p->free.ptr;
+  uintptr_t caller =        p->free.caller;
+  unsigned long long time = p->time;
 
   int res = memory_free(ptr, caller, time);
   assert_inner(!res, "memory_free");
@@ -112,9 +108,9 @@ trace_free (void *buf)
 }
 
 static int
-trace_end (void *buf)
+trace_end (tracebuffer_packet *p)
 {
-  unsigned long long time = buffer_get(unsigned long long);
+  unsigned long long time = p->time;
 
   int res = function_exit_all(time);
   assert_inner(!res, "function_exit_all");
@@ -125,78 +121,67 @@ trace_end (void *buf)
 }
 
 int
-trace_read (const char *filename, unsigned char md5_binary[16])
+trace_read (const char *filename, unsigned char md5_binary[DIGEST_LENGTH])
 {
-  FILE *trace = fopen(filename, "r");
-  assert_inner(trace, "fopen");
-
-  unsigned char md5[DIGEST_LENGTH] = { 0 };
-  void *trace_buf = NULL;
-  unsigned long trace_bufsize = 0;
-
-  size_t n = fread(md5, 1, DIGEST_LENGTH, trace);
-  assert_set_errno(ENOTSUP, n == DIGEST_LENGTH, "fread");
-
-  unsigned char md5_zero[DIGEST_LENGTH] = { 0 };
-
-  feedback_assert(!memcmp(md5, md5_zero, DIGEST_LENGTH) || !memcmp(md5, md5_binary, DIGEST_LENGTH), "digest verification failed. This trace was not generated with this executable!");
-
-  n = fread(&trace_bufsize, sizeof(unsigned long), 1, trace);
-  assert_set_errno(ENOTSUP, n == 1, "fread");
-
-  trace_buf = malloc(trace_bufsize);
-  assert_inner(trace_buf, "malloc");
-
-  n = fread(trace_buf, 1, trace_bufsize, trace);
-  assert_set_errno(ENOTSUP, n == trace_bufsize, "fread");
-  assert_set_errno(ENOTSUP, feof(trace), "feof");
+  size_t length;
+  tracebuffer_packet *packets = file_map(filename, &length);
+  assert_inner(packets, "file_map");
 
   unsigned int trace_ended = 0;
 
-  unsigned long trace_index = 0;
-  while (trace_index < trace_bufsize)
+  size_t npackets = length / sizeof(*packets);
+  size_t i;
+  for (i = 0; i < npackets; ++i)
     {
-      char sign = *((char*)(trace_buf + trace_index));
-      trace_index += sizeof(char);
-      switch (sign)
+      tracebuffer_packet *p = packets + i;
+
+      int res;
+      switch (p->type)
         {
+        case 'I':
+          res = trace_init(p, md5_binary);
+          assert_inner(!res, "trace_init");
+          break;
         case 'e':
-          trace_enter(trace_buf + trace_index);
-          trace_index += 2 * sizeof(uintptr_t) + sizeof(unsigned long long);
+          res = trace_enter(p);
+          assert_inner(!res, "trace_enter");
           break;
         case 'x':
-          trace_exit(trace_buf + trace_index);
-          trace_index += sizeof(unsigned long long);
+          res = trace_exit(p);
+          assert_inner(!res, "trace_exit");
           break;
         case '+':
-          trace_malloc(trace_buf + trace_index);
-          trace_index += sizeof(size_t) + 2 * sizeof(uintptr_t) + sizeof(unsigned long long);
+          res = trace_malloc(p);
+          assert_inner(!res, "trace_malloc");
           break;
         case '*':
-          trace_realloc(trace_buf + trace_index);
-          trace_index += sizeof(size_t) + 3 * sizeof(uintptr_t) + sizeof(unsigned long long);
+          res = trace_realloc(p);
+          assert_inner(!res, "trace_realloc");
           break;
         case '-':
-          trace_free(trace_buf + trace_index);
-          trace_index += 2 * sizeof(uintptr_t) + sizeof(unsigned long long);
+          res = trace_free(p);
+          assert_inner(!res, "trace_free");
           break;
         case 'E':
-          trace_end(trace_buf + trace_index);
-          trace_index += sizeof(unsigned long long);
+          res = trace_end(p);
+          assert_inner(!res, "trace_end");
           trace_ended = 1;
-          assert_set_errno(ENOTSUP, trace_bufsize == trace_index, "END not at end");
           break;
         default:
-          assert_set_errno(ENOTSUP, 0, "unrerognized entry signs character '%c'", sign);
-          break;
+          feedback_error(EXIT_SUCCESS, "corrupt trace data, invalid type switch '%c'", p->type);
+          return -1;
         }
     }
 
   if (!trace_ended)
-    assert_set_errno(ENOTSUP, 0, "no END at end");
+    {
+      feedback_warning("libgraprof trace not terminated.");
+      int res = trace_end(packets + npackets - 1);
+      assert_inner(!res, "trace_end");
+    }
 
-  free(trace_buf);
-  fclose(trace);
+  int res = file_unmap(packets, length);
+  assert_inner(!res, "file_unmap");
 
   return 0;
 }

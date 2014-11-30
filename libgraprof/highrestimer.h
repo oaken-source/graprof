@@ -30,8 +30,6 @@
 /* get the number of nanoseconds elapsed since the start of the program
  *
  * errors:
- *   EINVAL - your system has clock_gettime, but does not support
- *            CLOCK_MONOTONIC_RAW
  *   ENOSYS - neither clock_gettime nor mach_absolute_time available
  *
  * returns:

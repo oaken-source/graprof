@@ -27,6 +27,8 @@
 
   static struct timespec start;
 
+  #define CLOCK CLOCK_MONOTONIC
+
 #elif HAVE_MACH_ABSOLUTE_TIME
 
   #include <stdint.h>
@@ -45,7 +47,7 @@ highrestimer_init ()
 {
   #if HAVE_CLOCK_GETTIME
 
-    clock_gettime(CLOCK_MONOTONIC_RAW, &start);
+    clock_gettime(CLOCK, &start);
 
   #elif HAVE_MACH_ABSOLUTE_TIME
 
@@ -61,8 +63,7 @@ highrestimer_get (void)
   #if HAVE_CLOCK_GETTIME
 
     struct timespec end;
-    int res = clock_gettime(CLOCK_MONOTONIC_RAW, &end);
-    assert_inner(!res, "clock_gettime");
+    clock_gettime(CLOCK, &end);
 
     return ((end.tv_sec - start.tv_sec) * 1000000000) + (end.tv_nsec - start.tv_nsec);
 

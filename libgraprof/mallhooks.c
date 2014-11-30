@@ -36,12 +36,12 @@ malloc_hook (size_t size, const void *caller)
 
   void *result = malloc(size);
 
-  tracebuffer_packet p = {
-    .type = '+',
-    .malloc = { size, (uintptr_t)(caller - 4), (uintptr_t)result },
-    .time = highrestimer_get()
-  };
-  tracebuffer_append(p);
+  static tracebuffer_packet p = { .type = '+' };
+    p.malloc.size   = size;
+    p.malloc.caller = (uintptr_t)(caller - 4);
+    p.malloc.result = (uintptr_t)result;
+    p.time = highrestimer_get();
+  tracebuffer_append(&p);
 
   libgraprof_install_hooks();
 
@@ -55,12 +55,12 @@ calloc_hook (size_t nmemb, size_t size, const void *caller)
 
   void *result = calloc(nmemb, size);
 
-  static tracebuffer_packet p = { '+', { { 0 } }, 0 };
+  static tracebuffer_packet p = { .type = '+' };
     p.calloc.size   = nmemb * size;
     p.calloc.caller = (uintptr_t)(caller - 4);
     p.calloc.result = (uintptr_t)result;
     p.time = highrestimer_get();
-  tracebuffer_append(p);
+  tracebuffer_append(&p);
 
   libgraprof_install_hooks();
 
@@ -75,12 +75,13 @@ realloc_hook (void *ptr, size_t size, const void *caller)
 
   void *result = realloc(ptr, size);
 
-  tracebuffer_packet p = {
-    .type = '*',
-    .realloc = { (uintptr_t)ptr, size, (uintptr_t)(caller - 4), (uintptr_t)result },
-    .time = highrestimer_get()
-  };
-  tracebuffer_append(p);
+  static tracebuffer_packet p = { .type = '*' };
+    p.realloc.ptr     = (uintptr_t)ptr;
+    p.realloc.size    = size;
+    p.realloc.caller  = (uintptr_t)(caller - 4);
+    p.realloc.result  = (uintptr_t)result;
+    p.time = highrestimer_get();
+  tracebuffer_append(&p);
 
   libgraprof_install_hooks();
 
@@ -96,12 +97,11 @@ free_hook (void *ptr, const void *caller)
 
   if (ptr)
     {
-      tracebuffer_packet p = {
-        .type = '-',
-        .free = { (uintptr_t)ptr, (uintptr_t)(caller - 4) },
-        .time = highrestimer_get()
-      };
-      tracebuffer_append(p);
+      static tracebuffer_packet p = { .type = '-' };
+        p.free.ptr    = (uintptr_t)ptr;
+        p.free.caller = (uintptr_t)(caller - 4);
+        p.time = highrestimer_get();
+      tracebuffer_append(&p);
     }
 
   libgraprof_install_hooks();

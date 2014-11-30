@@ -57,7 +57,13 @@ libgraprof_init ()
     }
 
   if (libgraprof_out)
-    libgraprof_install_hooks();
+    {
+      libgraprof_install_hooks();
+      static tracebuffer_packet p = { .type = 'I' };
+        p.time = highrestimer_get();
+      md5_digest(p.init.digest, "/proc/self/exe");
+      tracebuffer_append(&p);
+    }
 
   errno = errsv;
 }
@@ -72,13 +78,9 @@ libgraprof_fini ()
   {
     libgraprof_uninstall_hooks();
 
-    tracebuffer_packet p = {
-      .type = 'E',
-      .exit_all = { { 0 } },
-      .time = highrestimer_get()
-    };
-    md5_digest(p.exit_all.digest, "/proc/self/exe");
-    tracebuffer_append(p);
+    static tracebuffer_packet p = { .type = 'E' };
+      p.time = highrestimer_get();
+    tracebuffer_append(&p);
     tracebuffer_finish();
 
     fclose(libgraprof_out);

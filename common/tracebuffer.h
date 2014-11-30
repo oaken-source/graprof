@@ -37,14 +37,14 @@ struct tracebuffer_packet
 
   union {
     struct {
+      unsigned char digest[DIGEST_LENGTH];
+    } init;
+    struct {
       uintptr_t func;
       uintptr_t caller;
     } enter;
     struct {
     } exit;
-    struct {
-      unsigned char digest[DIGEST_LENGTH];
-    } exit_all;
     struct {
       size_t size;
       uintptr_t caller;
@@ -65,12 +65,14 @@ struct tracebuffer_packet
       uintptr_t ptr;
       uintptr_t caller;
     } free;
+    struct {
+    } exit_all;
   };
 
   unsigned long long time;
 };
 typedef struct tracebuffer_packet tracebuffer_packet;
 
-void tracebuffer_append (tracebuffer_packet p);
+void tracebuffer_append (const tracebuffer_packet *p);
 
 void tracebuffer_finish (void);
