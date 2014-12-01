@@ -4,6 +4,8 @@
 ACLOCAL_AMFLAGS = -I m4
 AUTOMAKE_OPTIONS = subdir-objects
 
+## libraries
+
 noinst_LTLIBRARIES = \
     grapes/libgrapes.la \
     common/libcommon.la
@@ -30,6 +32,8 @@ libgraprof_libgraprof_la_SOURCES = \
 
 libgraprof_libgraprof_la_LDFLAGS = -version-info 0:0:0
 libgraprof_libgraprof_la_LIBADD = ${LIBS_LIBGRAPROF} common/libcommon.la
+
+## executables
 
 bin_PROGRAMS = \
     graprof/graprof
@@ -59,6 +63,8 @@ graprof_graprof_SOURCES = \
 
 graprof_graprof_CFLAGS = ${CFLAGS_GRAPROF}
 graprof_graprof_LDADD = ${LIBS_GRAPROF} grapes/libgrapes.la common/libcommon.la
+
+## profiling builds
 
 if PROFILING
 

@@ -31,4 +31,4 @@
  *
  * returns: -1 on failure, 0 on success
  */
-int flatprofile_print(void) __may_fail;
+int flatprofile_print(int verbose) __may_fail;

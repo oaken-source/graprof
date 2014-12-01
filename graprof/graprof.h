@@ -29,31 +29,23 @@
 #include <grapes/feedback.h>
 
 #include <argp.h>
-
 #include <stdlib.h>
-
-
-#ifndef __GNU_LIBRARY__
-  const char *program_invocation_short_name = PACKAGE_NAME;
-#endif
 
 const char *argp_program_version = PACKAGE_STRING;
 const char *argp_program_bug_address = PACKAGE_BUGREPORT;
 
 const char doc[] = PACKAGE_NAME " - a profiling and trace analysis tool";
-
 const char args_doc[] = "[--] <binary call>";
-
-extern int graprof_verbosity;
 
 static struct argp_option options[] =
 {
   {"flat-profile", 'F', 0, 0, "generate flat profile from trace data", 0},
-  {"call-graph", 'C', 0, 0, "generete call graph from trace data", 0},
+  {"call-graph", 'C', 0, 0, "generate call graph from trace data", 0},
   {"memory-profile", 'M', 0, 0, "generate flat memory profile from trace data", 0},
   {"tracing-gui", 'G', 0, 0, "open the trace explorer gui", 0},
   {"output", 'o', "<file>", 0, "write profile results to <file> instead of stdout", 0},
-  {"verbose", 'v', 0, 0, "add descriptions to profiling output", 0},
+  {"verbose", 'v', 0, 0, "be more verbose", 0},
+  {"verbose", 'q', 0, 0, "be less verbose", 0},
   {"trace", 't', "<file>", 0, "use a given tracefile instead of running the given binary to generate a trace", 0},
   {0, 0, 0, 0, 0, 0}
 };
@@ -63,7 +55,7 @@ enum graprof_tasks
   GRAPROF_FLAT_PROFILE      = 0x01,
   GRAPROF_CALL_GRAPH        = 0x02,
   GRAPROF_MEMORY_PROFILE    = 0x04,
-  GRAPROF_TRACING_GUI            = 0x08
+  GRAPROF_TRACING_GUI       = 0x08
 };
 typedef enum graprof_tasks graprof_tasks;
 
@@ -74,9 +66,18 @@ struct arguments
 
   graprof_tasks tasks;
   const char *out_filename;
+
+  int verbose;
 };
 
-struct arguments arguments = { NULL, NULL, 0, NULL };
+#define check_arg_is_not_after_binary(S) \
+    do { \
+      if ((S)->arg_num) \
+        { \
+          feedback_error(EXIT_SUCCESS, "parameter `%s' after binary", (S)->argv[(S)->next - 1]); \
+          argp_usage(state); \
+        } \
+    } while (0)
 
 static error_t
 parse_opt (int key, char *arg, struct argp_state *state)
@@ -86,64 +87,39 @@ parse_opt (int key, char *arg, struct argp_state *state)
   switch(key)
     {
     case 'F':
-      if (state->arg_num)
-        {
-          feedback_error(EXIT_SUCCESS, "bad parameter `%s' after binary name", state->argv[state->next - 1]);
-          argp_usage(state);
-        }
+      check_arg_is_not_after_binary(state);
       args->tasks |= GRAPROF_FLAT_PROFILE;
       break;
     case 'C':
-      if (state->arg_num)
-        {
-          feedback_error(EXIT_SUCCESS, "bad parameter `%s' after binary name", state->argv[state->next - 1]);
-          argp_usage(state);
-        }
+      check_arg_is_not_after_binary(state);
       args->tasks |= GRAPROF_CALL_GRAPH;
       break;
     case 'M':
-      if (state->arg_num)
-        {
-          feedback_error(EXIT_SUCCESS, "bad parameter `%s' after binary name", state->argv[state->next - 1]);
-          argp_usage(state);
-        }
+      check_arg_is_not_after_binary(state);
       args->tasks |= GRAPROF_MEMORY_PROFILE;
       break;
     case 'G':
-      if (state->arg_num)
-        {
-          feedback_error(EXIT_SUCCESS, "bad parameter `%s' after binary name", state->argv[state->next - 1]);
-          argp_usage(state);
-        }
+      check_arg_is_not_after_binary(state);
       args->tasks |= GRAPROF_TRACING_GUI;
       break;
     case 'o':
-      if (state->arg_num)
-        {
-          feedback_error(EXIT_SUCCESS, "bad parameter `%s' after binary name", state->argv[state->next - 1]);
-          argp_usage(state);
-        }
+      check_arg_is_not_after_binary(state);
       args->out_filename = arg;
       break;
     case 'v':
-      if (state->arg_num)
-        {
-          feedback_error(EXIT_SUCCESS, "bad parameter `%s' after binary name", state->argv[state->next - 1]);
-          argp_usage(state);
-        }
-      ++graprof_verbosity;
+      check_arg_is_not_after_binary(state);
+      ++(args->verbose);
       break;
+    case 'q':
+      check_arg_is_not_after_binary(state);
+      --(args->verbose);
     case 't':
-      if (state->arg_num)
-        {
-          feedback_error(EXIT_SUCCESS, "bad parameter `%s' after binary name", state->argv[state->next - 1]);
-          argp_usage(state);
-        }
+      check_arg_is_not_after_binary(state);
       args->trace_filename = arg;
       break;
     case ARGP_KEY_ARG:
       args->binary_invocation = realloc(args->binary_invocation, sizeof(const char*) * (state->arg_num + 2));
-      assert_inner(args->binary_invocation, "realloc");
+      feedback_assert(args->binary_invocation, "argp");
       args->binary_invocation[state->arg_num] = arg;
       args->binary_invocation[state->arg_num + 1] = NULL;
       break;
@@ -157,5 +133,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
 
   return 0;
 }
+
+#undef  check_arg_is_not_after_binary
 
 static struct argp argp = {options, parse_opt, args_doc, doc, 0, 0, 0};

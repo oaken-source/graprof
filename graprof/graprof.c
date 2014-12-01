@@ -37,15 +37,12 @@
 #include <sys/wait.h>
 
 FILE *graprof_out = NULL;
-int graprof_verbosity = 0;
-
-#ifndef _GNU_SOURCE
-  const char *program_invocation_name = PACKAGE_NAME;
-#endif
 
 int
 main (int argc, char *argv[])
 {
+  // parse arguments
+  struct arguments arguments = { NULL, NULL, 0, NULL, 0 };
   argp_parse (&argp, argc, argv, ARGP_IN_ORDER, 0, &arguments);
 
   // set default trace file in environment, if not specified
@@ -126,12 +123,12 @@ main (int argc, char *argv[])
   // do stuff
   if (arguments.tasks & GRAPROF_FLAT_PROFILE)
     {
-      res = flatprofile_print();
+      res = flatprofile_print(arguments.verbose);
       assert_inner(!res, "flatprofile_print");
     }
 
   if (arguments.tasks & GRAPROF_CALL_GRAPH)
-    callgraph_print();
+    callgraph_print(arguments.verbose);
 
   if (arguments.tasks & GRAPROF_MEMORY_PROFILE)
     memprofile_print();

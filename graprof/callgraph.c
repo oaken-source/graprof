@@ -31,10 +31,9 @@
 #include <inttypes.h>
 
 extern FILE *graprof_out;
-extern int graprof_verbosity;
 
 void
-callgraph_print (void)
+callgraph_print (int verbose)
 {
   fprintf(graprof_out, "Call graph:\n");
   fprintf(graprof_out, "\n");
@@ -137,7 +136,7 @@ callgraph_print (void)
 
   fprintf(graprof_out, "\n");
 
-  if (graprof_verbosity >= 1)
+  if (verbose >= 1)
     {
       fprintf(graprof_out,
         " This table describes the call tree of the program, and was\n"

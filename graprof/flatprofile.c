@@ -31,10 +31,9 @@
 #include <inttypes.h>
 
 extern FILE *graprof_out;
-extern int graprof_verbosity;
 
 int
-flatprofile_print (void)
+flatprofile_print (int verbose)
 {
   fprintf(graprof_out,
       "Flat profile:\n"
@@ -96,7 +95,7 @@ flatprofile_print (void)
       fprintf(graprof_out, " [%u]\n", index);
     }
 
-  if (graprof_verbosity >= 1)
+  if (verbose >= 1)
     {
       fprintf(graprof_out,
         "\n"

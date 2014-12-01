@@ -50,8 +50,7 @@ trace_enter (tracebuffer_packet *p)
   uintptr_t caller =        p->enter.caller;
   unsigned long long time = p->time;
 
-  int res = function_enter(func, caller, time);
-  assert_inner(!res, "function_enter");
+  __checked_call(0, function_enter(func, caller, time));
 
   return 0;
 }
@@ -73,8 +72,7 @@ trace_malloc (tracebuffer_packet *p)
   uintptr_t result =        p->malloc.result;
   unsigned long long time = p->time;
 
-  int res = memory_malloc(size, caller, result, time);
-  assert_inner(!res, "memory_malloc");
+  __checked_call(0, memory_malloc(size, caller, result, time));
 
   return 0;
 }
@@ -88,8 +86,7 @@ trace_realloc (tracebuffer_packet *p)
   uintptr_t result =        p->realloc.result;
   unsigned long long time = p->time;
 
-  int res = memory_realloc(ptr, size, caller, result, time);
-  assert_inner(!res, "memory_realloc");
+  __checked_call(0, memory_realloc(ptr, size, caller, result, time));
 
   return 0;
 }
@@ -101,8 +98,7 @@ trace_free (tracebuffer_packet *p)
   uintptr_t caller =        p->free.caller;
   unsigned long long time = p->time;
 
-  int res = memory_free(ptr, caller, time);
-  assert_inner(!res, "memory_free");
+  __checked_call(0, memory_free(ptr, caller, time));
 
   return 0;
 }
@@ -112,8 +108,7 @@ trace_end (tracebuffer_packet *p)
 {
   unsigned long long time = p->time;
 
-  int res = function_exit_all(time);
-  assert_inner(!res, "function_exit_all");
+  __checked_call(0, function_exit_all(time));
 
   trace_total_runtime = time;
 

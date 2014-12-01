@@ -25,18 +25,19 @@
 #  include <config.h>
 #endif
 
-#include <grapes/util.h>
+#include "common/tracebuffer.h"
 
-#include <common/tracebuffer.h>
+#include <grapes/util.h>
 
 /* read trace data from a given file and distribute the contained information
  * to the appropriate submodules.
  *
  * params:
  *   filename - the file that contains the trace data
+ *   md5_binary - the md5 digest of the profiled binary
  *
  * errors:
- *   ENOTSUP - the trace data is somehow invalid
+ *   ENOTSUP - the trace data is invalid
  *   may also fail and set errno for the same reasons as fopen and malloc
  *
  * returns:

@@ -79,6 +79,13 @@ void feedback_error_at_line(const char *filename, unsigned int linenum, const ch
 #define assert_weak(COND, ...) \
     do { if (__unlikely(!(COND))) { _assert_feedback(__VA_ARGS__); } } while (0)
 
+/* runtime assertion using the macros above
+ */
+#define __checked_call(RES, FUNC) \
+    do { assert_inner((RES) == (FUNC), # FUNC); } while (0)
+#define __checked_call_ptr(RES, FUNC) \
+    do { assert_inner_ptr((RES) == (FUNC), # FUNC); } while (0)
+
 /* convenience min/max macros
  *
  * note that these macros evaluate their parameters more than once.
