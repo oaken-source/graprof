@@ -1,0 +1,163 @@
+
+file delete graprof.out
+
+### test the graprof cli
+# it should print a short usage if started with no arguments
+given an executable "../graprof/graprof"
+  when I run
+  then I should see "Usage: graprof"
+  and I should not see "Report bugs to"
+  and it should not return 0
+# it should print the same but return 0 when invooked with --usage
+given an executable "../graprof/graprof"
+  when I run with parameters "--usage"
+  then I should see "Usage: graprof"
+  and I should not see "Report bugs to"
+  and it should return 0
+# when invoked with --help/-?, a help message should be printed
+given an executable "../graprof/graprof"
+  when I run with parameters "--help"
+  then I should see "Usage: graprof"
+  and I should see "Report bugs to"
+  and it should return 0
+  when I run with parameters "-?"
+  then I should see "Usage: graprof"
+  and I should see "Report bugs to"
+  and it should return 0
+# when invoked with --version/-V, a version should be printed
+given an executable "../graprof/graprof"
+  when I run with parameters "--version"
+  then I should see "graprof"
+  and it should return 0
+  when I run with parameters "-V"
+  then I should see "graprof"
+  and it should return 0
+
+set libdir $::env(libdir)
+set ::env(LD_LIBRARY_PATH) ${libdir}
+set ::env(GRAPROF_OUT) "gp.out"
+
+set src "
+    int foo (void) { return 0; }
+    int main (void) {
+      unsigned int i;
+      for (i = 0; i < 1337; ++i) foo();
+      return 0;
+    }"
+# when invoked with --call-graph/-C, the call graph should be printed
+given the c code "$src"
+  when I compile with cflags "-Wall -Wextra -Werror -finstrument-functions -g -L${libdir} -lgraprof"
+  then it should return 0
+  when I run through profiler with parameters "-C"
+  then I should see "Call graph:"
+  when I run through profiler with parameters "-C"
+  then I should not see "Flat profile:"
+  when I run through profiler with parameters "-C"
+  then I should not see "Memory profile:"
+  when I run through profiler with parameters "--call-graph"
+  then I should see "Call graph:"
+  when I run through profiler with parameters "--call-graph"
+  then I should not see "Flat profile:"
+  when I run through profiler with parameters "--call-graph"
+  then I should not see "Memory profile:"
+# when invoked with --flat-profile/-F, the flat profile should be printed
+given the c code "$src"
+  when I compile with cflags "-Wall -Wextra -Werror -finstrument-functions -g -L${libdir} -lgraprof"
+  then it should return 0
+  when I run through profiler with parameters "-F"
+  then I should see "Flat profile:"
+  when I run through profiler with parameters "-F"
+  then I should not see "Call graph:"
+  when I run through profiler with parameters "-F"
+  then I should not see "Memory profile:"
+  when I run through profiler with parameters "--flat-profile"
+  then I should see "Flat profile:"
+  when I run through profiler with parameters "--flat-profile"
+  then I should not see "Call graph:"
+  when I run through profiler with parameters "--flat-profile"
+  then I should not see "Memory profile:"
+# when invoked with --memory-profile/-M, the memory profile should be printed
+given the c code "$src"
+  when I compile with cflags "-Wall -Wextra -Werror -finstrument-functions -g -L${libdir} -lgraprof"
+  then it should return 0
+  when I run through profiler with parameters "-M"
+  then I should see "Memory profile:"
+  when I run through profiler with parameters "-M"
+  then I should not see "Flat profile:"
+  when I run through profiler with parameters "-M"
+  then I should not see "Call graph:"
+  when I run through profiler with parameters "--memory-profile"
+  then I should see "Memory profile:"
+  when I run through profiler with parameters "--memory-profile"
+  then I should not see "Flat profile:"
+  when I run through profiler with parameters "--memory-profile"
+  then I should not see "Call graph:"
+# when invoked with -FCM, all profile data should be printed
+given the c code "$src"
+  when I compile with cflags "-Wall -Wextra -Werror -finstrument-functions -g -L${libdir} -lgraprof"
+  then it should return 0
+  when I run through profiler with parameters "-FCM"
+  then I should see "Flat profile:"
+  and I should see "Call graph:"
+  and I should see "Memory profile:"
+  and it should return 0
+# when invoked with -v, the profile data should contain an info header
+given the c code "$src"
+  when I compile with cflags "-Wall -Wextra -Werror -finstrument-functions -g -L${libdir} -lgraprof"
+  then it should return 0
+  when I run through profiler with parameters "-FCv"
+  then I should see "Flat profile:"
+  and I should see "the percentage of the total running"
+  and I should see "Call graph:"
+  and I should see "A unique function identifier that is also"
+  and it should return 0
+  when I run through profiler with parameters "-FCvq"
+  then I should see "Flat profile:"
+  and I should not see "the percentage of the total running"
+  and it should return 0
+  when I run through profiler with parameters "-FCvq"
+  then I should see "Call graph:"
+  and I should not see "A unique function identifier that is also"
+  and it should return 0
+  when I run through profiler with parameters "-FCq"
+  then I should see "Flat profile:"
+  and I should not see "the percentage of the total running"
+  and it should return 0
+  when I run through profiler with parameters "-FCq"
+  then I should see "Call graph:"
+  and I should not see "A unique function identifier that is also"
+  and it should return 0
+# when invoked with -o, the output should go to the specified file
+given the c code "$src"
+  when I compile with cflags "-Wall -Wextra -Werror -finstrument-functions -g -L${libdir} -lgraprof"
+  then it should return 0
+  when I run through profiler with parameters "-FC -o graprof.out"
+  then I should not see "Flat profile:"
+  and there should be a file "graprof.out"
+  and it should return 0
+# when invoked with -t, the given binary should not be run
+set ::env(PERFTEST) 1337
+given the c code "
+    #include <stdlib.h>
+    #include <string.h>
+    int func (void) { return 0; }
+    int main (void) {
+      unsigned int x = strtoul(getenv(\"PERFTEST\"), NULL, 10);
+      unsigned int i;
+      for (i = 0; i < x; ++i) func();
+      return 0;
+    }"
+  when I compile with cflags "-Wall -Wextra -Werror -finstrument-functions -g -L${libdir} -lgraprof"
+  then it should return 0
+  when I run through profiler with parameters "-F"
+  then it should return 0
+  and there should be a file gp.out
+set ::env(PERFTEST) 1338
+  when I run through profiler with parameters "-F -t gp.out"
+  then I should see "1337"
+  and it should return 0
+
+file delete gp.out
+file delete graprof.out
+
+send_user "\n"

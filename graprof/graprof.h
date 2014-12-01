@@ -45,7 +45,7 @@ static struct argp_option options[] =
   {"tracing-gui", 'G', 0, 0, "open the trace explorer gui", 0},
   {"output", 'o', "<file>", 0, "write profile results to <file> instead of stdout", 0},
   {"verbose", 'v', 0, 0, "be more verbose", 0},
-  {"verbose", 'q', 0, 0, "be less verbose", 0},
+  {"quiet", 'q', 0, 0, "be less verbose", 0},
   {"trace", 't', "<file>", 0, "use a given tracefile instead of running the given binary to generate a trace", 0},
   {0, 0, 0, 0, 0, 0}
 };
@@ -61,7 +61,7 @@ typedef enum graprof_tasks graprof_tasks;
 
 struct arguments
 {
-  const char **binary_invocation;
+  char **binary_invocation;
   const char *trace_filename;
 
   graprof_tasks tasks;
@@ -69,15 +69,6 @@ struct arguments
 
   int verbose;
 };
-
-#define check_arg_is_not_after_binary(S) \
-    do { \
-      if ((S)->arg_num) \
-        { \
-          feedback_error(EXIT_SUCCESS, "parameter `%s' after binary", (S)->argv[(S)->next - 1]); \
-          argp_usage(state); \
-        } \
-    } while (0)
 
 static error_t
 parse_opt (int key, char *arg, struct argp_state *state)
@@ -87,41 +78,31 @@ parse_opt (int key, char *arg, struct argp_state *state)
   switch(key)
     {
     case 'F':
-      check_arg_is_not_after_binary(state);
       args->tasks |= GRAPROF_FLAT_PROFILE;
       break;
     case 'C':
-      check_arg_is_not_after_binary(state);
       args->tasks |= GRAPROF_CALL_GRAPH;
       break;
     case 'M':
-      check_arg_is_not_after_binary(state);
       args->tasks |= GRAPROF_MEMORY_PROFILE;
       break;
     case 'G':
-      check_arg_is_not_after_binary(state);
       args->tasks |= GRAPROF_TRACING_GUI;
       break;
     case 'o':
-      check_arg_is_not_after_binary(state);
       args->out_filename = arg;
       break;
     case 'v':
-      check_arg_is_not_after_binary(state);
       ++(args->verbose);
       break;
     case 'q':
-      check_arg_is_not_after_binary(state);
       --(args->verbose);
     case 't':
-      check_arg_is_not_after_binary(state);
       args->trace_filename = arg;
       break;
     case ARGP_KEY_ARG:
-      args->binary_invocation = realloc(args->binary_invocation, sizeof(const char*) * (state->arg_num + 2));
-      feedback_assert(args->binary_invocation, "argp");
-      args->binary_invocation[state->arg_num] = arg;
-      args->binary_invocation[state->arg_num + 1] = NULL;
+      args->binary_invocation = state->argv + state->next - 1;
+      state->next = state->argc;
       break;
     case ARGP_KEY_END:
       if (!state->arg_num)
@@ -133,7 +114,5 @@ parse_opt (int key, char *arg, struct argp_state *state)
 
   return 0;
 }
-
-#undef  check_arg_is_not_after_binary
 
 static struct argp argp = {options, parse_opt, args_doc, doc, 0, 0, 0};

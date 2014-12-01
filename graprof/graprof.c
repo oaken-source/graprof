@@ -87,8 +87,6 @@ main (int argc, char *argv[])
   res = md5_digest(md5_binary, arguments.binary_invocation[0]);
   feedback_assert_wrn(!res, "unable to digest '%s'", arguments.binary_invocation[0]);
 
-  free(arguments.binary_invocation);
-
   // figure out the proper tracefile
   const char *tracefile = getenv("GRAPROF_OUT");
   if (arguments.trace_filename)

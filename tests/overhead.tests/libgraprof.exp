@@ -2,6 +2,8 @@
 set libdir $::env(libdir)
 set ::env(LD_LIBRARY_PATH) ${libdir}
 
+file delete gp.out
+
 unset -nocomplain ::env(GRAPROF_OUT)
 
 set src "
@@ -27,7 +29,9 @@ given the c code "${src}"
   then it should take less than 40ms
 # time the same with active noop instrumentation
 given the c code "${src}
+    __attribute__((no_instrument_function))
     void __cyg_profile_func_enter (void *func, void *caller) { }
+    __attribute__((no_instrument_function))
     void __cyg_profile_func_exit (void *func, void *caller) { }"
   when I compile with cflags "-Wall -Wextra -finstrument-functions -g"
   then it should return 0
