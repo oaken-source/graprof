@@ -18,11 +18,13 @@ given the c code "${src}"
   when I compile with cflags "-Wall -Wextra -Werror -g"
   then it should return 0
   when I time
+  then it should take less than 40ms
 # time the same with noop instrumentation
 given the c code "${src}"
   when I compile with cflags "-Wall -Wextra -Werror -finstrument-functions -g"
   then it should return 0
   when I time
+  then it should take less than 40ms
 # time the same with active noop instrumentation
 given the c code "${src}
     void __cyg_profile_func_enter (void *func, void *caller) { }
@@ -30,17 +32,24 @@ given the c code "${src}
   when I compile with cflags "-Wall -Wextra -finstrument-functions -g"
   then it should return 0
   when I time
+  then it should take less than 40ms
 # time the same with inert graprof instrumentation
 given the c code "${src}"
   when I compile with cflags "-Wall -Wextra -Werror -finstrument-functions -g -L${libdir} -lgraprof"
   then it should return 0
   when I time
+  then it should take less than 40ms
+  and there should not be a file "gp.out"
 # time the same with active graprof instrumentation
 set ::env(GRAPROF_OUT) gp.out
 given the c code "${src}"
   when I compile with cflags "-Wall -Wextra -Werror -finstrument-functions -g -L${libdir} -lgraprof"
   then it should return 0
   when I time
+  then it should take less than 400ms
+  and there should be a file "gp.out"
+
+file delete gp.out
 
 unset -nocomplain ::env(GRAPROF_OUT)
 # file delete -force gp.out

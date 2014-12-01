@@ -168,14 +168,14 @@ trace_read (const char *filename, unsigned char md5_binary[DIGEST_LENGTH])
           trace_ended = 1;
           break;
         default:
-          feedback_error(EXIT_SUCCESS, "corrupt trace data, invalid type switch '%c'", p->type);
-          return -1;
+          assert_set_errno(0, ENOTSUP, "invalid tracebuffer type '%c'", p->type);
+          break;
         }
     }
 
   if (!trace_ended)
     {
-      feedback_warning("libgraprof trace not terminated.");
+      feedback_warning("libgraprof trace not properly terminated.");
       int res = trace_end(packets + npackets - 1);
       assert_inner(!res, "trace_end");
     }

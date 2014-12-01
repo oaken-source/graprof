@@ -70,10 +70,13 @@ highrestimer_get (void)
   #elif HAVE_MACH_ABSOLUTE_TIME
 
     uint64_t elapsed = mach_absolute_time() - start;
+
     return  elapsed * timebase.numer / timebase.denom;
 
-  #endif
+  #else
 
-  assert_set_errno(0, ENOSYS, "no highres timer functionality");
+    assert_set_errno(0, ENOSYS, "no highres timer functionality");
+
+  #endif
 }
 

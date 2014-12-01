@@ -27,6 +27,8 @@
 
 #include <grapes/util.h>
 
+/* indicate wether profiling hooks are active
+ */
 extern unsigned int libgraprof_hooked;
 
 /* activate all profiling hooks

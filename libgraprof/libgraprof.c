@@ -22,13 +22,10 @@
 #include "libgraprof.h"
 
 #include "highrestimer.h"
-#include "mallhooks.h"
-#include "instrument.h"
 
 #include "common/tracebuffer.h"
 
 #include <grapes/feedback.h>
-#include <grapes/file.h>
 
 #include <stdio.h>
 #include <errno.h>
@@ -44,16 +41,15 @@ static void
 __attribute__ ((constructor))
 libgraprof_init ()
 {
-  int errsv = errno;
+  int errnum = errno;
 
   libgraprof_filename = getenv("GRAPROF_OUT");
 
   if (libgraprof_filename)
     {
-      int errnum = errno;
       unlink(libgraprof_filename);
-      errno = errnum;
       libgraprof_out = fopen(libgraprof_filename, "wb");
+      feedback_assert_wrn(libgraprof_out, "unable to open '%s'", libgraprof_filename);
     }
 
   if (libgraprof_out)
@@ -62,17 +58,18 @@ libgraprof_init ()
         p.time = highrestimer_get();
       md5_digest(p.init.digest, "/proc/self/exe");
       tracebuffer_append(&p);
+
       libgraprof_install_hooks();
     }
 
-  errno = errsv;
+  errno = errnum;
 }
 
 static void
 __attribute__ ((destructor))
 libgraprof_fini ()
 {
-  int errsv = errno;
+  int errnum = errno;
 
   if (libgraprof_out)
   {
@@ -83,10 +80,11 @@ libgraprof_fini ()
     tracebuffer_append(&p);
     tracebuffer_finish();
 
-    fclose(libgraprof_out);
+    int res = fclose(libgraprof_out);
+    feedback_assert_wrn(!res, "unable to close '%s'", libgraprof_filename);
   }
 
-  errno = errsv;
+  errno = errnum;
 }
 
 void
