@@ -21,28 +21,33 @@
 
 #include "md5.h"
 
-#include <grapes/feedback.h>
 #include <grapes/file.h>
 
-void
-md5_digest (unsigned char *dest, const char *filename)
+int
+md5_digest (unsigned char dest[DIGEST_LENGTH], const char *filename)
 {
   size_t length;
   void *data;
 
   data = file_map(filename, &length);
-  if (!data)
-    {
-      feedback_warning("libgraprof: %s", filename);
-      return;
-    }
+  assert_inner(data, "file_map");
 
   #if HAVE_OPENSSL_MD5
+
     MD5(data, length, dest);
+
   #elif HAVE_BSD_MD5
+
     MD5Data(data, length, (void*)dest);
+
+  #else
+
+    assert_set_errno(0, ENOSYS, "no md5 functionality");
+
   #endif
 
   int res = file_unmap(data, length);
-  feedback_assert_wrn(!res, "libgraprof: %s", filename);
+  assert_inner(!res, "file_unmap");
+
+  return 0;
 }

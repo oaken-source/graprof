@@ -87,7 +87,8 @@ main (int argc, char *argv[])
     }
 
   unsigned char md5_binary[DIGEST_LENGTH];
-  md5_digest(md5_binary, arguments.binary_invocation[0]);
+  res = md5_digest(md5_binary, arguments.binary_invocation[0]);
+  feedback_assert_wrn(!res, "unable to digest '%s'", arguments.binary_invocation[0]);
 
   free(arguments.binary_invocation);
 

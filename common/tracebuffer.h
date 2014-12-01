@@ -25,12 +25,14 @@
 #  include <config.h>
 #endif
 
-#include <grapes/util.h>
-
 #include "common/md5.h"
+
+#include <grapes/util.h>
 
 #include <stdint.h>
 
+/* this struct represents a trace event pushed to the trace log
+ */
 struct tracebuffer_packet
 {
   char type;
@@ -73,6 +75,20 @@ struct tracebuffer_packet
 };
 typedef struct tracebuffer_packet tracebuffer_packet;
 
+/* add a packet to the trace log
+ *
+ * params:
+ *   p - a pointer to a tracebuffer_packet
+ *
+ * errors:
+ *   will emit a warning to stderr if a write operation fails
+ */
 void tracebuffer_append (const tracebuffer_packet *p);
 
+/* finish a trace log - should be called after all packets are appended, to
+ * flush the internal write buffer
+ *
+ * errors:
+ *   will emit a warning to stderr if a write operation fails
+ */
 void tracebuffer_finish (void);

@@ -21,7 +21,10 @@
 
 #include "tracebuffer.h"
 
+#include <grapes/feedback.h>
+
 #include <stdio.h>
+#include <errno.h>
 
 #define BUFSIZE 1024
 
@@ -29,12 +32,19 @@ static tracebuffer_packet tracebuffer_buffer[BUFSIZE];
 static size_t tracebuffer_index = 0;
 
 extern FILE *libgraprof_out;
+extern const char *libgraprof_filename;
 
 static void
 tracebuffer_flush ()
 {
-  fwrite(tracebuffer_buffer, sizeof(*tracebuffer_buffer), tracebuffer_index, libgraprof_out);
+  int errnum = errno;
+
+  size_t res = fwrite(tracebuffer_buffer, sizeof(*tracebuffer_buffer), tracebuffer_index, libgraprof_out);
+  feedback_assert_wrn(res == tracebuffer_index, "libgraprof: error writing '%s'", libgraprof_filename);
+
   tracebuffer_index = 0;
+
+  errno = errnum;
 }
 
 void

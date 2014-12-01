@@ -49,14 +49,15 @@ libgraprof_init ()
     {
       unlink(libgraprof_filename);
       libgraprof_out = fopen(libgraprof_filename, "wb");
-      feedback_assert_wrn(libgraprof_out, "unable to open '%s'", libgraprof_filename);
+      feedback_assert_wrn(libgraprof_out, "libgraprof: unable to open '%s'", libgraprof_filename);
     }
 
   if (libgraprof_out)
     {
       static tracebuffer_packet p = { .type = 'I' };
         p.time = highrestimer_get();
-      md5_digest(p.init.digest, "/proc/self/exe");
+      int res = md5_digest(p.init.digest, "/proc/self/exe");
+      feedback_assert_wrn(!res, "libgraprof: unable to digest '%s'", "/proc/self/exe");
       tracebuffer_append(&p);
 
       libgraprof_install_hooks();
@@ -81,7 +82,7 @@ libgraprof_fini ()
     tracebuffer_finish();
 
     int res = fclose(libgraprof_out);
-    feedback_assert_wrn(!res, "unable to close '%s'", libgraprof_filename);
+    feedback_assert_wrn(!res, "libgraprof: unable to close '%s'", libgraprof_filename);
   }
 
   errno = errnum;
