@@ -32,28 +32,25 @@
 
 extern FILE *graprof_out;
 
-int
+#define _(...) fprintf(graprof_out, __VA_ARGS__)
+
+void
 flatprofile_print (int verbose)
 {
-  fprintf(graprof_out,
-      "Flat profile:\n"
-      "\n");
+  _("Flat profile:\n");
+  _("\n");
 
   unsigned long long total_runtime = trace_get_total_runtime();
   const char *total_runtime_prefix = strtime(&total_runtime);
 
   unsigned int nfunctions = function_get_nfunctions();
 
-  fprintf(graprof_out,
-      " total runtime:                      %llu %sseconds\n"
-      " total number of function calls:     %llu\n"
-      " total number of distinct functions: %u\n"
-      "\n"
-      "  %%       self    children             self    children\n"
-      " time      time      time     calls    /call     /call  name\n",
-      total_runtime, total_runtime_prefix,
-      function_get_total_calls(),
-      nfunctions);
+  _(" total runtime:                      %llu %sseconds\n", total_runtime, total_runtime_prefix);
+  _(" total number of function calls:     %llu\n", function_get_total_calls());
+  _(" total number of distinct functions: %u\n", nfunctions);
+  _("\n");
+  _("  %%       self    children             self    children\n");
+  _(" time      time      time     calls    /call     /call  name\n");
 
   function **sorted_functions = function_get_all_sorted();
   function *functions = function_get_all();
@@ -82,48 +79,45 @@ flatprofile_print (int verbose)
 
       unsigned int index = f - functions;
 
-      fprintf(graprof_out,
-        "%6.2f %6llu %ss %6llu %ss %8llu %6llu %ss %6llu %ss  ",
-        percent_time, self_time, self_time_prefix, children_time, children_time_prefix,
-        calls, self_per_call, self_per_call_prefix, children_per_call, children_per_call_prefix);
+      _("%6.2f %6llu %ss %6llu %ss %8llu %6llu %ss %6llu %ss  ",
+          percent_time, self_time, self_time_prefix, children_time, children_time_prefix,
+          calls, self_per_call, self_per_call_prefix, children_per_call, children_per_call_prefix);
 
       if (!strcmp(f->name, "??"))
-        fprintf(graprof_out, "0x%" PRIxPTR, f->address);
+        _("0x%" PRIxPTR, f->address);
       else
-        fprintf(graprof_out, "%s", f->name);
+        _("%s", f->name);
 
-      fprintf(graprof_out, " [%u]\n", index);
+      _(" [%u]\n", index);
     }
 
   if (verbose >= 1)
     {
-      fprintf(graprof_out,
-        "\n"
-        " %%          the percentage of the total running time of the\n"
-        " time       program spent in this function\n"
-        "\n"
-        " self       the absolute total running time spent in this\n"
-        " time       function alone - this is the major sort of this\n"
-        "            listing\n"
-        "\n"
-        " children   the absolute total running time of the program\n"
-        " time       spent in the descendants of this function in the\n"
-        "            call tree\n"
-        "\n"
-        " calls      the number of times this function was invoked\n"
-        "\n"
-        " self       the average running time spent in this function\n"
-        " /call      per call\n"
-        "\n"
-        " chlidren   the average running time spent in the descendants\n"
-        " /call      of this function in the call tree per call\n"
-        "\n"
-        " name       the name of the function, if available, else its\n"
-        "            address - this is the minor sort of this listing\n");
+      _("\n");
+      _(" %%          the percentage of the total running time of the\n");
+      _(" time       program spent in this function\n");
+      _("\n");
+      _(" self       the absolute total running time spent in this\n");
+      _(" time       function alone - this is the major sort of this\n");
+      _("            listing\n");
+      _("\n");
+      _(" children   the absolute total running time of the program\n");
+      _(" time       spent in the descendants of this function in the\n");
+      _("            call tree\n");
+      _("\n");
+      _(" calls      the number of times this function was invoked\n");
+      _("\n");
+      _(" self       the average running time spent in this function\n");
+      _(" /call      per call\n");
+      _("\n");
+      _(" chlidren   the average running time spent in the descendants\n");
+      _(" /call      of this function in the call tree per call\n");
+      _("\n");
+      _(" name       the name of the function, if available, else its\n");
+      _("            address - this is the minor sort of this listing\n");
     }
 
-  fprintf(graprof_out, "\n");
-
-  return 0;
+  _("\n");
 }
 
+#undef  _

@@ -106,11 +106,8 @@ addr_init (const char *filename)
   int res = bfd_check_format(addr_bfd, bfd_object);
   assert_set_errno(res, ENOTSUP, "bfd_check_format");
 
-  res = addr_read_symbol_table();
-  assert_inner(!res, "addr_read_symbol_table");
-
-  res = addr_init_sections();
-  assert_inner(!res, "addr_init_sections");
+  __checked_call(0 == addr_read_symbol_table());
+  __checked_call(0 == addr_init_sections());
 
   return 0;
 }

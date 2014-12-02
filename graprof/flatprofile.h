@@ -28,7 +28,5 @@
 #include <grapes/util.h>
 
 /* print the flat runtime profile to graprof_out, declared in graprof.c
- *
- * returns: -1 on failure, 0 on success
  */
-int flatprofile_print(int verbose) __may_fail;
+void flatprofile_print(int verbose);

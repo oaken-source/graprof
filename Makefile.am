@@ -49,17 +49,18 @@ graprof_graprof_SOURCES = \
     graprof/strtime.c graprof/strtime.h \
     graprof/memprofile.c graprof/memprofile.h \
     graprof/bitmask.c graprof/bitmask.h \
-    graprof/blocklist.c graprof/blocklist.h \
-    graprof/traceview/traceview.c graprof/traceview/traceview.h \
-    graprof/traceview/traceview_keys.c graprof/traceview/traceview_keys.h \
-    graprof/traceview/traceview_titlebar.c graprof/traceview/traceview_titlebar.h \
-    graprof/traceview/traceview_footer.c graprof/traceview/traceview_footer.h \
-    graprof/traceview/traceview_window_interactive.c graprof/traceview/traceview_window_interactive.h \
-    graprof/traceview/traceview_window_flatprofile.c graprof/traceview/traceview_window_flatprofile.h \
-    graprof/traceview/traceview_window_callgraph.c graprof/traceview/traceview_window_callgraph.h \
-    graprof/traceview/traceview_window_memprofile.c graprof/traceview/traceview_window_memprofile.h \
-    graprof/traceview/traceview_help_overlay.c graprof/traceview/traceview_help_overlay.h \
-    graprof/traceview/traceview_scrollbar.c graprof/traceview/traceview_scrollbar.h
+    graprof/blocklist.c graprof/blocklist.h
+
+    ##traceview/traceview.c traceview/traceview.h \
+    ##traceview/traceview_keys.c traceview/traceview_keys.h \
+    ##traceview/traceview_titlebar.c traceview/traceview_titlebar.h \
+    ##traceview/traceview_footer.c traceview/traceview_footer.h \
+    ##traceview/traceview_window_interactive.c traceview/traceview_window_interactive.h \
+    ##traceview/traceview_window_flatprofile.c traceview/traceview_window_flatprofile.h \
+    ##traceview/traceview_window_callgraph.c traceview/traceview_window_callgraph.h \
+    ##traceview/traceview_window_memprofile.c traceview/traceview_window_memprofile.h \
+    ##traceview/traceview_help_overlay.c traceview/traceview_help_overlay.h \
+    ##traceview/traceview_scrollbar.c traceview/traceview_scrollbar.h
 
 graprof_graprof_CFLAGS = ${CFLAGS_GRAPROF}
 graprof_graprof_LDADD = ${LIBS_GRAPROF} grapes/libgrapes.la common/libcommon.la

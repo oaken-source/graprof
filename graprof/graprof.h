@@ -29,7 +29,6 @@
 #include <grapes/feedback.h>
 
 #include <argp.h>
-#include <stdlib.h>
 
 const char *argp_program_version = PACKAGE_STRING;
 const char *argp_program_bug_address = PACKAGE_BUGREPORT;

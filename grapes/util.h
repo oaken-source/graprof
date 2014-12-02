@@ -81,10 +81,10 @@ void feedback_error_at_line(const char *filename, unsigned int linenum, const ch
 
 /* runtime assertion using the macros above
  */
-#define __checked_call(RES, FUNC) \
-    do { assert_inner((RES) == (FUNC), # FUNC); } while (0)
-#define __checked_call_ptr(RES, FUNC) \
-    do { assert_inner_ptr((RES) == (FUNC), # FUNC); } while (0)
+#define __checked_call(C) \
+    do { assert_inner((C), # C); } while (0)
+#define __checked_call_ptr(C) \
+    do { assert_inner_ptr((C), # C); } while (0)
 
 /* convenience min/max macros
  *

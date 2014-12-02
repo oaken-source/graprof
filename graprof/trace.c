@@ -50,7 +50,7 @@ trace_enter (tracebuffer_packet *p)
   uintptr_t caller =        p->enter.caller;
   unsigned long long time = p->time;
 
-  __checked_call(0, function_enter(func, caller, time));
+  __checked_call(0 == function_enter(func, caller, time));
 
   return 0;
 }
@@ -72,7 +72,7 @@ trace_malloc (tracebuffer_packet *p)
   uintptr_t result =        p->malloc.result;
   unsigned long long time = p->time;
 
-  __checked_call(0, memory_malloc(size, caller, result, time));
+  __checked_call(0 == memory_malloc(size, caller, result, time));
 
   return 0;
 }
@@ -86,7 +86,7 @@ trace_realloc (tracebuffer_packet *p)
   uintptr_t result =        p->realloc.result;
   unsigned long long time = p->time;
 
-  __checked_call(0, memory_realloc(ptr, size, caller, result, time));
+  __checked_call(0 == memory_realloc(ptr, size, caller, result, time));
 
   return 0;
 }
@@ -98,7 +98,7 @@ trace_free (tracebuffer_packet *p)
   uintptr_t caller =        p->free.caller;
   unsigned long long time = p->time;
 
-  __checked_call(0, memory_free(ptr, caller, time));
+  __checked_call(0 == memory_free(ptr, caller, time));
 
   return 0;
 }
@@ -108,7 +108,7 @@ trace_end (tracebuffer_packet *p)
 {
   unsigned long long time = p->time;
 
-  __checked_call(0, function_exit_all(time));
+  __checked_call(0 == function_exit_all(time));
 
   trace_total_runtime = time;
 
@@ -124,42 +124,35 @@ trace_read (const char *filename, unsigned char md5_binary[DIGEST_LENGTH])
 
   unsigned int trace_ended = 0;
 
-  size_t npackets = length / sizeof(*packets);
+  const size_t npackets = length / sizeof(*packets);
   size_t i;
   for (i = 0; i < npackets; ++i)
     {
+      assert_set_errno(!trace_ended, ENOTSUP, "packets after END");
       tracebuffer_packet *p = packets + i;
 
-      int res;
       switch (p->type)
         {
         case 'I':
-          res = trace_init(p, md5_binary);
-          assert_inner(!res, "trace_init");
+          __checked_call(0 == trace_init(p, md5_binary));
           break;
         case 'e':
-          res = trace_enter(p);
-          assert_inner(!res, "trace_enter");
+          __checked_call(0 == trace_enter(p));
           break;
         case 'x':
-          res = trace_exit(p);
-          assert_inner(!res, "trace_exit");
+          __checked_call(0 == trace_exit(p));
           break;
         case '+':
-          res = trace_malloc(p);
-          assert_inner(!res, "trace_malloc");
+          __checked_call(0 == trace_malloc(p));
           break;
         case '*':
-          res = trace_realloc(p);
-          assert_inner(!res, "trace_realloc");
+          __checked_call(0 == trace_realloc(p));
           break;
         case '-':
-          res = trace_free(p);
-          assert_inner(!res, "trace_free");
+          __checked_call(0 == trace_free(p));
           break;
         case 'E':
-          res = trace_end(p);
-          assert_inner(!res, "trace_end");
+          __checked_call(0 == trace_end(p));
           trace_ended = 1;
           break;
         default:
@@ -171,12 +164,10 @@ trace_read (const char *filename, unsigned char md5_binary[DIGEST_LENGTH])
   if (!trace_ended)
     {
       feedback_warning("libgraprof trace not properly terminated.");
-      int res = trace_end(packets + npackets - 1);
-      assert_inner(!res, "trace_end");
+      __checked_call(0 == trace_end(packets + npackets - 1));
     }
 
-  int res = file_unmap(packets, length);
-  assert_inner(!res, "file_unmap");
+  __checked_call(0 == file_unmap(packets, length));
 
   return 0;
 }

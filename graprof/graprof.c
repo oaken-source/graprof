@@ -26,7 +26,6 @@
 #include "flatprofile.h"
 #include "callgraph.h"
 #include "memprofile.h"
-#include "traceview/traceview.h"
 
 #include <grapes/feedback.h>
 #include <grapes/file.h>
@@ -52,40 +51,32 @@ main (int argc, char *argv[])
   if (!(arguments.trace_filename))
     {
       pid_t pid = fork();
-      feedback_assert(pid != -1, "fork failed", pid);
+      feedback_assert(pid != -1, "failed to fork `%s'", arguments.binary_invocation[0]);
 
-      if (!pid)
+      if (!pid) // child
         {
-          execv(arguments.binary_invocation[0], (char * const*)arguments.binary_invocation);
-          feedback_error(EXIT_FAILURE, "failed to execute `%s'", arguments.binary_invocation[0]);
-          exit(1);
+          execv(arguments.binary_invocation[0], arguments.binary_invocation);
+          feedback_assert(0, "failed to execute `%s'", arguments.binary_invocation[0]);
         }
-      else
+      else // parent
         {
           int status = 0;
           waitpid(pid, &status, 0);
-          feedback_assert_wrn(WIFEXITED(status), "child exited abnormally. Tracefile may be invalid!");
+          feedback_assert_wrn(WIFEXITED(status), "`%s': exited abnormally", arguments.binary_invocation[0]);
         }
     }
 
   // read debug symbols from child binary
   int res = addr_init(arguments.binary_invocation[0]);
-  if (res)
-    {
-      if (errno == ENOTSUP)
-        {
-          errno = 0;
-          feedback_warning("%s: file format not supported or no debug symbols found", arguments.binary_invocation[0]);
-        }
-      else
-        {
-          feedback_error(EXIT_FAILURE, "%s", arguments.binary_invocation[0]);
-        }
-    }
+  if (res && errno == ENOTSUP)
+    feedback_warning("`%s': file format not supported or no debug symbols found", arguments.binary_invocation[0]);
+  feedback_assert(!res || errno == ENOTSUP, "`%s': reading debug symbols", arguments.binary_invocation[0]);
+  errno = 0;
 
+  // digest binary
   unsigned char md5_binary[DIGEST_LENGTH];
   res = md5_digest(md5_binary, arguments.binary_invocation[0]);
-  feedback_assert_wrn(!res, "unable to digest '%s'", arguments.binary_invocation[0]);
+  feedback_assert_wrn(!res, "`%s': unable to digest", arguments.binary_invocation[0]);
 
   // figure out the proper tracefile
   const char *tracefile = getenv("GRAPROF_OUT");
@@ -94,36 +85,23 @@ main (int argc, char *argv[])
 
   // read the tracefile
   res = trace_read(tracefile, md5_binary);
-  if (res)
-    {
-      if (errno == ENOTSUP)
-        {
-          errno = 0;
-          feedback_error(EXIT_FAILURE, "%s: invalid trace data", tracefile);
-        }
-      else
-        {
-          feedback_error(EXIT_FAILURE, "%s", tracefile);
-        }
-    }
+  feedback_assert(!res, "`%s': corrupt trace data");
 
-  // figure out the proper output file
+  // determine the target output file
   graprof_out = stdout;
   if (arguments.out_filename)
     {
       graprof_out = fopen(arguments.out_filename, "w");
-      feedback_assert(graprof_out, "%s", arguments.out_filename);
+      feedback_assert(graprof_out, "`%s'", arguments.out_filename);
     }
 
+  // determine what to do
   if (!arguments.tasks)
     arguments.tasks = GRAPROF_FLAT_PROFILE | GRAPROF_CALL_GRAPH | GRAPROF_MEMORY_PROFILE;
 
-  // do stuff
+  // do it
   if (arguments.tasks & GRAPROF_FLAT_PROFILE)
-    {
-      res = flatprofile_print(arguments.verbose);
-      assert_inner(!res, "flatprofile_print");
-    }
+    flatprofile_print(arguments.verbose);
 
   if (arguments.tasks & GRAPROF_CALL_GRAPH)
     callgraph_print(arguments.verbose);
@@ -136,6 +114,7 @@ main (int argc, char *argv[])
 
   if (arguments.tasks & GRAPROF_TRACING_GUI)
     {
+      #if 0
       res = traceview_main();
       feedback_assert(!res,
         (errno != ENOSYS
@@ -143,6 +122,7 @@ main (int argc, char *argv[])
           : "graprof traceview disabled at compile time"
         )
       );
+      #endif
     }
 
   return 0;
