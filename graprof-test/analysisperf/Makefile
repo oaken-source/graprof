@@ -30,3 +30,4 @@ pass4: pass3
 
 pass5: pass4
 	$(ENV)5 $(BIN) -o graprof.out.pass5 -- $(BIN_GP) -t gp.out.4 -o /dev/null $(BIN_GP)
+

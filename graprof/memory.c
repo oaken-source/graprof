@@ -54,8 +54,7 @@ static int
 memory_add_failed_malloc (size_t size, uintptr_t caller, unsigned long long time)
 {
   ++nfailed_mallocs;
-  failed_mallocs = realloc(failed_mallocs, sizeof(*failed_mallocs) * nfailed_mallocs);
-  assert_inner(failed_mallocs, "realloc");
+  __checked_call(NULL != (failed_mallocs = realloc(failed_mallocs, sizeof(*failed_mallocs) * nfailed_mallocs)));
 
   failed_malloc *f = failed_mallocs + nfailed_mallocs - 1;
 
@@ -73,8 +72,7 @@ memory_add_failed_malloc (size_t size, uintptr_t caller, unsigned long long time
   if (!function_compare(func, caller))
     {
       f->direct_call = 1;
-      int res = addr_translate(caller, &(f->func), &(f->file), &(f->line));
-      assert_inner(!res, "addr_translate");
+      __checked_call(0 == addr_translate(caller, &(f->func), &(f->file), &(f->line)));
     }
   else
     {
@@ -91,8 +89,7 @@ static int
 memory_add_failed_realloc (uintptr_t ptr, size_t size, uintptr_t caller, unsigned long long time, unsigned int reason)
 {
   ++nfailed_reallocs;
-  failed_reallocs = realloc(failed_reallocs, sizeof(*failed_reallocs) * nfailed_reallocs);
-  assert_inner(failed_reallocs, "realloc");
+  __checked_call(NULL != (failed_reallocs = realloc(failed_reallocs, sizeof(*failed_reallocs) * nfailed_reallocs)));
 
   failed_realloc *f = failed_reallocs + nfailed_reallocs - 1;
 
@@ -120,8 +117,7 @@ memory_add_failed_realloc (uintptr_t ptr, size_t size, uintptr_t caller, unsigne
   if (!function_compare(func, caller))
     {
       f->direct_call = 1;
-      int res = addr_translate(caller, &(f->func), &(f->file), &(f->line));
-      assert_inner(!res, "addr_reanslate");
+      __checked_call(0 == addr_translate(caller, &(f->func), &(f->file), &(f->line)));
     }
   else
     {
@@ -138,8 +134,7 @@ static int
 memory_add_failed_free (uintptr_t ptr, uintptr_t caller, unsigned long long time, unsigned int reason)
 {
   ++nfailed_frees;
-  failed_frees = realloc(failed_frees, sizeof(*failed_frees) * nfailed_frees);
-  assert_inner(failed_frees, "realloc");
+  __checked_call(NULL != (failed_frees = realloc(failed_frees, sizeof(*failed_frees) * nfailed_frees)));
 
   failed_free *f = failed_frees + nfailed_frees - 1;
 
@@ -159,8 +154,7 @@ memory_add_failed_free (uintptr_t ptr, uintptr_t caller, unsigned long long time
   if (!function_compare(func, caller))
     {
       f->direct_call = 1;
-      int res = addr_translate(caller, &(f->func), &(f->file), &(f->line));
-      assert_inner(!res, "addr_translate");
+      __checked_call(0 == addr_translate(caller, &(f->func), &(f->file), &(f->line)));
     }
   else
     {
@@ -180,8 +174,7 @@ memory_malloc (size_t size, uintptr_t caller, uintptr_t result, unsigned long lo
 
   if (!result)
     {
-      int res = memory_add_failed_malloc(size, caller, time);
-      assert_inner(!res, "memory_add_failed_malloc");
+      __checked_call(0 == memory_add_failed_malloc(size, caller, time));
       return 0;
     }
 
@@ -191,8 +184,8 @@ memory_malloc (size_t size, uintptr_t caller, uintptr_t result, unsigned long lo
   if (current_allocated > maximum_allocated)
     maximum_allocated = current_allocated;
 
-  block *b = blocklist_add(result);
-  assert_inner(b, "blocklist_add");
+  block *b;
+  __checked_call(NULL != (b = blocklist_add(result)));
   b->size = size;
   b->caller = caller;
 
@@ -201,8 +194,7 @@ memory_malloc (size_t size, uintptr_t caller, uintptr_t result, unsigned long lo
   if (!function_compare(func, caller))
     {
       b->direct_call = 1;
-      int res = addr_translate(caller, &(b->func), &(b->file), &(b->line));
-      assert_inner(!res, "addr_reanslate");
+      __checked_call(0 == addr_translate(caller, &(b->func), &(b->file), &(b->line)));
     }
   else if (func)
     {
@@ -231,8 +223,7 @@ memory_realloc (uintptr_t ptr, size_t size, uintptr_t caller, uintptr_t result, 
   //   if ptr == NULL, behave like malloc but keep correct counters
   if (!ptr)
     {
-      int res = memory_malloc(size, caller, result, time);
-      assert_inner(!res, "memory_malloc");
+      __checked_call(0 == memory_malloc(size, caller, result, time));
       --total_allocations;
       return 0;
     }
@@ -240,8 +231,7 @@ memory_realloc (uintptr_t ptr, size_t size, uintptr_t caller, uintptr_t result, 
   //   if size == 0, behave like free but keep correct counters
   if (!size)
     {
-      int res = memory_free(ptr, caller, time);
-      assert_inner(!res, "memory_free");
+      __checked_call(0 == memory_free(ptr, caller, time));
       --total_frees;
       return 0;
     }
@@ -249,15 +239,13 @@ memory_realloc (uintptr_t ptr, size_t size, uintptr_t caller, uintptr_t result, 
   block *b = blocklist_get_by_address(ptr);
   if (!b)
     {
-      int res = memory_add_failed_realloc(ptr, size, caller, time, FAILED_INVALID_PTR);
-      assert_inner(!res, "memory_add_failed_realloc");
+      __checked_call(0 == memory_add_failed_realloc(ptr, size, caller, time, FAILED_INVALID_PTR));
       return 0;
     }
 
   if (!result)
     {
-      int res = memory_add_failed_realloc(ptr, size, caller, time, FAILED_RESULT);
-      assert_inner(!res, "memory_add_failed_realloc");
+      __checked_call(0 == memory_add_failed_realloc(ptr, size, caller, time, FAILED_RESULT));
       return 0;
     }
 
@@ -274,10 +262,7 @@ memory_realloc (uintptr_t ptr, size_t size, uintptr_t caller, uintptr_t result, 
 
   b->size = size;
   if (b->address != result)
-    {
-      int res = blocklist_relocate(b, result);
-      assert_inner(!res, "blocklist_relocate");
-    }
+    __checked_call(0 == blocklist_relocate(b, result));
 
   return 0;
 }
@@ -289,8 +274,7 @@ int memory_free (uintptr_t ptr, uintptr_t caller, unsigned long long time)
   block *b = blocklist_get_by_address(ptr);
   if (!b)
     {
-      int res = memory_add_failed_free(ptr, caller, time, FAILED_INVALID_PTR);
-      assert_inner(!res, "memory_add_failed_free");
+      __checked_call(0 == memory_add_failed_free(ptr, caller, time, FAILED_INVALID_PTR));
       return 0;
     }
 

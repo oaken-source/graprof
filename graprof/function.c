@@ -86,16 +86,16 @@ function_call_data_init (call_data *d)
 static function* __may_fail
 function_push (uintptr_t address)
 {
+  __returns_ptr;
+
   ++nfunctions;
-  functions = realloc(functions, sizeof(*functions) * nfunctions);
-  assert_inner_ptr(functions, "realloc");
+  __checked_call(NULL != (functions = realloc(functions, sizeof(*functions) * nfunctions)));
 
   function *f = functions + nfunctions - 1;
   function_init(f);
 
   f->address = address;
-  int res = addr_translate(f->address, &(f->name), &(f->file), &(f->line));
-  assert_inner_ptr(!res, "addr_translate");
+  __checked_call(0 == addr_translate(f->address, &(f->name), &(f->file), &(f->line)));
 
   feedback_assert_wrn(strcmp(f->name, "??"), "unable to identify instrumented function at 0x%" PRIxPTR " - missing debug symbols?", address);
 
@@ -114,8 +114,7 @@ function_add_caller (function *f, unsigned int caller_id)
       }
 
   ++(f->ncallers);
-  f->callers = realloc(f->callers, sizeof(*(f->callers)) * f->ncallers);
-  assert_inner(f->callers, "realloc");
+  __checked_call(NULL != (f->callers = realloc(f->callers, sizeof(*(f->callers)) * f->ncallers)));
 
   call_data *d = f->callers + f->ncallers - 1;
   function_call_data_init(d);
@@ -137,8 +136,7 @@ function_add_callee (function *f, unsigned int callee_id)
       }
 
   ++(f->ncallees);
-  f->callees = realloc(f->callees, sizeof(*(f->callees)) * f->ncallees);
-  assert_inner(f->callees, "realloc");
+  __checked_call(NULL != (f->callees = realloc(f->callees, sizeof(*(f->callees)) * f->ncallees)));
 
   call_data *d = f->callees + f->ncallees - 1;
   function_call_data_init(d);
@@ -220,15 +218,13 @@ function_create_call_vector_from_node(tree_entry *e, bitmask *b)
           bitmask_set(b, e->function_id);
 
           ++(f->nprimaries);
-          f->primaries = realloc(f->primaries, sizeof(*f->primaries) * f->nprimaries);
-          assert_inner(f->primaries, "realloc");
+          __checked_call(NULL != (f->primaries = realloc(f->primaries, sizeof(*f->primaries) * f->nprimaries)));
           f->primaries[f->nprimaries - 1] = e;
         }
       else
         {
           ++(f->nsecondaries);
-          f->secondaries = realloc(f->secondaries, sizeof(*f->secondaries) * f->nsecondaries);
-          assert_inner(f->secondaries, "realloc");
+          __checked_call(NULL != (f->secondaries = realloc(f->secondaries, sizeof(*f->secondaries) * f->nsecondaries)));
           f->secondaries[f->nsecondaries - 1] = e;
         }
     }
@@ -236,18 +232,16 @@ function_create_call_vector_from_node(tree_entry *e, bitmask *b)
   unsigned int i;
   for (i = 0; i < e->nchildren; ++i)
     {
-      bitmask *b2 = bitmask_copy(b);
-      assert_inner(b2, "bitmask_copy");
-      int res = function_create_call_vector_from_node(e->children[i], b2);
-      assert_inner(!res, "function_call_vector_from_node");
+      bitmask *b2;
+      __checked_call(NULL != (b2 = bitmask_copy(b)));
+      __checked_call(0 == function_create_call_vector_from_node(e->children[i], b2));
       bitmask_destroy(&b2);
     }
   for (i = 0; i < e->norphans; ++i)
     {
-      bitmask *b2 = bitmask_copy(b);
-      assert_inner(b2, "bitmask_copy");
-      int res = function_create_call_vector_from_node(e->orphans[i], b2);
-      assert_inner(!res, "function_call_vector_from_node");
+      bitmask *b2;
+      __checked_call(NULL != (b2 = bitmask_copy(b)));
+      __checked_call(0 == function_create_call_vector_from_node(e->orphans[i], b2));
       bitmask_destroy(&b2);
     }
 
@@ -257,11 +251,10 @@ function_create_call_vector_from_node(tree_entry *e, bitmask *b)
 static int __may_fail
 function_aggregate_function_times (void)
 {
-  bitmask *b = bitmask_create(nfunctions);
-  assert_inner(b, "bitmask_create");
+  bitmask *b;
 
-  int res = function_create_call_vector_from_node(&call_tree_root, b);
-  assert_inner(!res, "function_create_call_vector_from_node");
+  __checked_call(NULL != (b = bitmask_create(nfunctions)));
+  __checked_call(0 == function_create_call_vector_from_node(&call_tree_root, b));
 
   bitmask_destroy(&b);
 
@@ -285,8 +278,7 @@ cmpfunction (const void *p1, const void *p2)
 static int __may_fail
 function_sort (void)
 {
-  sorted_functions = malloc(sizeof(function*) * nfunctions);
-  assert_inner(sorted_functions, "malloc");
+  __checked_call(NULL != (sorted_functions = malloc(sizeof(function*) * nfunctions)));
 
   unsigned int i;
   for (i = 0; i < nfunctions; ++i)
@@ -304,14 +296,13 @@ function_enter (uintptr_t address, uintptr_t caller, unsigned long long time)
 
   function *f = function_get_by_address(address);
   if (!f)
-    f = function_push(address);
-  assert_inner(f, "function_push");
+    __checked_call(NULL != (f = function_push(address)));
 
   ++(f->calls);
 
   tree_entry *n = call_tree_current_node;
-  tree_entry *next = malloc(sizeof(*next));
-  assert_inner(next,  "malloc");
+  tree_entry *next;
+  __checked_call(NULL != (next = malloc(sizeof(*next))));
 
   unsigned int caller_id = (unsigned int)-1;
 
@@ -320,28 +311,22 @@ function_enter (uintptr_t address, uintptr_t caller, unsigned long long time)
       caller_id = n->function_id;
 
       if (n->function_id != (unsigned int)-1)
-        {
-          int res = function_add_callee(functions + n->function_id, f - functions);
-          assert_inner(!res, "function_add_callee");
-        }
+        __checked_call(0 == function_add_callee(functions + n->function_id, f - functions));
 
       ++(n->nchildren);
-      n->children = realloc(n->children, sizeof(*(n->children)) * n->nchildren);
-      assert_inner(n->children, "realloc");
+      __checked_call(NULL != (n->children = realloc(n->children, sizeof(*(n->children)) * n->nchildren)));
 
       n->children[n->nchildren - 1] = next;
     }
   else
     {
       ++(n->norphans);
-      n->orphans = realloc(n->orphans, sizeof(*(n->orphans)) * n->norphans);
-      assert_inner(n->orphans, "realloc");
+      __checked_call(NULL != (n->orphans = realloc(n->orphans, sizeof(*(n->orphans)) * n->norphans)));
 
       n->orphans[n->norphans - 1] = next;
     }
 
-  int res = function_add_caller(f, caller_id);
-  assert_inner(!res, "function_add_callee");
+  __checked_call(0 == function_add_caller(f, caller_id));
 
   function_call_tree_entry_init(next);
   next->function_id = f - functions;
@@ -370,8 +355,7 @@ function_exit_all (unsigned long long time)
     function_exit(time);
 
   function_aggregate_call_tree_node_times(&call_tree_root);
-  int res = function_aggregate_function_times();
-  assert_inner(!res, "function_aggregate_function_times");
+  __checked_call(0 == function_aggregate_function_times());
 
   return 0;
 }
@@ -396,11 +380,10 @@ function_get_all (void)
 function**
 function_get_all_sorted (void)
 {
+  __returns_ptr;
+
   if (!sorted_functions)
-    {
-      int res = function_sort();
-      assert_inner_ptr(!res, "function_sort");
-    }
+    __checked_call(0 == function_sort());
 
   return sorted_functions;
 }
@@ -421,8 +404,7 @@ function_compare (function *f, uintptr_t addr)
 
   char *name;
   char *file;
-  int res = addr_translate(addr, &name, &file, NULL);
-  assert_inner(!res, "addr_translate");
+  __checked_call(0 == addr_translate(addr, &name, &file, NULL));
 
   int x = (strcmp(f->name, name) || strcmp(f->file, file));
 

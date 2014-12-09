@@ -119,8 +119,9 @@ int
 trace_read (const char *filename, unsigned char md5_binary[DIGEST_LENGTH])
 {
   size_t length;
-  tracebuffer_packet *packets = file_map(filename, &length);
-  assert_inner(packets, "file_map");
+  tracebuffer_packet *packets;
+
+  __checked_call(NULL != (packets = file_map(filename, &length)));
 
   unsigned int trace_ended = 0;
 
@@ -128,7 +129,7 @@ trace_read (const char *filename, unsigned char md5_binary[DIGEST_LENGTH])
   size_t i;
   for (i = 0; i < npackets; ++i)
     {
-      assert_set_errno(!trace_ended, ENOTSUP, "packets after END");
+      __precondition(ENOTSUP, !trace_ended);
       tracebuffer_packet *p = packets + i;
 
       switch (p->type)
@@ -156,7 +157,7 @@ trace_read (const char *filename, unsigned char md5_binary[DIGEST_LENGTH])
           trace_ended = 1;
           break;
         default:
-          assert_set_errno(0, ENOTSUP, "invalid tracebuffer type '%c'", p->type);
+          __precondition(ENOTSUP, 0 && p->type);
           break;
         }
     }

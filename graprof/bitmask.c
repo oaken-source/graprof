@@ -31,16 +31,18 @@
 bitmask*
 bitmask_create (unsigned int width)
 {
-  bitmask *b = malloc(sizeof(bitmask));
-  assert_inner_ptr(b, "malloc");
+  __returns_ptr;
+
+  bitmask *b;
+
+  __checked_call(NULL != (b = malloc(sizeof(bitmask))));
 
   b->width = width;
   b->nfields = width / FIELDWIDTH;
   if (width % FIELDWIDTH)
     ++(b->nfields);
 
-  b->fields = calloc(b->nfields, sizeof(unsigned int));
-  assert_inner_ptr(b->fields, "calloc");
+  __checked_call(NULL != (b->fields = calloc(b->nfields, sizeof(unsigned int))));
 
   return b;
 }
@@ -48,13 +50,15 @@ bitmask_create (unsigned int width)
 bitmask*
 bitmask_copy (bitmask *b)
 {
-  bitmask *c = malloc(sizeof(bitmask));
-  assert_inner_ptr(c, "malloc");
+  __returns_ptr;
+
+  bitmask *c;
+
+  __checked_call(NULL != (c = malloc(sizeof(bitmask))));
 
   c->width = b->width;
   c->nfields = b->nfields;
-  c->fields = malloc(sizeof(unsigned int) * c->nfields);
-  assert_inner_ptr(c->fields, "malloc");
+  __checked_call(NULL != (c->fields = malloc(sizeof(unsigned int) * c->nfields)));
 
   memcpy(c->fields, b->fields, c->nfields * sizeof(unsigned int));
 

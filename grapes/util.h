@@ -41,50 +41,57 @@ void feedback_error_at_line(const char *filename, unsigned int linenum, const ch
  * evaluate conditions at compile time and fail if not met
  *
  * params:
- *   COND - the condition to check
+ *   C - the condition to check
  */
-#define static_assert(COND) typedef char _static_assertion[(!!(COND))*2-1]
+#define static_assert(C) typedef char _static_assertion[(!!(C))*2-1]
 
-/* runtime assertion
- * evaluate conditions at runtime and handle them differently
+/* miscellaneous helper macros, not to be used directly
+ */
+static const typeof(-1) _assert_return = -1;
+#define __returns_ptr typeof(NULL) _assert_return = NULL
+#define _assert_generic(C, E, F, ...) \
+    do { \
+      if (__likely(C))  break; \
+      if (E)            errno = (E); \
+      if (DEBUG)        feedback_error_at_line(__FILE__, __LINE__, __VA_ARGS__); \
+      F \
+      return _assert_return; \
+    } while (0)
+
+#define __checked_call_1(C)         _assert_generic((C),   0,  , "checked call failed: %s", # C)
+#define __checked_call_2(C, F)      _assert_generic((C),   0, F, "checked call failed: %s", # C)
+
+#define __precondition_1(C)         _assert_generic((C),   0,  , "precondition failed: %s", # C)
+#define __precondition_2(E, C)      _assert_generic((C), (E),  , "precondition failed: %s", # C)
+
+#define __get_third(arg1, arg2, arg3, ...) arg3
+
+#define __checked_call_disp(...)    __get_third(__VA_ARGS__, __checked_call_2, __checked_call_1)
+#define __precondition_disp(...)    __get_third(__VA_ARGS__, __precondition_2, __precondition_1)
+
+/* this macro provides runtime assertions for nested call checking.
+ * If the given condition is false, a string representation is printed to
+ * stderr and a value determined by the __returns_* macros is returned.
+ * If a second parameter is specified, then it is evaluated as a statement
+ * before returning.
  *
- * these macros have different flavours and should be used in different
- * situations, where errors that occur are handed back to through the call
- * stack. Each of these functions has printf-like behaviour, if DEBUG has been
- * defined by the calling application, printing a formatted error message to
- * stderr, with varying additional behaviour as described below:
+ * params:
+ *   C - an expression containing a nested call that evaluates to an integer,
+ *      for example `0 == some_function()`
+ *   FUNC [optional] - a statement to be executed on failure
+ */
+#define __checked_call(...)         __checked_call_disp(__VA_ARGS__)(__VA_ARGS__)
+
+/* this macro is similar to __checked_call, but has a different semantic. It
+ * is intended to allow for function input checking, and optionally setting
+ * errno on failure.
  *
- * assert_inner:
- *   return -1
- * assert_inner_ptr:
- *   return NULL
- * assert_set_errno:
- *   set errno to the given errnum and return -1
- * assert_set_errno_ptr:
- *   set errno to the given errnum and return NULL
- * assert_weak:
- *   only print the error string, but not return
+ * params:
+ *   ERRNUM [default: 0] - the new value of errno, if != 0 and the condition
+ *      is false
+ *   C - an expression that evaluates to an integer used as the checked value
  */
-#define _assert_feedback(...) \
-    do { if (DEBUG) { feedback_error_at_line(__FILE__, __LINE__, __VA_ARGS__); } } while (0)
-
-#define assert_inner(COND, ...) \
-    do { if (__unlikely(!(COND))) { _assert_feedback(__VA_ARGS__); return -1; } } while(0)
-#define assert_inner_ptr(COND, ...) \
-    do { if (__unlikely(!(COND))) { _assert_feedback(__VA_ARGS__); return NULL; } } while(0)
-#define assert_set_errno(COND, ERRNUM, ...) \
-    do { if (__unlikely(!(COND))) { errno = ERRNUM; _assert_feedback(__VA_ARGS__); return -1; } } while(0)
-#define assert_set_errno_ptr(COND, ERRNUM, ...) \
-    do { if (__unlikely(!(COND))) { errno = ERRNUM; _assert_feedback(__VA_ARGS__); return NULL; } } while(0)
-#define assert_weak(COND, ...) \
-    do { if (__unlikely(!(COND))) { _assert_feedback(__VA_ARGS__); } } while (0)
-
-/* runtime assertion using the macros above
- */
-#define __checked_call(C) \
-    do { assert_inner((C), # C); } while (0)
-#define __checked_call_ptr(C) \
-    do { assert_inner_ptr((C), # C); } while (0)
+#define __precondition(...)         __precondition_disp(__VA_ARGS__)(__VA_ARGS__)
 
 /* convenience min/max macros
  *

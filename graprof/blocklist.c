@@ -60,6 +60,8 @@ blocklist_get_by_address (uintptr_t address)
 block*
 blocklist_add (uintptr_t address)
 {
+  __returns_ptr;
+
   int left = 0;
   int right = nblocks - 1;
   int i = 0;
@@ -76,8 +78,7 @@ blocklist_add (uintptr_t address)
     }
 
   ++nblocks;
-  blocks = realloc(blocks, sizeof(*blocks) * nblocks);
-  assert_inner_ptr(blocks, "realloc");
+  __checked_call(NULL != (blocks = realloc(blocks, sizeof(*blocks) * nblocks)));
 
   i = left;
 
@@ -100,8 +101,8 @@ blocklist_relocate (block *b, uintptr_t address)
   b->size = 0;
   b->direct_call = 0;
 
-  block *new = blocklist_add(address);
-  assert_inner(new, "blocklist_add");
+  block *new;
+  __checked_call(NULL != (new = blocklist_add(address)));
 
   *new = tmp;
 

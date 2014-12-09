@@ -90,6 +90,6 @@ feedback_warning (const char *format, ...)
 
   fprintf(stderr, "\n");
 
-  errno = 0;
+  errno = errnum;
 }
 

@@ -104,3 +104,27 @@
           , 0 \
         ) : -1 \
     )
+
+/* iterate a vector with the given logic
+ *
+ * example, to clear a vector of allocated pointers, use:
+ *
+ *   vector_map(v, ITEM,
+ *     free(ITEM);
+ *   );
+ *   vector_clear(v);
+ *
+ * params:
+ *   V - a pointer to a vector
+ *   I - the name of the variable used to pass the item to the logic
+ *   FUNC - user-defined source code
+ */
+#define vector_map(V, I, FUNC) \
+    do { \
+      size_t i; \
+      for (i = 0; i < (V)->nitems; ++i) \
+        { \
+          typeof(*((V)->items)) I = (V)->items[i]; \
+          FUNC \
+        } \
+    } while (0)

@@ -29,8 +29,7 @@ md5_digest (unsigned char dest[DIGEST_LENGTH], const char *filename)
   size_t length;
   void *data;
 
-  data = file_map(filename, &length);
-  assert_inner(data, "file_map");
+  __checked_call(NULL != (data = file_map(filename, &length)));
 
   #if HAVE_OPENSSL_MD5
 
@@ -42,12 +41,11 @@ md5_digest (unsigned char dest[DIGEST_LENGTH], const char *filename)
 
   #else
 
-    assert_set_errno(0, ENOSYS, "no md5 functionality");
+    __precondition(ENOSYS, 0);
 
   #endif
 
-  int res = file_unmap(data, length);
-  assert_inner(!res, "file_unmap");
+  __checked_call(0 == file_unmap(data, length));
 
   return 0;
 }

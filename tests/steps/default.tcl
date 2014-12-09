@@ -70,7 +70,7 @@ proc when_I_run_with_parameters { parameters } {
   }
 
   # give the program a bit of time
-  after 10
+  after 50
 
   set asparagus_spawn_id "$spawn_id"
 
@@ -297,15 +297,18 @@ proc then_it_should_return { code } {
   }
 
   set spawn_id "$asparagus_spawn_id"
+  set failed 0
 
   # consume input until eof, if any
   if [ catch { expect {
     eof { }
     timeout {
       fail_step "timed out"
-      return
+      set failed 1
     }
   } } ] { }
+
+  if { $failed } { return }
 
   # wait for spawned process
   lassign [wait $asparagus_spawn_id] wait_pid spawnid os_error_flag value
@@ -337,15 +340,18 @@ proc then_it_should_not_return { code } {
   }
 
   set spawn_id $asparagus_spawn_id
+  set failed 0
 
   # consume input until eof, if any
   if [ catch { expect {
     eof { }
     timeout {
       fail_step "timed out"
-      return
+      set failed 1
     }
   } } ] { }
+
+  if { $failed } { return }
 
   # wait for spawned process
   lassign [ wait $asparagus_spawn_id ] wait_pid spawnid os_error_flag value
