@@ -22,12 +22,7 @@
 #include "instrument.h"
 
 #include "libgraprof.h"
-#include "highrestimer.h"
-
-#include "common/tracebuffer.h"
-
-#include <stdint.h>
-#include <stdlib.h>
+#include "tracebuffer.h"
 
 void
 __cyg_profile_func_enter (void *func, void *caller)
@@ -37,12 +32,9 @@ __cyg_profile_func_enter (void *func, void *caller)
 
   libgraprof_uninstall_hooks();
 
-  unsigned long long time = highrestimer_get();
-
   static tracebuffer_packet p = { .type = 'e' };
     p.enter.func    = (uintptr_t)func;
     p.enter.caller  = (uintptr_t)(caller - 4);
-    p.time = time;
   tracebuffer_append(&p);
 
   libgraprof_install_hooks();
@@ -57,7 +49,6 @@ __cyg_profile_func_exit (__unused void *func, __unused void *caller)
   libgraprof_uninstall_hooks();
 
   static tracebuffer_packet p = { .type = 'x' };
-    p.time = highrestimer_get();
   tracebuffer_append(&p);
 
   libgraprof_install_hooks();

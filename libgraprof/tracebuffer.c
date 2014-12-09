@@ -19,76 +19,49 @@
  ******************************************************************************/
 
 
-#pragma once
+#include "tracebuffer.h"
 
-#ifdef HAVE_CONFIG_H
-#  include <config.h>
-#endif
+#include "highrestimer.h"
 
-#include "common/md5.h"
+#include <grapes/feedback.h>
 
-#include <grapes/util.h>
+#include <stdio.h>
+#include <errno.h>
 
-#include <stdint.h>
+#define BUFSIZE 1024
 
-/* this struct represents a trace event pushed to the trace log
- */
-struct tracebuffer_packet
+static tracebuffer_packet tracebuffer_buffer[BUFSIZE];
+static size_t tracebuffer_index = 0;
+
+extern FILE *libgraprof_out;
+extern const char *libgraprof_filename;
+
+static void
+tracebuffer_flush ()
 {
-  char type;
+  int errnum = errno;
 
-  union {
-    struct {
-      unsigned char digest[DIGEST_LENGTH];
-    } init;
-    struct {
-      uintptr_t func;
-      uintptr_t caller;
-    } enter;
-    struct {
-    } exit;
-    struct {
-      size_t size;
-      uintptr_t caller;
-      uintptr_t result;
-    } malloc;
-    struct {
-      size_t size;
-      uintptr_t caller;
-      uintptr_t result;
-    } calloc;
-    struct {
-      uintptr_t ptr;
-      size_t size;
-      uintptr_t caller;
-      uintptr_t result;
-    } realloc;
-    struct {
-      uintptr_t ptr;
-      uintptr_t caller;
-    } free;
-    struct {
-    } exit_all;
-  };
+  size_t res = fwrite(tracebuffer_buffer, sizeof(*tracebuffer_buffer), tracebuffer_index, libgraprof_out);
+  feedback_assert_wrn(res == tracebuffer_index, "libgraprof: error writing '%s'", libgraprof_filename);
 
-  unsigned long long time;
-};
-typedef struct tracebuffer_packet tracebuffer_packet;
+  tracebuffer_index = 0;
 
-/* add a packet to the trace log
- *
- * params:
- *   p - a pointer to a tracebuffer_packet
- *
- * errors:
- *   will emit a warning to stderr if a write operation fails
- */
-void tracebuffer_append (const tracebuffer_packet *p);
+  errno = errnum;
+}
 
-/* finish a trace log - should be called after all packets are appended, to
- * flush the internal write buffer
- *
- * errors:
- *   will emit a warning to stderr if a write operation fails
- */
-void tracebuffer_finish (void);
+void
+tracebuffer_append (const tracebuffer_packet *p)
+{
+  tracebuffer_buffer[tracebuffer_index++] = *p;
+  tracebuffer_buffer[tracebuffer_index].time = highrestimer_get();
+
+  if (tracebuffer_index == BUFSIZE)
+    tracebuffer_flush();
+}
+
+void
+tracebuffer_finish (void)
+{
+  if (tracebuffer_index)
+    tracebuffer_flush();
+}

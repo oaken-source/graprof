@@ -33,8 +33,8 @@ extern unsigned int libgraprof_hooked;
 
 /* activate all profiling hooks
  */
-inline void libgraprof_install_hooks (void);
+#define libgraprof_install_hooks() libgraprof_hooked = 1
 
 /* deactivate all profiling hooks
  */
-inline void libgraprof_uninstall_hooks (void);
+#define libgraprof_uninstall_hooks() libgraprof_hooked = 0

@@ -29,11 +29,7 @@
 
 /* get the number of nanoseconds elapsed since the start of the program
  *
- * errors:
- *   ENOSYS - neither clock_gettime nor mach_absolute_time available
- *
  * returns:
- *   the number of nanoseconds elapsed since the start of the program on
- *   success, -1 on failure
+ *   the number of nanoseconds elapsed since the start of the program
  */
-unsigned long long highrestimer_get(void) __may_fail;
+unsigned long long highrestimer_get(void);

@@ -41,7 +41,7 @@
  *
  * errors:
  *   may fail and set errno for the same reasons as file_map and file_unmap
- *   fails and set errno to ENOSYS if no supported md5 implementation is found
+ *   fails and sets errno to ENOSYS if no supported md5 implementation is found
  *
  * returns:
  *   -1 on failure, 0 on success

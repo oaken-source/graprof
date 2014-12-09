@@ -16,8 +16,7 @@ grapes_libgrapes_la_SOURCES = \
     grapes/util.h
 
 common_libcommon_la_SOURCES = \
-    common/md5.c common/md5.h \
-    common/tracebuffer.c common/tracebuffer.h
+    common/md5.c common/md5.h
 
 common_libcommon_la_LIBADD = grapes/libgrapes.la
 
@@ -28,7 +27,8 @@ libgraprof_libgraprof_la_SOURCES = \
     libgraprof/libgraprof.c libgraprof/libgraprof.h \
     libgraprof/instrument.c libgraprof/instrument.h \
     libgraprof/mallhooks.c libgraprof/mallhooks.h \
-    libgraprof/highrestimer.c libgraprof/highrestimer.h
+    libgraprof/highrestimer.c libgraprof/highrestimer.h \
+    libgraprof/tracebuffer.c libgraprof/tracebuffer.h
 
 libgraprof_libgraprof_la_LDFLAGS = -version-info 0:0:0
 libgraprof_libgraprof_la_LIBADD = ${LIBS_LIBGRAPROF} common/libcommon.la
@@ -70,18 +70,23 @@ graprof_graprof_LDADD = ${LIBS_GRAPROF} grapes/libgrapes.la common/libcommon.la
 if PROFILING
 
 noinst_LTLIBRARIES += \
-    grapes/libgrapes-gp.la
+    grapes/libgrapes-gp.la \
+    common/libcommon-gp.la
 
 grapes_libgrapes_gp_la_SOURCES = ${grapes_libgrapes_la_SOURCES}
 grapes_libgrapes_gp_la_CFLAGS = ${grapes_libgrapes_la_CFLAGS} -finstrument-functions -g
 grapes_libgrapes_gp_la_LIBADD = ${grapes_libgrapes_la_LIBADD} libgraprof/libgraprof.la
+
+common_libcommon_gp_la_SOURCES = ${common_libcommon_la_SOURCES}
+common_libcommon_gp_la_CFLAGS = ${common_libcommon_la_CFLAGS} -finstrument-functions -g
+common_libcommon_gp_la_LIBADD = ${common_libcommon_la_LIBADD} libgraprof/libgraprof.la
 
 noinst_PROGRAMS = \
     graprof/graprof-gp
 
 graprof_graprof_gp_SOURCES = ${graprof_graprof_SOURCES}
 graprof_graprof_gp_CFLAGS = ${graprof_graprof_CFLAGS} -finstrument-functions -g
-graprof_graprof_gp_LDADD = ${graprof_graprof_LDADD} grapes/libgrapes-gp.la libgraprof/libgraprof.la
+graprof_graprof_gp_LDADD = ${LIBS_GRAPROF} grapes/libgrapes-gp.la common/libcommon-gp.la libgraprof/libgraprof.la
 
 endif ## PROFILING
 

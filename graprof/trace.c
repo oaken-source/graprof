@@ -25,6 +25,8 @@
 #include "memory.h"
 #include "addr.h"
 
+#include "libgraprof/tracebuffer.h"
+
 #include <grapes/feedback.h>
 #include <grapes/file.h>
 

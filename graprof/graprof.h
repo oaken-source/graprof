@@ -96,6 +96,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
       break;
     case 'q':
       --(args->verbose);
+      break;
     case 't':
       args->trace_filename = arg;
       break;

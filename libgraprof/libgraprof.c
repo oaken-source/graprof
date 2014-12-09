@@ -21,9 +21,7 @@
 
 #include "libgraprof.h"
 
-#include "highrestimer.h"
-
-#include "common/tracebuffer.h"
+#include "tracebuffer.h"
 
 #include <grapes/feedback.h>
 
@@ -55,7 +53,6 @@ libgraprof_init ()
   if (libgraprof_out)
     {
       static tracebuffer_packet p = { .type = 'I' };
-        p.time = highrestimer_get();
       int res = md5_digest(p.init.digest, "/proc/self/exe");
       feedback_assert_wrn(!res, "libgraprof: unable to digest '%s'", "/proc/self/exe");
       tracebuffer_append(&p);
@@ -77,7 +74,6 @@ libgraprof_fini ()
     libgraprof_uninstall_hooks();
 
     static tracebuffer_packet p = { .type = 'E' };
-      p.time = highrestimer_get();
     tracebuffer_append(&p);
     tracebuffer_finish();
 
@@ -86,16 +82,4 @@ libgraprof_fini ()
   }
 
   errno = errnum;
-}
-
-void
-libgraprof_install_hooks (void)
-{
-  libgraprof_hooked = 1;
-}
-
-void
-libgraprof_uninstall_hooks (void)
-{
-  libgraprof_hooked = 0;
 }

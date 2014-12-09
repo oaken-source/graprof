@@ -41,7 +41,7 @@ md5_digest (unsigned char dest[DIGEST_LENGTH], const char *filename)
 
   #else
 
-    __precondition(ENOSYS, 0);
+    __precondition(ENOSYS, 0 && ENOSYS);
 
   #endif
 

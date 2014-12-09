@@ -25,7 +25,7 @@
 #  include <config.h>
 #endif
 
-#include "common/tracebuffer.h"
+#include "common/md5.h"
 
 #include <grapes/util.h>
 

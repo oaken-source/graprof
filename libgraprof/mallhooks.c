@@ -22,11 +22,8 @@
 #include "mallhooks.h"
 
 #include "libgraprof.h"
-#include "highrestimer.h"
+#include "tracebuffer.h"
 
-#include "common/tracebuffer.h"
-
-#include <stdint.h>
 #include <stdlib.h>
 
 static void*
@@ -40,7 +37,6 @@ malloc_hook (size_t size, const void *caller)
     p.malloc.size   = size;
     p.malloc.caller = (uintptr_t)(caller - 4);
     p.malloc.result = (uintptr_t)result;
-    p.time = highrestimer_get();
   tracebuffer_append(&p);
 
   libgraprof_install_hooks();
@@ -59,7 +55,6 @@ calloc_hook (size_t nmemb, size_t size, const void *caller)
     p.calloc.size   = nmemb * size;
     p.calloc.caller = (uintptr_t)(caller - 4);
     p.calloc.result = (uintptr_t)result;
-    p.time = highrestimer_get();
   tracebuffer_append(&p);
 
   libgraprof_install_hooks();
@@ -80,7 +75,6 @@ realloc_hook (void *ptr, size_t size, const void *caller)
     p.realloc.size    = size;
     p.realloc.caller  = (uintptr_t)(caller - 4);
     p.realloc.result  = (uintptr_t)result;
-    p.time = highrestimer_get();
   tracebuffer_append(&p);
 
   libgraprof_install_hooks();
@@ -100,7 +94,6 @@ free_hook (void *ptr, const void *caller)
       static tracebuffer_packet p = { .type = '-' };
         p.free.ptr    = (uintptr_t)ptr;
         p.free.caller = (uintptr_t)(caller - 4);
-        p.time = highrestimer_get();
       tracebuffer_append(&p);
     }
 

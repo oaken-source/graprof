@@ -39,6 +39,10 @@
   static uint64_t start;
   static mach_timebase_info_data_t timebase;
 
+#else
+
+  #error No md5 implementation available.
+
 #endif
 
 static void
@@ -72,10 +76,6 @@ highrestimer_get (void)
     uint64_t elapsed = mach_absolute_time() - start;
 
     return  elapsed * timebase.numer / timebase.denom;
-
-  #else
-
-    assert_set_errno(0, ENOSYS, "no highres timer functionality");
 
   #endif
 }
