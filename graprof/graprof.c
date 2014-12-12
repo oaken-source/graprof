@@ -67,11 +67,14 @@ main (int argc, char *argv[])
     }
 
   // read debug symbols from child binary
-  int res = addr_init(arguments.binary_invocation[0]);
-  if (res && errno == ENOTSUP)
-    feedback_warning("`%s': file format not supported or no debug symbols found", arguments.binary_invocation[0]);
-  feedback_assert(!res || errno == ENOTSUP, "`%s': reading debug symbols", arguments.binary_invocation[0]);
-  errno = 0;
+  int errnum = errno;
+  int res = addr_extract_symbols(arguments.binary_invocation[0]);
+  if (res)
+    {
+      feedback_assert(errno != ENOTSUP, "`%s': while reading debug symbols", arguments.binary_invocation[0]);
+      feedback_warning("`%s': unable to extract debug symbols found", arguments.binary_invocation[0]);
+    }
+  errno = errnum;
 
   // digest binary
   unsigned char md5_binary[DIGEST_LENGTH];

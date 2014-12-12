@@ -44,7 +44,7 @@
  * returns:
  *   -1 on failure, 0 on success
  */
-int addr_init(const char *filename) __may_fail;
+int addr_extract_symbols(const char *filename) __may_fail;
 
 /* translate an address specified by <pc> to a function name, file name and
  * line via the debug sybols loaded by addr_init. Memory for function and

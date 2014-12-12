@@ -29,104 +29,139 @@
 #include <grapes/util.h>
 #include <grapes/vector.h>
 
-static bfd *addr_bfd = NULL;
-static asymbol **addr_syms = NULL;
-
-struct addr_section
+struct addr_symbol
 {
-  asection *section;
   bfd_vma lower;
   bfd_vma upper;
+  const char *name;
 };
-typedef struct addr_section addr_section;
+typedef struct addr_symbol addr_symbol;
 
-vector_declare(vec_addr_sections, addr_section);
+vector_declare(vec_symbols, addr_symbol);
 
-static vec_addr_sections addr_sections = { 0 };
-
-static int
-addr_read_symbol_table (void)
+struct addr_symtab
 {
-  __precondition(ENOTSUP, bfd_get_file_flags(addr_bfd) & HAS_SYMS);
+  bfd *bfd;
+  bfd_vma lower;
+  bfd_vma upper;
+  vec_symbols symbols;
+};
+typedef struct addr_symtab addr_symtab;
 
-  int dynamic = 0;
-  long storage = bfd_get_symtab_upper_bound(addr_bfd);
-  if (!storage)
-    {
-      storage = bfd_get_dynamic_symtab_upper_bound(addr_bfd);
-      dynamic = 1;
-    }
-  __precondition(ENOTSUP, storage > 0);
+vector_declare(vec_symtabs, addr_symtab);
 
-  __checked_call(NULL != (addr_syms = malloc(storage)));
+static vec_symtabs addr_symtabs = { 0 };
 
-  long symcount;
-  if (dynamic)
-    symcount = bfd_canonicalize_dynamic_symtab(addr_bfd, addr_syms);
-  else
-    symcount = bfd_canonicalize_symtab(addr_bfd, addr_syms);
+static void
+__attribute__((constructor))
+addr_init (void)
+{
+  bfd_init();
+}
 
-  __precondition(ENOTSUP, symcount > 0);
+static int addr_comp(const void *p1, const void *p2)
+{
+  asymbol *const*s1 = p1;
+  asymbol *const*s2 = p2;
 
-  return 0;
+  long a1 = (*s1)->value + bfd_get_section_vma((*s1)->section->owner, (*s1)->section);
+  long a2 = (*s2)->value + bfd_get_section_vma((*s2)->section->owner, (*s2)->section);
+
+  return a1 - a2;
 }
 
 static int
-addr_init_sections (void)
+addr_extract_symbols_from_bfd (bfd *bfd)
 {
-  asection *s;
-  for (s = addr_bfd->sections; s != NULL; s = s->next)
+  __precondition(ENOTSUP, 0 != bfd_check_format(bfd, bfd_object));
+
+  long size;
+  asymbol **symbols;
+  long nsymbols;
+
+  __checked_call(0 <= (size = bfd_get_symtab_upper_bound(bfd)));
+  __checked_call(NULL != (symbols = malloc(size)));
+  __checked_call(0 <= (nsymbols = bfd_canonicalize_symtab(bfd, symbols)),
+    free(symbols);
+  );
+
+  qsort(symbols, nsymbols, sizeof(*symbols), &addr_comp);
+
+  addr_symtab t = { 0 };
+
+  long i;
+  for (i = 0; i < nsymbols; ++i)
     {
-      if (!(bfd_get_section_flags(addr_bfd, s) & SEC_ALLOC))
+      if (!(symbols[i]->flags & BSF_FUNCTION))
         continue;
 
-      bfd_vma lower = bfd_get_section_vma(addr_bfd, s);
-      bfd_vma upper = lower + bfd_get_section_size(s);
-      addr_section a = { s, lower, upper };
+      unsigned long a = symbols[i]->value;
+      a += bfd_get_section_vma(bfd, symbols[i]->section);
 
-      __checked_call(0 == vector_push(&addr_sections, a));
+      unsigned long b = symbols[i + 1]->value - 1;
+      b += bfd_get_section_vma(bfd, symbols[i + 1]->section);
+
+      if (!a)
+        continue;
+
+      if (!t.lower)
+        t.lower = a;
+
+      addr_symbol s = { a, b, symbols[i]->name };
+      vector_push(&(t.symbols), s);
     }
+
+  if (t.lower)
+    t.upper = t.symbols.items[t.symbols.nitems - 1].upper;
+
+  vector_push(&addr_symtabs, t);
 
   return 0;
 }
 
 int
-addr_init (const char *filename)
+addr_extract_symbols (const char *filename)
 {
-  bfd_init();
-  __checked_call(NULL != (addr_bfd = bfd_openr(filename, NULL)));
+  bfd *bfd;
+  __checked_call(NULL != (bfd = bfd_openr(filename, NULL)));
 
-  addr_bfd->flags |= BFD_DECOMPRESS;
-
-  __precondition(ENOTSUP, 0 != bfd_check_format(addr_bfd, bfd_object));
-
-  __checked_call(0 == addr_read_symbol_table());
-  __checked_call(0 == addr_init_sections());
+  __checked_call(0 == addr_extract_symbols_from_bfd(bfd),
+    bfd_close(bfd);
+  );
 
   return 0;
+}
+
+static addr_symbol*
+addr_find_symbol (uintptr_t pc)
+{
+  size_t i;
+  for (i = 0; i < addr_symtabs.nitems; ++i)
+    if (addr_symtabs.items[i].lower <= pc && pc <= addr_symtabs.items[i].upper)
+      {
+        addr_symtab *s = addr_symtabs.items + i;
+        size_t j;
+        for (j = 0; j < s->symbols.nitems; ++j)
+          if (s->symbols.items[j].lower <= pc && pc <= s->symbols.items[j].upper)
+            return s->symbols.items + j;
+      }
+
+  return NULL;
 }
 
 int
 addr_translate (uintptr_t pc, char **function, char **file, unsigned int *line)
 {
-  const char *_function = NULL;
-  const char *_file = NULL;
-  unsigned int _line = 0;
-  unsigned int _discriminator = 0;
-
-  vector_map(&addr_sections, ITEM,
-    if (pc >= ITEM.lower && pc <= ITEM.upper)
-      bfd_find_nearest_line_discriminator(addr_bfd, ITEM.section, addr_syms, pc - ITEM.lower, &_file, &_function, &_line, &_discriminator);
-  );
+  addr_symbol *b = addr_find_symbol(pc);
 
   if (function)
-    __checked_call(NULL != (*function = strdup(_function ? _function : "??")));
+    __checked_call(NULL != (*function = strdup(b ? b->name : "??")));
 
   if (file)
-    __checked_call(NULL != (*file = strdup(_file ? _file : "??")));
+    __checked_call(NULL != (*file = strdup("??")));
 
   if (line)
-    *line = _line;
+    *line = 0;
 
   return 0;
 }
@@ -135,10 +170,6 @@ static void
 __attribute__ ((destructor))
 addr_fini ()
 {
-  if (addr_bfd)
-    bfd_close(addr_bfd);
-  free(addr_syms);
 
-  vector_clear(&addr_sections);
 }
 

@@ -52,8 +52,8 @@ tracebuffer_flush ()
 void
 tracebuffer_append (const tracebuffer_packet *p)
 {
-  tracebuffer_buffer[tracebuffer_index++] = *p;
-  tracebuffer_buffer[tracebuffer_index].time = highrestimer_get();
+  tracebuffer_buffer[tracebuffer_index] = *p;
+  tracebuffer_buffer[tracebuffer_index++].time = highrestimer_get();
 
   if (tracebuffer_index == BUFSIZE)
     tracebuffer_flush();
