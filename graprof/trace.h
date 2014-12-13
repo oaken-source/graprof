@@ -43,7 +43,7 @@
  * returns:
  *   -1 on failure, 0 on success
  */
-int trace_read(const char *filename, unsigned char md5_binary[DIGEST_LENGTH]) __may_fail;
+int trace_read(const char *filename) __may_fail;
 
 /* get the total number of ns elapsed from start to end of the program
  *

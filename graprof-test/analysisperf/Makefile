@@ -12,7 +12,7 @@ clean:
 
 ## pass0 - profile the graprof --help call
 pass0:
-	$(ENV)0 $(BIN) -o graprof.out.pass0 -- $(BIN_GP) --help # > /dev/null
+	$(ENV)0 $(BIN) -o graprof.out.pass0 -- $(BIN_GP) --help > /dev/null
 
 ## additional passes, copy and increment as needed.
 ## TODO: is there a better way for this?

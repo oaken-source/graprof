@@ -120,8 +120,11 @@ addr_extract_symbols_from_bfd (bfd *bfd)
 }
 
 int
-addr_extract_symbols (const char *filename)
+addr_extract_symbols (const char *filename, uintptr_t offset)
 {
+  if (offset)
+    return 0;
+
   bfd *bfd;
   __checked_call(NULL != (bfd = bfd_openr(filename, NULL)));
 

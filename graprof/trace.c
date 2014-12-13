@@ -36,16 +36,6 @@
 static unsigned long long trace_total_runtime = 0;
 
 static int
-trace_init (tracebuffer_packet *p, unsigned char md5_binary[DIGEST_LENGTH])
-{
-  unsigned char *md5 =      p->init.digest;
-
-  feedback_assert_wrn(!memcmp(md5, md5_binary, DIGEST_LENGTH), "binary digest verification failed");
-
-  return 0;
-}
-
-static int
 trace_enter (tracebuffer_packet *p)
 {
   uintptr_t func =          p->enter.func;
@@ -117,14 +107,9 @@ trace_end (tracebuffer_packet *p)
   return 0;
 }
 
-int
-trace_read (const char *filename, unsigned char md5_binary[DIGEST_LENGTH])
+static int __may_fail
+trace_iterate (tracebuffer_packet *packets, size_t length)
 {
-  size_t length;
-  tracebuffer_packet *packets;
-
-  __checked_call(NULL != (packets = file_map(filename, &length)));
-
   unsigned int trace_ended = 0;
 
   const size_t npackets = length / sizeof(*packets);
@@ -136,9 +121,6 @@ trace_read (const char *filename, unsigned char md5_binary[DIGEST_LENGTH])
 
       switch (p->type)
         {
-        case 'I':
-          __checked_call(0 == trace_init(p, md5_binary));
-          break;
         case 'e':
           __checked_call(0 == trace_enter(p));
           break;
@@ -169,6 +151,76 @@ trace_read (const char *filename, unsigned char md5_binary[DIGEST_LENGTH])
       feedback_warning("libgraprof trace not properly terminated.");
       __checked_call(0 == trace_end(packets + npackets - 1));
     }
+
+  return 0;
+}
+
+static int __may_fail
+trace_read_header (FILE *in)
+{
+  unsigned char magic[sizeof(TRACEBUFFER_MAGIC_NUMBER)];
+  size_t res = fread(magic, 1, sizeof(TRACEBUFFER_MAGIC_NUMBER), in);
+  __precondition(ENOTSUP, res == sizeof(TRACEBUFFER_MAGIC_NUMBER));
+
+  __precondition(ENOTSUP, !memcmp(magic, TRACEBUFFER_MAGIC_NUMBER, sizeof(TRACEBUFFER_MAGIC_NUMBER)));
+
+  uint32_t count;
+  res = fread(&count, sizeof(count), 1, in);
+  __precondition(ENOTSUP, res == 1);
+
+  size_t i;
+  for (i = 0; i < count; ++i)
+    {
+      uintptr_t offset;
+      res = fread(&offset, sizeof(offset), 1, in);
+      __precondition(ENOTSUP, res == 1);
+
+      unsigned char digest[DIGEST_LENGTH];
+      res = fread(digest, 1, DIGEST_LENGTH, in);
+      __precondition(ENOTSUP, res == DIGEST_LENGTH);
+
+      size_t length;
+      res = fread(&length, sizeof(length), 1, in);
+      __precondition(ENOTSUP, res == 1);
+
+      char *filename;
+      __checked_call(NULL != (filename = malloc(length)));
+      res = fread(filename, 1, length, in);
+      __checked_call(res == length,
+        free(filename);
+        errno = ENOTSUP;
+      );
+
+      __checked_call(0 == addr_extract_symbols(filename, offset),
+        free(filename);
+      );
+
+      free(filename);
+    }
+
+  return ftell(in);
+}
+
+int
+trace_read (const char *filename)
+{
+  FILE *in;
+  __checked_call(NULL != (in = fopen(filename, "rb")));
+
+  long offset;
+  __checked_call(0 <= (offset = trace_read_header(in)),
+    fclose(in);
+  );
+
+  fclose(in);
+
+  size_t length;
+  void *packets;
+  __checked_call(NULL != (packets = file_map(filename, &length)));
+
+  __checked_call(0 == trace_iterate(packets + offset, length - offset),
+    __checked_call(0 == file_unmap(packets, length));
+  );
 
   __checked_call(0 == file_unmap(packets, length));
 

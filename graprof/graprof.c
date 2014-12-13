@@ -66,28 +66,13 @@ main (int argc, char *argv[])
         }
     }
 
-  // read debug symbols from child binary
-  int errnum = errno;
-  int res = addr_extract_symbols(arguments.binary_invocation[0]);
-  if (res)
-    {
-      feedback_assert(errno != ENOTSUP, "`%s': while reading debug symbols", arguments.binary_invocation[0]);
-      feedback_warning("`%s': unable to extract debug symbols found", arguments.binary_invocation[0]);
-    }
-  errno = errnum;
-
-  // digest binary
-  unsigned char md5_binary[DIGEST_LENGTH];
-  res = md5_digest(md5_binary, arguments.binary_invocation[0]);
-  feedback_assert_wrn(!res, "`%s': unable to digest", arguments.binary_invocation[0]);
-
   // figure out the proper tracefile
   const char *tracefile = getenv("GRAPROF_OUT");
   if (arguments.trace_filename)
     tracefile = arguments.trace_filename;
 
   // read the tracefile
-  res = trace_read(tracefile, md5_binary);
+  int res = trace_read(tracefile);
   feedback_assert(!res, "`%s': corrupt trace data");
 
   // determine the target output file

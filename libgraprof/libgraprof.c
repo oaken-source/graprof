@@ -19,21 +19,104 @@
  ******************************************************************************/
 
 
+#define _GNU_SOURCE
+
 #include "libgraprof.h"
 
 #include "tracebuffer.h"
 
+#include "common/md5.h"
+
 #include <grapes/feedback.h>
+
+#include <link.h>
 
 #include <stdio.h>
 #include <errno.h>
+#include <limits.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 
 FILE *libgraprof_out = NULL;
 char *libgraprof_filename = NULL;
 
 unsigned int libgraprof_hooked = 0;
+
+static int __may_fail
+libgraprof_count_object_files (struct dl_phdr_info *info, __unused size_t size, void *data)
+{
+  uint32_t *count = data;
+
+  char path[PATH_MAX] = { 0 };
+
+  if (!info->dlpi_addr)
+    return 0;
+  if (!realpath(info->dlpi_name, path))
+    return 0;
+
+  ++(*count);
+
+  return 0;
+}
+
+static int __may_fail
+libgraprof_write_header_entry(const char *filename, uintptr_t offset)
+{
+  size_t res = fwrite(&offset, sizeof(offset), 1, libgraprof_out);
+  __checked_call(res == 1);
+
+  unsigned char digest[DIGEST_LENGTH];
+  __checked_call(0 == md5_digest(digest, filename));
+
+  res = fwrite(digest, 1, DIGEST_LENGTH, libgraprof_out);
+  __checked_call(res == DIGEST_LENGTH);
+
+  size_t length = strlen(filename) + 1;
+  res = fwrite(&length, sizeof(length), 1, libgraprof_out);
+  __checked_call(res == 1);
+
+  res = fwrite(filename, 1, length, libgraprof_out);
+  __checked_call(res == length);
+
+  return 0;
+}
+
+static int __may_fail
+libgraprof_write_header_for_object_file (struct dl_phdr_info *info, __unused size_t size, __unused void *data)
+{
+  char path[PATH_MAX] = { 0 };
+
+  if (!info->dlpi_addr)
+    return 0;
+  if (!realpath(info->dlpi_name, path))
+    return 0;
+
+  __checked_call(0 == libgraprof_write_header_entry(path, info->dlpi_addr));
+
+  return 0;
+}
+
+static int __may_fail
+libgraprof_write_header (void)
+{
+  size_t res = fwrite(TRACEBUFFER_MAGIC_NUMBER, 1, sizeof(TRACEBUFFER_MAGIC_NUMBER), libgraprof_out);
+  __checked_call(res == sizeof(TRACEBUFFER_MAGIC_NUMBER));
+
+  char *filename;
+  __checked_call(NULL != (filename = realpath("/proc/self/exe", NULL)));
+
+  uint32_t count = 1;
+  dl_iterate_phdr(libgraprof_count_object_files, &count);
+
+  res = fwrite(&count, sizeof(count), 1, libgraprof_out);
+  __checked_call(res == 1);
+
+  __checked_call(0 == libgraprof_write_header_entry(filename, 0));
+  __checked_call(0 == dl_iterate_phdr(libgraprof_write_header_for_object_file, NULL));
+
+  return 0;
+}
 
 static void
 __attribute__ ((constructor))
@@ -47,16 +130,13 @@ libgraprof_init ()
     {
       unlink(libgraprof_filename);
       libgraprof_out = fopen(libgraprof_filename, "wb");
-      feedback_assert_wrn(libgraprof_out, "libgraprof: unable to open '%s'", libgraprof_filename);
+      feedback_assert_wrn(libgraprof_out, "libgraprof: `%s'", libgraprof_filename);
     }
 
   if (libgraprof_out)
     {
-      static tracebuffer_packet p = { .type = 'I' };
-      int res = md5_digest(p.init.digest, "/proc/self/exe");
-      feedback_assert_wrn(!res, "libgraprof: unable to digest '%s'", "/proc/self/exe");
-      tracebuffer_append(&p);
-
+      int res = libgraprof_write_header();
+      feedback_assert_wrn(!res, "libgraprof: `%s:' unable to write trace header", libgraprof_filename);
       libgraprof_install_hooks();
     }
 

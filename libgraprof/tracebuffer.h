@@ -27,11 +27,11 @@
 
 #include "highrestimer.h"
 
-#include "common/md5.h"
-
 #include <grapes/util.h>
 
 #include <stdint.h>
+
+__unused static unsigned char TRACEBUFFER_MAGIC_NUMBER[] = { 0x74, 0xCE, 0xB0, 0xFF };
 
 /* this struct represents a trace event pushed to the trace log
  */
@@ -40,9 +40,6 @@ struct tracebuffer_packet
   char type;
 
   union {
-    struct {
-      unsigned char digest[DIGEST_LENGTH];
-    } init;
     struct {
       uintptr_t func;
       uintptr_t caller;
