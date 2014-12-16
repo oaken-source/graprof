@@ -21,7 +21,7 @@
 
 #include "tracebuffer.h"
 
-#include "common/digest.h"
+#include "digest.h"
 
 #include <grapes/feedback.h>
 #include <grapes/file.h>
@@ -157,25 +157,16 @@ tracebuffer_iterate_header_inner (int(*callback)(const char*, uintptr_t), FILE *
       res = fread(&length, sizeof(length), 1, in);
       __checked_call(res == 1);
 
-      char *filename;
-      __checked_call(NULL != (filename = malloc(length)));
+      char *filename = alloca(length);
       res = fread(filename, 1, length, in);
-      __checked_call(res == length,
-        free(filename);
-      );
+      __checked_call(res == length);
 
       digest_t d2;
-      __checked_call(0 == digest_file(&d2, filename),
-        free(filename);
-      );
+      __checked_call(0 == digest_file(&d2, filename));
 
       feedback_assert_wrn(!digest_cmp(d1, d2), "`%s': digest does not match", filename);
 
-      __checked_call(0 == callback(filename, offset),
-        free(filename);
-      );
-
-      free(filename);
+      __checked_call(0 == callback(filename, offset));
     }
 
   __checked_call(0 <= (tracebuffer_packets_offset = ftell(in)));

@@ -70,30 +70,104 @@ struct tracebuffer_packet
 };
 typedef struct tracebuffer_packet tracebuffer_packet;
 
+/* open a tracebuffer file for writing
+ *
+ * params:
+ *   filename - the name of the tracebuffer file
+ *
+ * errors:
+ *   may fail and set errno for the same reasons as fopen and fwrite
+ *
+ * returns:
+ *   -1 on failure, 0 on success
+ */
 int tracebuffer_openw (const char *filename) __may_fail;
 
+/* append an object file entry to the header of the currently opened
+ * tracebuffer file
+ *
+ * params:
+ *   filename - the name of the object file to enter
+ *   offset - the load address of the object file in memory
+ *
+ * errors:
+ *   may fail and set errno for the same reasons as digest_file and fwrite
+ *
+ * returns:
+ *   -1 on failure, 0 on success
+ */
 int tracebuffer_append_header (const char *filename, uintptr_t offset) __may_fail;
 
-int tracebuffer_finish_header (void);
+/* mark the end of the header of the currently written tracebuffer file header
+ *
+ * errors:
+ *   may fail and set errno for the same reasons as fseek and fwrite
+ *
+ * returns:
+ *   -1 on failure, 0 on success
+ */
+int tracebuffer_finish_header (void) __may_fail;
 
-/* add a packet to the trace log
+/* add a packet to the currently active tracebuffer file
  *
  * params:
  *   p - a pointer to a tracebuffer_packet
  *
  * errors:
- *   will emit a warning to stderr if a write operation fails
+ *   may fail and set errno for the same reasons as fwrite
+ *
+ * returns:
+ *   -1 on failure, 0 on success
  */
 int tracebuffer_append (const tracebuffer_packet *p) __may_fail;
 
-/* finish a trace log - should be called after all packets are appended, to
- * flush the internal write buffer
+/* close the currently active tracebuffer file and flush all pending writes.
+ * if this is not called, the written tracebuffer will be incomplete
  *
  * errors:
- *   will emit a warning to stderr if a write operation fails
+ *   may fail and set errno for the same reasons as fwrite and fclose
+ *
+ * returns:
+ *   -1 on failure, 0 on success
  */
 int tracebuffer_close (void) __may_fail;
 
+/* iterate over the entries in the given tracefiles's header ad call the given
+ * callback for each.
+ * will stop iterating if one of the callback invocations does not return 0
+ *
+ * params:
+ *   callback - the function to call for each header entry
+ *   filename - the name of the tracebuffer file
+ *
+ * errors:
+ *   may fail and set errno for the same reasons as fopen, fclose, fread,
+ *   ftell, digest_file and the given callback.
+ *   will also fail and set errno to ENOTSUP if the given file is no valid
+ *   tracebuffer file.
+ *   will emit a warning to stderr if the given header entry has changed on
+ *   disk (the digest does not match the one stored in the header)
+ *
+ * returns:
+ *   -1 on failure, 0 on success
+ */
 int tracebuffer_iterate_header (int(*callback)(const char*, uintptr_t), const char *filename) __may_fail;
 
+/* iterate over the entries in the given tracefile's payload and call the
+ * given callback for each.
+ * will stop iterating if one of the callback invocations does not return 0
+ *
+ * params:
+ *   callback - the function to call for each header entry
+ *   filename - the name of the tracebuffer file
+ *
+ * errors:
+ *   may fail and set errno for the same reasons as file_map, file_unmap and
+ *   the given callback.
+ *   the behaviour is undefined, if tracebuffer_iterate_header has not been
+ *   called.
+ *
+ * returns:
+ *   -1 on failure, 0 on success
+ */
 int tracebuffer_iterate_packet (int(*callback)(tracebuffer_packet*, int), const char *filename) __may_fail;
