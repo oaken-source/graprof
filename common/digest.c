@@ -19,75 +19,37 @@
  ******************************************************************************/
 
 
-#pragma once
+#include "digest.h"
 
-#ifdef HAVE_CONFIG_H
-#  include <config.h>
-#endif
+#include <grapes/file.h>
 
-#include "highrestimer.h"
+#include <string.h>
 
-#include <grapes/util.h>
-
-#include <stdint.h>
-
-__unused static unsigned char TRACEBUFFER_MAGIC_NUMBER[] = { 0x74, 0xCE, 0xB0, 0xFF };
-
-/* this struct represents a trace event pushed to the trace log
- */
-struct tracebuffer_packet
+int
+digest_file (digest_t *dest, const char *filename)
 {
-  char type;
+  size_t length;
+  void *data;
 
-  union {
-    struct {
-      uintptr_t func;
-      uintptr_t caller;
-    } enter;
-    struct {
-    } exit;
-    struct {
-      size_t size;
-      uintptr_t caller;
-      uintptr_t result;
-    } malloc;
-    struct {
-      size_t size;
-      uintptr_t caller;
-      uintptr_t result;
-    } calloc;
-    struct {
-      uintptr_t ptr;
-      size_t size;
-      uintptr_t caller;
-      uintptr_t result;
-    } realloc;
-    struct {
-      uintptr_t ptr;
-      uintptr_t caller;
-    } free;
-    struct {
-    } exit_all;
-  };
+  __checked_call(NULL != (data = file_map(filename, &length)));
 
-  unsigned long long time;
-};
-typedef struct tracebuffer_packet tracebuffer_packet;
+  #if HAVE_OPENSSL_MD5
 
-/* add a packet to the trace log
- *
- * params:
- *   p - a pointer to a tracebuffer_packet
- *
- * errors:
- *   will emit a warning to stderr if a write operation fails
- */
-void tracebuffer_append (const tracebuffer_packet *p);
+    MD5(data, length, *dest);
 
-/* finish a trace log - should be called after all packets are appended, to
- * flush the internal write buffer
- *
- * errors:
- *   will emit a warning to stderr if a write operation fails
- */
-void tracebuffer_finish (void);
+  #elif HAVE_BSD_MD5
+
+    MD5Data(data, length, (void*)*dest);
+
+  #endif
+
+  __checked_call(0 == file_unmap(data, length));
+
+  return 0;
+}
+
+int
+digest_cmp (const digest_t digest1, const digest_t digest2)
+{
+  return memcmp(digest1, digest2, DIGEST_LENGTH);
+}

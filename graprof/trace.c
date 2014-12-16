@@ -25,7 +25,8 @@
 #include "memory.h"
 #include "addr.h"
 
-#include "libgraprof/tracebuffer.h"
+#include "common/digest.h"
+#include "common/tracebuffer.h"
 
 #include <grapes/feedback.h>
 #include <grapes/file.h>
@@ -108,121 +109,66 @@ trace_end (tracebuffer_packet *p)
 }
 
 static int __may_fail
-trace_iterate (tracebuffer_packet *packets, size_t length)
+trace_handle_header (const char *filename, uintptr_t offset)
 {
-  unsigned int trace_ended = 0;
-
-  const size_t npackets = length / sizeof(*packets);
-  size_t i;
-  for (i = 0; i < npackets; ++i)
-    {
-      __precondition(ENOTSUP, !trace_ended);
-      tracebuffer_packet *p = packets + i;
-
-      switch (p->type)
-        {
-        case 'e':
-          __checked_call(0 == trace_enter(p));
-          break;
-        case 'x':
-          __checked_call(0 == trace_exit(p));
-          break;
-        case '+':
-          __checked_call(0 == trace_malloc(p));
-          break;
-        case '*':
-          __checked_call(0 == trace_realloc(p));
-          break;
-        case '-':
-          __checked_call(0 == trace_free(p));
-          break;
-        case 'E':
-          __checked_call(0 == trace_end(p));
-          trace_ended = 1;
-          break;
-        default:
-          __precondition(ENOTSUP, 0 && p->type);
-          break;
-        }
-    }
-
-  if (!trace_ended)
-    {
-      feedback_warning("libgraprof trace not properly terminated.");
-      __checked_call(0 == trace_end(packets + npackets - 1));
-    }
+  int errnum = errno;
+  int res = addr_extract_symbols(filename, offset);
+  feedback_assert_wrn(!res, "`%s': unable to read debug symbols", filename);
+  errno = errnum;
 
   return 0;
 }
 
+static unsigned int trace_ended = 0;
+
 static int __may_fail
-trace_read_header (FILE *in)
+trace_handle_packet (tracebuffer_packet *p, int last)
 {
-  unsigned char magic[sizeof(TRACEBUFFER_MAGIC_NUMBER)];
-  size_t res = fread(magic, 1, sizeof(TRACEBUFFER_MAGIC_NUMBER), in);
-  __precondition(ENOTSUP, res == sizeof(TRACEBUFFER_MAGIC_NUMBER));
+  __precondition(ENOTSUP, !trace_ended);
 
-  __precondition(ENOTSUP, !memcmp(magic, TRACEBUFFER_MAGIC_NUMBER, sizeof(TRACEBUFFER_MAGIC_NUMBER)));
-
-  uint32_t count;
-  res = fread(&count, sizeof(count), 1, in);
-  __precondition(ENOTSUP, res == 1);
-
-  size_t i;
-  for (i = 0; i < count; ++i)
+  switch (p->type)
     {
-      uintptr_t offset;
-      res = fread(&offset, sizeof(offset), 1, in);
-      __precondition(ENOTSUP, res == 1);
-
-      unsigned char digest[DIGEST_LENGTH];
-      res = fread(digest, 1, DIGEST_LENGTH, in);
-      __precondition(ENOTSUP, res == DIGEST_LENGTH);
-
-      size_t length;
-      res = fread(&length, sizeof(length), 1, in);
-      __precondition(ENOTSUP, res == 1);
-
-      char *filename;
-      __checked_call(NULL != (filename = malloc(length)));
-      res = fread(filename, 1, length, in);
-      __checked_call(res == length,
-        free(filename);
-        errno = ENOTSUP;
-      );
-
-      __checked_call(0 == addr_extract_symbols(filename, offset),
-        free(filename);
-      );
-
-      free(filename);
+    case 'e':
+      __checked_call(0 == trace_enter(p));
+      break;
+    case 'x':
+      __checked_call(0 == trace_exit(p));
+      break;
+    case '+':
+      __checked_call(0 == trace_malloc(p));
+      break;
+    case '*':
+      __checked_call(0 == trace_realloc(p));
+      break;
+    case '-':
+      __checked_call(0 == trace_free(p));
+      break;
+    case 'E':
+      __checked_call(0 == trace_end(p));
+      trace_ended = 1;
+      break;
+    default:
+      __precondition(ENOTSUP, 0 && p->type);
+      break;
     }
 
-  return ftell(in);
+  if (last && !trace_ended)
+    {
+      feedback_warning("trace unterminated.");
+      __checked_call(0 == trace_end(p));
+    }
+
+  return 0;
+
 }
 
 int
 trace_read (const char *filename)
 {
-  FILE *in;
-  __checked_call(NULL != (in = fopen(filename, "rb")));
+  __checked_call(0 == tracebuffer_iterate_header(&trace_handle_header, filename));
 
-  long offset;
-  __checked_call(0 <= (offset = trace_read_header(in)),
-    fclose(in);
-  );
-
-  fclose(in);
-
-  size_t length;
-  void *packets;
-  __checked_call(NULL != (packets = file_map(filename, &length)));
-
-  __checked_call(0 == trace_iterate(packets + offset, length - offset),
-    __checked_call(0 == file_unmap(packets, length));
-  );
-
-  __checked_call(0 == file_unmap(packets, length));
+  trace_ended = 0;
+  __checked_call(0 == tracebuffer_iterate_packet(&trace_handle_packet, filename));
 
   return 0;
 }

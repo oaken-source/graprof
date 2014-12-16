@@ -19,49 +19,48 @@
  ******************************************************************************/
 
 
-#include "tracebuffer.h"
+#pragma once
 
-#include "highrestimer.h"
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
 
-#include <grapes/feedback.h>
+#include <grapes/util.h>
 
-#include <stdio.h>
-#include <errno.h>
+#if HAVE_OPENSSL_MD5
+#  include <openssl/md5.h>
+#elif HAVE_BSD_MD5
+#  include <bsd/md5.h>
+#else
+#  error required md5 implementation not found
+#endif
 
-#define BUFSIZE 1024
+/* the type of a digest
+ */
+typedef unsigned char digest_t[DIGEST_LENGTH];
 
-static tracebuffer_packet tracebuffer_buffer[BUFSIZE];
-static size_t tracebuffer_index = 0;
+/* digest the given file and store the result it in the given digest_t
+ *
+ * params:
+ *   dest - a pointer to a digest_t
+ *   filename - the name of the file to digest
+ *
+ * errors:
+ *   may fail and set errno for the same reasons as file_map and file_unmap
+ *
+ * returns:
+ *   -1 on failure, 0 on success
+ */
+int digest_file (digest_t *dest, const char *filename) __may_fail;
 
-extern FILE *libgraprof_out;
-extern const char *libgraprof_filename;
-
-static void
-tracebuffer_flush ()
-{
-  int errnum = errno;
-
-  size_t res = fwrite(tracebuffer_buffer, sizeof(*tracebuffer_buffer), tracebuffer_index, libgraprof_out);
-  feedback_assert_wrn(res == tracebuffer_index, "libgraprof: error writing '%s'", libgraprof_filename);
-
-  tracebuffer_index = 0;
-
-  errno = errnum;
-}
-
-void
-tracebuffer_append (const tracebuffer_packet *p)
-{
-  tracebuffer_buffer[tracebuffer_index] = *p;
-  tracebuffer_buffer[tracebuffer_index++].time = highrestimer_get();
-
-  if (tracebuffer_index == BUFSIZE)
-    tracebuffer_flush();
-}
-
-void
-tracebuffer_finish (void)
-{
-  if (tracebuffer_index)
-    tracebuffer_flush();
-}
+/* compare two digests
+ *
+ * params:
+ *   d1 - the first digest
+ *   d2 - the second digest
+ *
+ * returns:
+ *   an integer less than, equal to, or greater than zero if d1 is found,
+ *   respectively, to be less than, to match, or be greater than d2
+ */
+int digest_cmp (const digest_t d1, const digest_t d2);

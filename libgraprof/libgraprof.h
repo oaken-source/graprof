@@ -27,6 +27,10 @@
 
 #include <grapes/util.h>
 
+/* expose the name of the tracefile
+ */
+extern char *libgraprof_filename;
+
 /* indicate wether profiling hooks are active
  */
 extern unsigned int libgraprof_hooked;
@@ -38,3 +42,12 @@ extern unsigned int libgraprof_hooked;
 /* deactivate all profiling hooks
  */
 #define libgraprof_uninstall_hooks() libgraprof_hooked = 0
+
+/* convenience macro for repetitive tracebuffer append stuff
+ */
+#define __checked_tracebuffer_append(P) \
+    do { \
+      (P)->time = highrestimer_get(); \
+      int res = tracebuffer_append(P); \
+      feedback_assert_wrn(!res, "libgraprof: `%s': unable to write trace data", libgraprof_filename); \
+    } while (0)

@@ -22,7 +22,11 @@
 #include "mallhooks.h"
 
 #include "libgraprof.h"
-#include "tracebuffer.h"
+#include "highrestimer.h"
+
+#include "common/tracebuffer.h"
+
+#include <grapes/feedback.h>
 
 #include <stdlib.h>
 
@@ -33,13 +37,17 @@ malloc_hook (size_t size, const void *caller)
 
   void *result = malloc(size);
 
+  int errnum = errno;
+
   static tracebuffer_packet p = { .type = '+' };
     p.malloc.size   = size;
     p.malloc.caller = (uintptr_t)(caller - 4);
     p.malloc.result = (uintptr_t)result;
-  tracebuffer_append(&p);
+  __checked_tracebuffer_append(&p);
 
   libgraprof_install_hooks();
+
+  errno = errnum;
 
   return result;
 }
@@ -51,13 +59,17 @@ calloc_hook (size_t nmemb, size_t size, const void *caller)
 
   void *result = calloc(nmemb, size);
 
+  int errnum = errno;
+
   static tracebuffer_packet p = { .type = '+' };
     p.calloc.size   = nmemb * size;
     p.calloc.caller = (uintptr_t)(caller - 4);
     p.calloc.result = (uintptr_t)result;
-  tracebuffer_append(&p);
+  __checked_tracebuffer_append(&p);
 
   libgraprof_install_hooks();
+
+  errno = errnum;
 
   return result;
 }
@@ -70,14 +82,18 @@ realloc_hook (void *ptr, size_t size, const void *caller)
 
   void *result = realloc(ptr, size);
 
+  int errnum = errno;
+
   static tracebuffer_packet p = { .type = '*' };
     p.realloc.ptr     = (uintptr_t)ptr;
     p.realloc.size    = size;
     p.realloc.caller  = (uintptr_t)(caller - 4);
     p.realloc.result  = (uintptr_t)result;
-  tracebuffer_append(&p);
+  __checked_tracebuffer_append(&p);
 
   libgraprof_install_hooks();
+
+  errno = errnum;
 
   return result;
 }
@@ -89,15 +105,19 @@ free_hook (void *ptr, const void *caller)
 
   free(ptr);
 
+  int errnum = errno;
+
   if (ptr)
     {
       static tracebuffer_packet p = { .type = '-' };
         p.free.ptr    = (uintptr_t)ptr;
         p.free.caller = (uintptr_t)(caller - 4);
-      tracebuffer_append(&p);
+      __checked_tracebuffer_append(&p);
     }
 
   libgraprof_install_hooks();
+
+  errno = errnum;
 }
 
 extern void* __libc_malloc(size_t size);

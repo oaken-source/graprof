@@ -22,7 +22,11 @@
 #include "instrument.h"
 
 #include "libgraprof.h"
-#include "tracebuffer.h"
+#include "highrestimer.h"
+
+#include "common/tracebuffer.h"
+
+#include <grapes/feedback.h>
 
 void
 __cyg_profile_func_enter (void *func, void *caller)
@@ -30,14 +34,18 @@ __cyg_profile_func_enter (void *func, void *caller)
   if (__unlikely(!libgraprof_hooked))
     return;
 
+  int errnum = errno;
+
   libgraprof_uninstall_hooks();
 
   static tracebuffer_packet p = { .type = 'e' };
     p.enter.func    = (uintptr_t)func;
     p.enter.caller  = (uintptr_t)(caller - 4);
-  tracebuffer_append(&p);
+  __checked_tracebuffer_append(&p);
 
   libgraprof_install_hooks();
+
+  errno = errnum;
 }
 
 void
@@ -46,10 +54,14 @@ __cyg_profile_func_exit (__unused void *func, __unused void *caller)
   if (__unlikely(!libgraprof_hooked))
     return;
 
+  int errnum = errno;
+
   libgraprof_uninstall_hooks();
 
   static tracebuffer_packet p = { .type = 'x' };
-  tracebuffer_append(&p);
+  __checked_tracebuffer_append(&p);
 
   libgraprof_install_hooks();
+
+  errno = errnum;
 }

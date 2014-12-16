@@ -27,23 +27,73 @@
 
 #include <grapes/util.h>
 
-#if HAVE_OPENSSL_MD5
-#  include <openssl/md5.h>
-#elif HAVE_BSD_MD5
-#  include <bsd/md5.h>
-#endif
+#include <stdint.h>
 
-/* digest the given file into an md5 hash and store it in the given buffer
+/* this struct represents a trace event pushed to the trace log
+ */
+struct tracebuffer_packet
+{
+  char type;
+
+  union {
+    struct {
+      uintptr_t func;
+      uintptr_t caller;
+    } enter;
+    struct {
+    } exit;
+    struct {
+      size_t size;
+      uintptr_t caller;
+      uintptr_t result;
+    } malloc;
+    struct {
+      size_t size;
+      uintptr_t caller;
+      uintptr_t result;
+    } calloc;
+    struct {
+      uintptr_t ptr;
+      size_t size;
+      uintptr_t caller;
+      uintptr_t result;
+    } realloc;
+    struct {
+      uintptr_t ptr;
+      uintptr_t caller;
+    } free;
+    struct {
+    } exit_all;
+  };
+
+  unsigned long long time;
+};
+typedef struct tracebuffer_packet tracebuffer_packet;
+
+int tracebuffer_openw (const char *filename) __may_fail;
+
+int tracebuffer_append_header (const char *filename, uintptr_t offset) __may_fail;
+
+int tracebuffer_finish_header (void);
+
+/* add a packet to the trace log
  *
  * params:
- *   dest - a buffer of at least DIGEST_LENGTH bytes
- *   filename - the name of the file to digest
+ *   p - a pointer to a tracebuffer_packet
  *
  * errors:
- *   may fail and set errno for the same reasons as file_map and file_unmap
- *   fails and sets errno to ENOSYS if no supported md5 implementation is found
- *
- * returns:
- *   -1 on failure, 0 on success
+ *   will emit a warning to stderr if a write operation fails
  */
-int md5_digest (unsigned char dest[DIGEST_LENGTH], const char *filename) __may_fail;
+int tracebuffer_append (const tracebuffer_packet *p) __may_fail;
+
+/* finish a trace log - should be called after all packets are appended, to
+ * flush the internal write buffer
+ *
+ * errors:
+ *   will emit a warning to stderr if a write operation fails
+ */
+int tracebuffer_close (void) __may_fail;
+
+int tracebuffer_iterate_header (int(*callback)(const char*, uintptr_t), const char *filename) __may_fail;
+
+int tracebuffer_iterate_packet (int(*callback)(tracebuffer_packet*, int), const char *filename) __may_fail;

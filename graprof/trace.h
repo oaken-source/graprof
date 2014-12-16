@@ -25,8 +25,6 @@
 #  include <config.h>
 #endif
 
-#include "common/md5.h"
-
 #include <grapes/util.h>
 
 /* read trace data from a given file and distribute the contained information

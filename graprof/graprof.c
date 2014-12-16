@@ -73,7 +73,7 @@ main (int argc, char *argv[])
 
   // read the tracefile
   int res = trace_read(tracefile);
-  feedback_assert(!res, "`%s': corrupt trace data");
+  feedback_assert(!res, "`%s': corrupt trace data", tracefile);
 
   // determine the target output file
   graprof_out = stdout;
