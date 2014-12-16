@@ -105,7 +105,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
       state->next = state->argc;
       break;
     case ARGP_KEY_END:
-      if (!state->arg_num)
+      if (!state->arg_num && !args->trace_filename)
         argp_usage(state);
       break;
     default:

@@ -62,8 +62,6 @@ struct tracebuffer_packet
       uintptr_t ptr;
       uintptr_t caller;
     } free;
-    struct {
-    } exit_all;
   };
 
   unsigned long long time;

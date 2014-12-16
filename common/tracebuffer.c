@@ -164,7 +164,7 @@ tracebuffer_iterate_header_inner (int(*callback)(const char*, uintptr_t), FILE *
       digest_t d2;
       __checked_call(0 == digest_file(&d2, filename));
 
-      feedback_assert_wrn(!digest_cmp(d1, d2), "`%s': digest does not match", filename);
+      feedback_assert_wrn(!digest_cmp(d1, d2), "`%s': has changed on disk", filename);
 
       __checked_call(0 == callback(filename, offset));
     }

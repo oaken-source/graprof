@@ -25,11 +25,9 @@
 #include "memory.h"
 #include "addr.h"
 
-#include "common/digest.h"
 #include "common/tracebuffer.h"
 
 #include <grapes/feedback.h>
-#include <grapes/file.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -119,13 +117,9 @@ trace_handle_header (const char *filename, uintptr_t offset)
   return 0;
 }
 
-static unsigned int trace_ended = 0;
-
 static int __may_fail
 trace_handle_packet (tracebuffer_packet *p, int last)
 {
-  __precondition(ENOTSUP, !trace_ended);
-
   switch (p->type)
     {
     case 'e':
@@ -143,20 +137,13 @@ trace_handle_packet (tracebuffer_packet *p, int last)
     case '-':
       __checked_call(0 == trace_free(p));
       break;
-    case 'E':
-      __checked_call(0 == trace_end(p));
-      trace_ended = 1;
-      break;
     default:
       __precondition(ENOTSUP, 0 && p->type);
       break;
     }
 
-  if (last && !trace_ended)
-    {
-      feedback_warning("trace unterminated.");
-      __checked_call(0 == trace_end(p));
-    }
+  if (last)
+    __checked_call(0 == trace_end(p));
 
   return 0;
 
@@ -166,8 +153,6 @@ int
 trace_read (const char *filename)
 {
   __checked_call(0 == tracebuffer_iterate_header(&trace_handle_header, filename));
-
-  trace_ended = 0;
   __checked_call(0 == tracebuffer_iterate_packet(&trace_handle_packet, filename));
 
   return 0;

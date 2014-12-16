@@ -108,10 +108,6 @@ libgraprof_fini ()
   if (libgraprof_hooked)
   {
     libgraprof_uninstall_hooks();
-
-    static tracebuffer_packet p = { .type = 'E' };
-    __checked_tracebuffer_append(&p);
-
     int res = tracebuffer_close();
     feedback_assert_wrn(!res, "libgraprof: `%s': unable to close", libgraprof_filename);
   }
