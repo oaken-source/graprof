@@ -32,11 +32,10 @@
  *
  * params:
  *   filename - the file that contains the trace data
- *   md5_binary - the md5 digest of the profiled binary
  *
  * errors:
- *   ENOTSUP - the trace data is invalid
- *   may also fail and set errno for the same reasons as fopen and malloc
+ *   may fail and set errno for the same reasons as the tracebuffer_iterate_*
+ *   function, and the used function_* and memory_* functions
  *
  * returns:
  *   -1 on failure, 0 on success

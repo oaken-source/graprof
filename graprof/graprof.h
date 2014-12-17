@@ -41,6 +41,7 @@ static struct argp_option options[] =
   {"flat-profile", 'F', 0, 0, "generate flat profile from trace data", 0},
   {"call-graph", 'C', 0, 0, "generate call graph from trace data", 0},
   {"memory-profile", 'M', 0, 0, "generate flat memory profile from trace data", 0},
+  {"all-profile", 'a', 0, 0, "alias for -FCM", 0},
   {"tracing-gui", 'G', 0, 0, "open the trace explorer gui", 0},
   {"output", 'o', "<file>", 0, "write profile results to <file> instead of stdout", 0},
   {"verbose", 'v', 0, 0, "be more verbose", 0},
@@ -84,6 +85,9 @@ parse_opt (int key, char *arg, struct argp_state *state)
       break;
     case 'M':
       args->tasks |= GRAPROF_MEMORY_PROFILE;
+      break;
+    case 'a':
+      args->tasks |= GRAPROF_FLAT_PROFILE | GRAPROF_CALL_GRAPH | GRAPROF_MEMORY_PROFILE;
       break;
     case 'G':
       args->tasks |= GRAPROF_TRACING_GUI;

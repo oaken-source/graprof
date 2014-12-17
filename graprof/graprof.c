@@ -85,7 +85,7 @@ main (int argc, char *argv[])
 
   // determine what to do
   if (!arguments.tasks)
-    arguments.tasks = GRAPROF_FLAT_PROFILE | GRAPROF_CALL_GRAPH | GRAPROF_MEMORY_PROFILE;
+    arguments.tasks = GRAPROF_TRACING_GUI;
 
   // do it
   if (arguments.tasks & GRAPROF_FLAT_PROFILE)

@@ -29,9 +29,6 @@
 
 #include <grapes/feedback.h>
 
-#include <stdio.h>
-#include <string.h>
-
 static unsigned long long trace_total_runtime = 0;
 
 static int
