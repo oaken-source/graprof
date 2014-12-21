@@ -31,6 +31,8 @@
 void
 __cyg_profile_func_enter (void *func, void *caller)
 {
+  __hook_prolog;
+
   if (__unlikely(!libgraprof_hooked))
     return;
 
@@ -46,11 +48,15 @@ __cyg_profile_func_enter (void *func, void *caller)
   libgraprof_install_hooks();
 
   errno = errnum;
+
+  __hook_epilog("e");
 }
 
 void
 __cyg_profile_func_exit (__unused void *func, __unused void *caller)
 {
+  __hook_prolog;
+
   if (__unlikely(!libgraprof_hooked))
     return;
 
@@ -64,4 +70,6 @@ __cyg_profile_func_exit (__unused void *func, __unused void *caller)
   libgraprof_install_hooks();
 
   errno = errnum;
+
+  __hook_epilog("x");
 }

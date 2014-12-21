@@ -51,3 +51,45 @@ extern unsigned int libgraprof_hooked;
       int res = tracebuffer_append(P); \
       feedback_assert_wrn(!res, "libgraprof: `%s': unable to write trace data", libgraprof_filename); \
     } while (0)
+
+
+#ifndef LIBGRAPROF_TIMING
+#  define LIBGRARPOF_TIMING 0
+#endif
+
+#if LIBGRAPROF_TIMING
+
+  /* the following definitions enable timing evaluation for the
+   * instrumentation and allocation hooks. to enable, configure with
+   * --enable-libgraprof-timing
+   */
+
+  #include <stdio.h>
+
+  #define __hook_prolog \
+      unsigned long long s = highrestimer_get()
+
+  extern size_t tracebuffer_index;
+
+  #define __hook_epilog(T) \
+      unsigned long long t = highrestimer_get(); \
+      max_delay = max(max_delay, t - s - timer_delay); \
+      total_delay += t - s - timer_delay; \
+      ++count; \
+      avg_delay = total_delay / count; \
+      printf(" " T " %6llu ns [%6llu ns] [%6llu ns]", t - s - timer_delay, max_delay, avg_delay); \
+      if (tracebuffer_index == 0) printf(" [flushed]"); \
+      printf("\n") \
+
+  extern unsigned long long timer_delay;
+  extern unsigned long long max_delay;
+  extern unsigned long long total_delay;
+  extern unsigned long long avg_delay;
+  extern unsigned long long count;
+
+#else // not LIBGRAPROF_TIMING
+
+  #define __hook_prolog
+  #define __hook_epilog(X)
+
+#endif

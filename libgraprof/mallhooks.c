@@ -33,6 +33,8 @@
 static void*
 malloc_hook (size_t size, const void *caller)
 {
+  __hook_prolog;
+
   libgraprof_uninstall_hooks();
 
   void *result = malloc(size);
@@ -49,12 +51,16 @@ malloc_hook (size_t size, const void *caller)
 
   errno = errnum;
 
+  __hook_epilog("+");
+
   return result;
 }
 
 static void*
 calloc_hook (size_t nmemb, size_t size, const void *caller)
 {
+  __hook_prolog;
+
   libgraprof_uninstall_hooks();
 
   void *result = calloc(nmemb, size);
@@ -71,6 +77,8 @@ calloc_hook (size_t nmemb, size_t size, const void *caller)
 
   errno = errnum;
 
+  __hook_epilog("+");
+
   return result;
 }
 
@@ -78,6 +86,8 @@ calloc_hook (size_t nmemb, size_t size, const void *caller)
 static void*
 realloc_hook (void *ptr, size_t size, const void *caller)
 {
+  __hook_prolog;
+
   libgraprof_uninstall_hooks();
 
   void *result = realloc(ptr, size);
@@ -95,29 +105,32 @@ realloc_hook (void *ptr, size_t size, const void *caller)
 
   errno = errnum;
 
+  __hook_epilog("*");
+
   return result;
 }
 
 static void
 free_hook (void *ptr, const void *caller)
 {
+  __hook_prolog;
+
   libgraprof_uninstall_hooks();
 
   free(ptr);
 
   int errnum = errno;
 
-  if (ptr)
-    {
-      static tracebuffer_packet p = { .type = '-' };
-        p.free.ptr    = (uintptr_t)ptr;
-        p.free.caller = (uintptr_t)(caller - 4);
-      __checked_tracebuffer_append(&p);
-    }
+  static tracebuffer_packet p = { .type = '-' };
+    p.free.ptr    = (uintptr_t)ptr;
+    p.free.caller = (uintptr_t)(caller - 4);
+  __checked_tracebuffer_append(&p);
 
   libgraprof_install_hooks();
 
   errno = errnum;
+
+  __hook_epilog("-");
 }
 
 extern void* __libc_malloc(size_t size);

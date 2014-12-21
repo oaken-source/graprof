@@ -33,6 +33,12 @@
 #include <stdlib.h>
 #include <link.h>
 
+unsigned long long timer_delay = 29;
+unsigned long long max_delay = 0;
+unsigned long long total_delay = 0;
+unsigned long long avg_delay;
+unsigned long long count = 0;
+
 char *libgraprof_filename = NULL;
 
 unsigned int libgraprof_hooked = 0;

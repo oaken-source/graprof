@@ -1,0 +1,9 @@
+
+This experiment is intended to evaluate the libgraprof timing overhead and
+the performance of the analysis tool.
+
+To evaluate the libgraprof timing overhead, the tool should be configured
+with --enable-libgraprof-timing.
+To evaluate the performance of the analysis tool, the project should be
+configured without --enable-libgraprof-timing, to remove the additional
+overhead introduced by the timing operations.

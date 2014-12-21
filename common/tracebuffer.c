@@ -34,7 +34,7 @@
 #define BUFSIZE 1024
 
 static tracebuffer_packet tracebuffer_buffer[BUFSIZE];
-static size_t tracebuffer_index = 0;
+size_t tracebuffer_index = 0;
 
 static FILE *tracebuffer_file;
 
