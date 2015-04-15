@@ -7,19 +7,11 @@ AUTOMAKE_OPTIONS = subdir-objects
 ## libraries
 
 noinst_LTLIBRARIES = \
-    grapes/libgrapes.la \
     common/libcommon.la
-
-grapes_libgrapes_la_SOURCES = \
-    grapes/feedback.c grapes/feedback.h \
-    grapes/file.c grapes/file.h \
-    grapes/util.h
 
 common_libcommon_la_SOURCES = \
     common/digest.c common/digest.h \
     common/tracebuffer.c common/tracebuffer.h
-
-common_libcommon_la_LIBADD = grapes/libgrapes.la
 
 lib_LTLIBRARIES = \
     libgraprof/libgraprof.la
@@ -30,8 +22,9 @@ libgraprof_libgraprof_la_SOURCES = \
     libgraprof/mallhooks.c libgraprof/mallhooks.h \
     libgraprof/highrestimer.c libgraprof/highrestimer.h
 
+libgraprof_libgraprof_la_CFLAGS  = $(grapes_CFLAGS)
 libgraprof_libgraprof_la_LDFLAGS = -version-info 0:0:0
-libgraprof_libgraprof_la_LIBADD = ${LIBS_LIBGRAPROF} common/libcommon.la
+libgraprof_libgraprof_la_LIBADD  = $(grapes_LIBS) ${LIBS_LIBGRAPROF} common/libcommon.la
 
 ## executables
 
@@ -62,20 +55,15 @@ graprof_graprof_SOURCES = \
     ##traceview/traceview_help_overlay.c traceview/traceview_help_overlay.h \
     ##traceview/traceview_scrollbar.c traceview/traceview_scrollbar.h
 
-graprof_graprof_CFLAGS = ${CFLAGS_GRAPROF}
-graprof_graprof_LDADD = ${LIBS_GRAPROF} grapes/libgrapes.la common/libcommon.la
+graprof_graprof_CFLAGS = $(grapes_CFLAGS) ${CFLAGS_GRAPROF}
+graprof_graprof_LDADD  = $(grapes_LIBS) ${LIBS_GRAPROF} common/libcommon.la
 
 ## profiling builds
 
 if PROFILING
 
 noinst_LTLIBRARIES += \
-    grapes/libgrapes-gp.la \
     common/libcommon-gp.la
-
-grapes_libgrapes_gp_la_SOURCES = ${grapes_libgrapes_la_SOURCES}
-grapes_libgrapes_gp_la_CFLAGS = ${grapes_libgrapes_la_CFLAGS} -finstrument-functions -g
-grapes_libgrapes_gp_la_LIBADD = ${grapes_libgrapes_la_LIBADD} libgraprof/libgraprof.la
 
 common_libcommon_gp_la_SOURCES = ${common_libcommon_la_SOURCES}
 common_libcommon_gp_la_CFLAGS = ${common_libcommon_la_CFLAGS} -finstrument-functions -g
@@ -86,7 +74,7 @@ noinst_PROGRAMS = \
 
 graprof_graprof_gp_SOURCES = ${graprof_graprof_SOURCES}
 graprof_graprof_gp_CFLAGS = ${graprof_graprof_CFLAGS} -finstrument-functions -g
-graprof_graprof_gp_LDADD = ${LIBS_GRAPROF} grapes/libgrapes-gp.la common/libcommon-gp.la libgraprof/libgraprof.la
+graprof_graprof_gp_LDADD = $(grapes_LIBS) ${LIBS_GRAPROF} common/libcommon-gp.la libgraprof/libgraprof.la
 
 endif ## PROFILING
 

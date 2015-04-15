@@ -180,11 +180,17 @@ tracebuffer_iterate_header (int(*callback)(const char*, uintptr_t), const char *
   FILE *in;
   __checked_call(NULL != (in = fopen(filename, "rb")));
 
-  __checked_call(0 == tracebuffer_iterate_header_inner(callback, in),
-    __checked_call(0 == fclose(in));
-  );
+  __checked_section
+    (
+      __section_call(0 == tracebuffer_iterate_header_inner(callback, in));
+    )
 
   __checked_call(0 == fclose(in));
+
+  __on_failure
+    (
+      return -1;
+    )
 
   return 0;
 }
